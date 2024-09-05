@@ -13,7 +13,7 @@
                     <a-tabs v-model:activeKey="activeTab" class="dashboard__tabs" @change="handelOnTabChange">
                         <a-tab-pane key="portfolio">
                             <template #tab>
-                                <span> {{ $t('dashboard.tabs.portfolio') }} </span>
+                                <span @click="() => handelOnTabChange('portfolio')"> {{ $t('dashboard.tabs.portfolio') }} </span>
                             </template>
                         </a-tab-pane>
                         <a-tab-pane key="nfts">
@@ -54,6 +54,7 @@ import SupportedNetworks from '@/components/app/SupportedNetworks.vue';
 import HideBalances from '@/components/app/HideBalances.vue';
 import { useRouter } from 'vue-router';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { useStore } from 'vuex';
 
 export default {
     name: 'Dashboard',
@@ -65,14 +66,15 @@ export default {
     },
     setup() {
         const router = useRouter();
+        const store = useStore();
 
         const activeTab = ref('portfolio');
 
         const { walletAccount } = useAdapter();
 
         const handelOnTabChange = (key) => {
-            if (key === 'nfts') return router.push({ path: `/main/${key}` });
-            return router.push({ path: `/main` });
+            store.dispatch('tokens/resetIndexes');
+            router.push({ path: `/main/${key}` });
         };
 
         onActivated(() => {

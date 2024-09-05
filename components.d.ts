@@ -78,6 +78,7 @@ declare module 'vue' {
     Checkbox: typeof import('./src/components/ui/Checkbox.vue')['default']
     Collapse: typeof import('./src/components/ui/Collapse.vue')['default']
     ConnectWalletAdapter: typeof import('./src/components/app/ConnectWalletAdapter.vue')['default']
+    copy: typeof import('./src/components/app/Assets copy.vue')['default']
     CountInput: typeof import('./src/components/ui/CountInput.vue')['default']
     DefaultLoading: typeof import('./src/components/ui/DefaultLoading.vue')['default']
     DisplayAddress: typeof import('./src/components/ui/DisplayAddress.vue')['default']
@@ -86,6 +87,7 @@ declare module 'vue' {
     ExpandNftInfo: typeof import('./src/components/app/assets/NFT/ExpandNftInfo.vue')['default']
     ExternalLink: typeof import('./src/components/ui/ExternalLink.vue')['default']
     HideBalances: typeof import('./src/components/app/HideBalances.vue')['default']
+    Integrations: typeof import('./src/components/app/Integrations.vue')['default']
     KadoModal: typeof import('./src/components/app/modals/KadoModal.vue')['default']
     LoadingOverlay: typeof import('./src/components/ui/LoadingOverlay.vue')['default']
     LogoLoading: typeof import('./src/components/ui/LogoLoading.vue')['default']
@@ -121,6 +123,7 @@ declare module 'vue' {
     SwapField: typeof import('./src/components/ui/SuperSwap/SwapField.vue')['default']
     SwitchDirection: typeof import('./src/components/ui/SwitchDirection.vue')['default']
     TokenIcon: typeof import('./src/components/ui/Tokens/TokenIcon.vue')['default']
+    TokensList: typeof import('./src/components/app/TokensList.vue')['default']
     UnsupportedResult: typeof import('./src/components/ui/UnsupportedResult.vue')['default']
     WalletInfoLarge: typeof import('./src/components/app/WalletInfoLarge.vue')['default']
   }

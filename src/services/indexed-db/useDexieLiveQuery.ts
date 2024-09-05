@@ -26,10 +26,11 @@ export function useDexieLiveQueryWithDeps<T, I = undefined, Immediate extends Re
 
     const value = shallowRef<T | I | undefined>(initialValue);
 
-    let subscription: Subscription | undefined = undefined;
+    let subscription: Subscription | undefined = undefined; // Variable to store subscriptions
+    let stopWatcher: (() => void) | undefined = undefined; // Variable to store the watcher stop function
 
     function start(...data: any) {
-        subscription?.unsubscribe();
+        subscription?.unsubscribe(); // Unsubscribe the previous subscription
 
         const observable = liveQuery(() => querier(...data));
 
@@ -48,9 +49,15 @@ export function useDexieLiveQueryWithDeps<T, I = undefined, Immediate extends Re
 
         // Set to undefined to avoid calling unsubscribe multiple times on a same subscription
         subscription = undefined;
+
+        if (stopWatcher) {
+            stopWatcher();
+            // Set to undefined to avoid calling stopWatcher multiple times
+            stopWatcher = undefined;
+        }
     }
 
-    watch(deps, start, { immediate: true, ...rest });
+    stopWatcher = watch(deps, start, { immediate: true, ...rest });
 
     tryOnScopeDispose(() => {
         cleanup();

@@ -27,6 +27,11 @@ export const routes = [
                 alias: 'nfts',
                 component: () => import('@/components/app/NFTs.vue'),
             },
+            {
+                path: 'tokens',
+                alias: 'tokens',
+                component: () => import('@/components/app/TokensList.vue'),
+            },
         ],
     },
     {

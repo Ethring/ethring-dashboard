@@ -157,48 +157,6 @@ export default {
 
         getPoolsByAccount: (state: IState) => (account: string) => state.pools[account],
 
-        getAccountBalanceByType:
-            (state: IState) =>
-            (account: string, type: keyof typeof Type, allBalances: boolean = false) => {
-                if (!state[type]) return [];
-                if (!state[type][account]) return [];
-
-                const allForAccount = flatMap(state[type][account]) || [];
-
-                // FEAT: filter by isShowNetworks
-                // const tokensFilteredByIsShow = allForAccount.filter((elem) => {
-                //     if (!state.networksToShow) return true;
-                //     return state.networksToShow[elem.chain];
-                // });
-
-                if (type === Type.tokens && !allBalances) {
-                    // const allTokens = filter(tokensFilteredByIsShow, (elem) => +elem.balanceUsd >= +state.minBalance);
-                    const allTokens = filter(allForAccount, (elem) => +elem.balanceUsd >= +state.minBalance);
-
-                    const assetsBalance = getTotalBalance(allTokens);
-                    state.assetsBalances[account] = assetsBalance.toNumber() || 0;
-
-                    return allTokens;
-                }
-
-                // return tokensFilteredByIsShow;
-                return allForAccount;
-            },
-
-        getVisibleAssets: (state: IState, getters: any) => (account: string) => {
-            const allTokens = getters.getAccountBalanceByType(account, 'tokens') || [];
-            return orderBy(allTokens, (token) => +token.balanceUsd || 0, ['desc']).slice(0, state.assetIndex);
-        },
-
-        getCountOfBalances: (state: IState, getters: any) => (account: string, type: keyof typeof Type) => {
-            switch (type) {
-                case 'tokens':
-                    return getters.getAccountBalanceByType(account, type).length;
-                default:
-                    return 0;
-            }
-        },
-
         nativeTokens: (state: IState) => state.nativeTokens,
 
         getTokensListForChain:
@@ -325,14 +283,14 @@ export default {
             let accountToUpdate = null;
 
             for (const account in state.tokens) {
-                if (!state.tokens[account][chain]) break;
+                if (!state.tokens[account][chain]) continue;
 
                 const tokens = state.tokens[account][chain] as any;
 
-                if (!tokens?.length) break;
+                if (!tokens?.length) continue;
 
                 const tokenIndex = tokens.findIndex((token: any) => token.id === id);
-                if (tokenIndex === -1) break;
+                if (tokenIndex === -1) continue;
 
                 // eslint-disable-next-line
                 // @ts-ignore

@@ -21,24 +21,19 @@
                     />
                 </template>
 
-                <AssetsTable
-                    type="Asset"
-                    :data="assetsForAccount.list"
-                    :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                    :loading="isLoadingAssets"
-                />
+                <AssetsTable type="Asset" :data="assetsForAccount.list" :columns="ASSET_COLUMNS" />
 
                 <div v-if="assetsForAccount.total > assetsForAccount.list.length" class="assets-block-show-more">
-                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleAssetLoadMore" />
+                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleShowAllAssets" />
                 </div>
             </a-collapse-panel>
 
             <a-collapse-panel
                 v-for="item in integrationByPlatforms.list"
-                v-show="isAllTokensLoading || integrationByPlatforms.list.length > 0"
+                v-show="integrationByPlatforms.list.length > 0"
                 :key="item?.platform"
                 class="assets-block-panel"
-                @vue:mounted="updateCollapsedKey(item)"
+                @vue:mounted="handleOnMountPlatform(item?.platform)"
             >
                 <template #header>
                     <AssetGroupHeader
@@ -58,7 +53,7 @@
                     :key="n"
                     class="protocols-table"
                     :data="groupItem.balances"
-                    :columns="[{ ...DEFAULT_NAME_COLUMN, title: groupItem?.name }, ...DEFAULT_COLUMNS]"
+                    :columns="[{ ...COMMON_NAME_COLUMN, title: groupItem?.name }, ...COMMON_COLUMNS]"
                     :type="getFormattedName(groupItem.type)"
                     :name="groupItem?.validator?.name"
                 />
@@ -67,20 +62,20 @@
     </div>
 </template>
 <script>
-import { ref, computed, onMounted, onBeforeUnmount, watch, onUnmounted } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted, shallowRef } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import AssetsTable from './assets/AssetsTable';
-import AssetGroupHeader from './assets/AssetGroupHeader';
+import BalancesDB from '@/services/indexed-db/balances';
 
+import AssetsTable from '@/components/app/assets/AssetsTable.vue';
+import AssetGroupHeader from '@/components/app/assets/AssetGroupHeader.vue';
 import UiButton from '@/components/ui/Button.vue';
-
 import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 
 import { getFormattedName } from '@/shared/utils/assets';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import BalancesDB from '@/services/indexed-db/balances';
-import { useDexieLiveQueryWithDeps } from '@/services/indexed-db/useDexieLiveQuery';
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'Assets',
@@ -88,172 +83,216 @@ export default {
         AssetGroupHeader,
         AssetsTable,
         UiButton,
-
         ArrowDownIcon,
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
         const balancesDB = new BalancesDB(1);
 
-        const collapseActiveKey = ref([]);
-        const isLoadingAssets = ref(false);
+        const { walletAccount } = useAdapter();
 
-        const { walletAccount, getDefaultAddress, currentChainInfo } = useAdapter();
+        // *********************************************************************************
+        // * Computed values from Vuex
+        // *********************************************************************************
 
-        const collapsedAssets = computed(() => store.getters['app/collapsedAssets']);
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
-
-        const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](targetAccount.value, currentChainInfo.value?.net));
-        const isLoadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
-        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
-
         const minBalance = computed(() => store.getters['tokens/minBalance']);
         const assetIndex = computed(() => store.getters['tokens/assetIndex']);
+        const loadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
 
-        // *********************************************************************************
-        // ****************************** Assets *******************************************
-        // *********************************************************************************
+        const collapseActiveKey = ref(['assets']);
 
-        const assetsForAccount = useDexieLiveQueryWithDeps(
-            [targetAccount, minBalance, assetIndex],
-            async ([account, minBalance, assetIndex]) => await balancesDB.getAssetsForAccount(account, minBalance, assetIndex),
-            {
-                initialValue: {
-                    list: [],
-                    total: 0,
-                    totalBalance: 0,
-                },
-            },
-        );
-
-        // *********************************************************************************
-        // ****************************** Protocols **********************************
-        // *********************************************************************************
-        const integrationByPlatforms = useDexieLiveQueryWithDeps(
-            [targetAccount, minBalance],
-            async ([account, minBalance]) => await balancesDB.getProtocolsByPlatforms(account, minBalance),
-            {
-                initialValue: {
-                    list: [],
-                    total: 0,
-                    totalBalance: 0,
-                },
-            },
-        );
-
-        const isEmpty = computed(
-            () =>
-                !assetsForAccount.value.length &&
-                !integrationByPlatforms.value.list.length &&
-                !isLoadingForChain.value &&
-                !isAllTokensLoading.value,
-        );
-
-        const allCollapsedActiveKeys = computed(() => {
-            const keys = ['assets'];
-
-            if (integrationByPlatforms.value.list.length) integrationByPlatforms.value.list.forEach((item) => keys.push(item.platform));
-
-            return keys;
+        const collapsedAssets = computed({
+            get: () => store.getters['app/collapsedAssets'],
+            set: (value) => store.dispatch('app/setCollapsedAssets', value),
         });
 
-        const updateCollapsedAssets = () => {
-            if (!collapsedAssets.value.length) collapseActiveKey.value = allCollapsedActiveKeys.value;
-            collapseActiveKey.value = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+        // *********************************************************************************
+        // * Assets & Protocols from IndexedDB
+        // * ShallowRef is used to avoid reactivity issues
+        // * Data is updated by the watch function
+        // * This is done to avoid reactivity issues with the IndexedDB
+        // *********************************************************************************
+
+        const assetsForAccount = shallowRef({
+            list: [],
+            total: 0,
+            totalBalance: 0,
+        });
+
+        const integrationByPlatforms = shallowRef({
+            list: [],
+            total: 0,
+            totalBalance: 0,
+        });
+
+        // *********************************************************************************
+        // * Request to IndexedDB
+        // *********************************************************************************
+
+        const getIntegrationByPlatforms = async () => {
+            try {
+                const response = await balancesDB.getProtocolsByPlatforms(walletAccount.value, minBalance.value);
+                integrationByPlatforms.value = response;
+            } catch (error) {
+                console.error('Error getting protocols by platforms', error);
+            }
         };
 
-        const updateCollapsedKey = (item) => {
-            if (!item) return;
-            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
+        const getAssetsForAccount = async () => {
+            try {
+                const response = await balancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                    assetIndex: assetIndex.value,
+                });
+                assetsForAccount.value = response;
+            } catch (error) {
+                console.error('Error getting assets for account', error);
+            }
         };
 
-        const handleAssetLoadMore = async () => await store.dispatch('tokens/loadMoreAssets');
+        const makeRequest = async () => {
+            try {
+                await Promise.all([getAssetsForAccount(), getIntegrationByPlatforms()]);
+            } catch (error) {
+                console.error('Error requesting assets & integrations', error);
+            }
+        };
+
+        // *********************************************************************************
+        // * Computed values
+        // *********************************************************************************
+
+        const allActiveKeys = computed(() => {
+            const list = integrationByPlatforms.value.list.reduce((acc, item) => {
+                acc.push(item.platform);
+                return acc;
+            }, []);
+
+            return ['assets', ...list];
+        });
+
+        // *********************************************************************************
+        // * Other Methods
+        // *********************************************************************************
+
+        const handleOnMountPlatform = (platform) => {
+            if (!platform) return;
+            if (!collapsedAssets.value.includes(platform)) return collapseActiveKey.value.push(platform);
+        };
+
+        const handleOnUpdateCollapsedAssets = () => {
+            if (!collapsedAssets.value.length) return (collapseActiveKey.value = allActiveKeys.value);
+            collapseActiveKey.value = allActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+        };
+
+        const handleShowAllAssets = () => {
+            router.push({ path: `/main/tokens` });
+            store.dispatch('tokens/loadMoreAssets');
+        };
+
+        // *********************************************************************************
+        // * Watcher's functions
+        // *********************************************************************************
+
         const handleOnChangeAccount = async (account, oldAccount) => {
             if (!account) return;
             if (account === oldAccount) return;
-
-            await store.dispatch('app/setCollapsedAssets', []);
             await store.dispatch('tokens/resetIndexes');
         };
 
-        const handleOnChangeActiveKey = async (keys) => {
-            if (!keys.includes('assets')) await store.dispatch('tokens/resetIndexes', { resetAssets: true, resetNFTs: false });
-            if (!keys.includes('nfts')) await store.dispatch('tokens/resetIndexes', { resetAssets: false, resetNFTs: true });
-
-            await store.dispatch(
-                'app/setCollapsedAssets',
-                allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key)),
-            );
+        const handleOnChangeActiveKey = (keys) => {
+            if (!keys.includes('assets')) store.dispatch('tokens/resetIndexes', { resetAssets: true, resetNFTs: false });
+            if (!keys.includes('nfts')) store.dispatch('tokens/resetIndexes', { resetAssets: false, resetNFTs: true });
+            collapsedAssets.value = allActiveKeys.value.filter((key) => !keys.includes(key));
         };
+
+        const handleOnChangeKeysToRequest = async ([account, minBalance, assetIndex, loading]) => {
+            // ! If loading is true, do not request
+            if (loading) return;
+            await makeRequest();
+        };
+
+        // *********************************************************************************
+        // * OnMounted
+        // *********************************************************************************
 
         onMounted(async () => {
-            updateCollapsedAssets();
-            await store.dispatch('tokens/resetIndexes');
+            handleOnUpdateCollapsedAssets();
+            store.dispatch('tokens/resetIndexes');
+            await delay(300);
+            await makeRequest();
         });
 
-        onBeforeUnmount(async () => {
-            updateCollapsedAssets();
-            await store.dispatch('tokens/resetIndexes');
+        // *********************************************************************************
+        // * Watchers
+        // *********************************************************************************
+
+        const unWatchAccount = watch(walletAccount, async (account, oldAccount) => await handleOnChangeAccount(account, oldAccount));
+
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, loadingByAccount], handleOnChangeKeysToRequest);
+
+        // *********************************************************************************
+        // * OnUnmounted
+        // *********************************************************************************
+
+        onUnmounted(() => {
+            store.dispatch('tokens/resetIndexes');
+            handleOnUpdateCollapsedAssets();
+
+            // ! Unwatch the watcher to avoid memory leaks
+            unWatchAccount();
+            unWatchKeysToRequest();
         });
 
-        watch(walletAccount, async (account, oldAccount) => await handleOnChangeAccount(account, oldAccount));
+        const COMMON_NAME_COLUMN = {
+            title: 'Asset',
+            dataIndex: 'name',
+            key: 'name',
+            width: '55%',
+            align: 'left',
+            name: 'name',
+        };
 
-        watch(isLoadingByAccount, (isLoading) => {
-            if (!isLoading) return setTimeout(() => (isLoadingAssets.value = false), 1000);
-            isLoadingAssets.value = isLoading;
-        });
+        const COMMON_COLUMNS = [
+            {
+                title: 'Balance',
+                dataIndex: 'balance',
+                key: 'balance',
+                width: '20%',
+                align: 'left',
+            },
+            {
+                title: 'Value',
+                dataIndex: 'balanceUsd',
+                key: 'balanceUsd',
+                width: '20%',
+                align: 'right',
+                defaultSortOrder: 'descend',
+                sorter: (a, b) => a.balanceUsd - b.balanceUsd,
+            },
+        ];
+
+        const ASSET_COLUMNS = [COMMON_NAME_COLUMN, ...COMMON_COLUMNS];
 
         return {
-            isLoadingForChain,
-            isLoadingByAccount,
-            isLoadingAssets,
-            isAllTokensLoading,
-
-            isEmpty,
-
-            // utils for Assets templates
-            getFormattedName,
-
-            collapseActiveKey,
-            updateCollapsedKey,
-
-            handleOnChangeActiveKey,
-
-            // ===================== Columns =====================
-
-            DEFAULT_NAME_COLUMN: {
-                title: 'Asset',
-                dataIndex: 'name',
-                key: 'name',
-                width: '55%',
-                align: 'left',
-                name: 'name',
-            },
-
-            DEFAULT_COLUMNS: [
-                {
-                    title: 'Balance',
-                    dataIndex: 'balance',
-                    key: 'balance',
-                    width: '20%',
-                    align: 'left',
-                },
-                {
-                    title: 'Value',
-                    dataIndex: 'balanceUsd',
-                    key: 'balanceUsd',
-                    width: '20%',
-                    align: 'right',
-                    defaultSortOrder: 'descend',
-                    sorter: (a, b) => a.balanceUsd - b.balanceUsd,
-                },
-            ],
-
-            handleAssetLoadMore,
-
             // * Assets & Protocols from IndexedDB
             assetsForAccount,
             integrationByPlatforms,
+
+            collapseActiveKey,
+
+            getFormattedName,
+
+            handleOnMountPlatform,
+            handleOnChangeActiveKey,
+
+            handleShowAllAssets,
+
+            // * Columns for the table
+            ASSET_COLUMNS,
+            COMMON_NAME_COLUMN,
+            COMMON_COLUMNS,
         };
     },
 };

@@ -1,14 +1,12 @@
-import { values, chain, orderBy } from 'lodash';
+import { values, orderBy } from 'lodash';
 
 import Dexie from 'dexie';
 
 import logger from '@/shared/logger';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
+import { Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import { formatRecord } from '@/shared/tokens-format/base-format';
-
-// import { formatRecord } from '@/shared/tokens-format/base-format';
 
 class ConfigsDB extends Dexie {
     networks: Dexie.Table<any, string>;

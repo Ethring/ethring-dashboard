@@ -67,7 +67,6 @@ export default {
         const updateTokenImage = async (image, token) => {
             if (!token?.id || !token?.chain) return null;
 
-            console.log('Updating token image', image, token);
             try {
                 await store.dispatch('tokens/updateTokenImage', {
                     chain: token.chain,

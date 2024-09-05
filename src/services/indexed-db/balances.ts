@@ -132,24 +132,48 @@ class BalancesDB extends Dexie {
     async getAssetsForAccount(
         account: string,
         minBalance: number,
-        assetIndex: number,
+        { assetIndex = 0 }: { assetIndex?: number },
     ): Promise<{
         list: any[];
         total: number;
         totalBalance: string;
     }> {
-        try {
+        const getAssets = async () => {
             const accountLower = account.toLowerCase();
 
-            const response = await this.balances.where({ account: accountLower, dataType: Type.tokens }).toArray();
+            try {
+                return await this.balances.where({ account: accountLower, dataType: Type.tokens }).toArray();
+            } catch (error) {
+                logger.error('getAssetsForAccount', error);
+                return [];
+            }
+        };
 
-            const filteredBalances = response.filter((elem: any) => filterSmallBalances(elem, minBalance));
+        const filterAndCalculateTotalBalance = (assets: AssetBalance[]) => {
+            return assets.reduce(
+                (acc: any, item: any) => {
+                    if (!filterSmallBalances(item, minBalance)) return acc;
 
-            const totalBalance = getTotalBalance(filteredBalances as AssetBalance[]);
+                    acc.list.push(item);
+                    acc.totalBalance = acc.totalBalance.plus(item.balanceUsd || 0);
+
+                    return acc;
+                },
+                {
+                    list: [],
+                    totalBalance: BigNumber(0),
+                },
+            );
+        };
+
+        try {
+            const assets = await getAssets();
+            const { list, totalBalance } = filterAndCalculateTotalBalance(assets as AssetBalance[]);
+            const orderedList = orderBy(list, (balance) => +balance.balanceUsd || 0, ['desc']);
 
             return {
-                list: orderBy(filteredBalances, (balance) => +balance.balanceUsd || 0, ['desc']).slice(0, assetIndex),
-                total: filteredBalances.length,
+                list: orderedList.slice(0, assetIndex),
+                total: list.length,
                 totalBalance: totalBalance.toFixed(6),
             };
         } catch (error) {
@@ -199,50 +223,69 @@ class BalancesDB extends Dexie {
         total: number;
         totalBalance: string;
     }> {
-        try {
+        const getIntegrations = async () => {
             const accountLower = account.toLowerCase();
 
-            const response = await this.balances.where({ account: accountLower, dataType: Type.integrations }).toArray();
+            try {
+                return await this.balances.where({ account: accountLower, dataType: Type.integrations }).toArray();
+            } catch (error) {
+                logger.error('getProtocolsByPlatforms', error);
+                return [];
+            }
+        };
 
-            const byPlatforms = response.reduce((grouped: Map<string, any>, integration: IntegrationBalance) => {
-                const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
+        const groupIntegrationsByPlatforms = (integrations: IntegrationBalance[]) => {
+            return integrations.reduce(
+                (acc: any, integration: IntegrationBalance) => {
+                    const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
 
-                const filteredBalances = balances.filter((elem: any) => filterSmallBalances(elem, minBalance));
+                    const filteredBalances = balances.filter((elem: any) => filterSmallBalances(elem, minBalance));
 
-                if (!filteredBalances.length) return grouped;
+                    if (!filteredBalances.length) return acc;
 
-                if (!grouped.has(platform))
-                    grouped.set(platform, {
-                        data: [],
-                        platform,
-                        healthRate: healthRate || null,
-                        logoURI: logo || null,
-                        totalGroupBalance: 0,
-                        totalRewardsBalance: 0,
-                    });
+                    if (!acc.group.has(platform))
+                        acc.group.set(platform, {
+                            data: [],
+                            platform,
+                            healthRate: healthRate || null,
+                            logoURI: logo || null,
+                            totalGroupBalance: 0,
+                            totalRewardsBalance: 0,
+                        });
 
-                const platformData = grouped.get(platform);
+                    const platformData = acc.group.get(platform);
 
-                platformData.data.push({ ...integration, balances: filteredBalances });
-                platformData.healthRate = healthRate || null;
-                platformData.logoURI = logo || null;
+                    platformData.data.push({ ...integration, balances: filteredBalances });
+                    platformData.healthRate = healthRate || null;
+                    platformData.logoURI = logo || null;
 
-                for (const balance of filteredBalances) balance.leverageRate = leverageRate || null;
+                    for (const balance of filteredBalances) balance.leverageRate = leverageRate || null;
 
-                platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
-                    .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], type as IntegrationBalanceType))
-                    .toString();
+                    platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
+                        .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], type as IntegrationBalanceType))
+                        .toString();
 
-                platformData.totalRewardsBalance = BigNumber(platformData.totalRewardsBalance)
-                    .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], IntegrationBalanceType.PENDING))
-                    .toString();
+                    platformData.totalRewardsBalance = BigNumber(platformData.totalRewardsBalance)
+                        .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], IntegrationBalanceType.PENDING))
+                        .toString();
 
-                return grouped;
-            }, new Map());
+                    acc.totalGroupBalance = acc.totalGroupBalance.plus(platformData.totalGroupBalance);
+
+                    return acc;
+                },
+                {
+                    group: new Map(),
+                    totalGroupBalance: BigNumber(0),
+                },
+            );
+        };
+
+        try {
+            const integrations = await getIntegrations();
+
+            const { group: byPlatforms, totalGroupBalance } = groupIntegrationsByPlatforms(integrations as IntegrationBalance[]);
 
             const list = [...byPlatforms.values()];
-
-            const totalGroupBalance = list.reduce((acc: BigNumber, item: any) => acc.plus(item.totalGroupBalance), new BigNumber(0));
 
             return {
                 list: orderBy(list, (platform) => +platform.totalGroupBalance || 0, ['desc']),
@@ -284,45 +327,65 @@ class BalancesDB extends Dexie {
     }> {
         if (!account) return { list: [], total: 0, totalBalance: '0' };
 
-        try {
+        const getNfts = async () => {
             const accountLower = account.toLowerCase();
-            const response = await this.balances.where({ account: accountLower, dataType: Type.nfts }).toArray();
 
-            const collections = response.reduce((grouped: Map<string, any>, nft: NftBalance) => {
-                const { collection, token, chainLogo } = nft || {};
+            try {
+                return await this.balances.where({ account: accountLower, dataType: Type.nfts }).toArray();
+            } catch (error) {
+                logger.error('getNftsByCollections', error);
+                return [];
+            }
+        };
 
-                const { address } = collection || {};
+        const groupNftsByCollections = (nfts: NftBalance[]) => {
+            return nfts.reduce(
+                (acc: any, nft: NftBalance) => {
+                    const { collection, token, chainLogo } = nft || {};
 
-                if (!grouped.has(address))
-                    grouped.set(address, {
-                        ...collection,
-                        chainLogo,
-                        token,
-                        nfts: [],
-                        floorPriceUsd: BigNumber(0),
-                        totalGroupBalance: BigNumber(0),
-                    });
+                    const { address } = collection || {};
 
-                const collectionData = grouped.get(address);
+                    if (!acc.group.has(address))
+                        acc.group.set(address, {
+                            ...collection,
+                            chainLogo,
+                            token,
+                            nfts: [],
+                            floorPriceUsd: BigNumber(0),
+                            totalGroupBalance: BigNumber(0),
+                        });
 
-                collectionData.totalGroupBalance = BigNumber(nft.price || 0)
-                    .multipliedBy(token.price || 0)
-                    .toString();
+                    const collectionData = acc.group.get(address);
 
-                collectionData.floorPriceUsd = BigNumber(collection.floorPrice || 0)
-                    .multipliedBy(token.price || 0)
-                    .toString();
+                    collectionData.totalGroupBalance = BigNumber(nft.price || 0)
+                        .multipliedBy(token.price || 0)
+                        .toString();
 
-                if (BigNumber(collectionData.floorPriceUsd).isGreaterThanOrEqualTo(minBalance)) collectionData.nfts.push(nft);
+                    collectionData.floorPriceUsd = BigNumber(collection.floorPrice || 0)
+                        .multipliedBy(token.price || 0)
+                        .toString();
 
-                if (!collectionData.nfts.length) grouped.delete(address);
+                    if (BigNumber(collectionData.floorPriceUsd).isGreaterThanOrEqualTo(minBalance)) collectionData.nfts.push(nft);
 
-                return grouped;
-            }, new Map());
+                    acc.totalGroupBalance = acc.totalGroupBalance.plus(collectionData.totalGroupBalance);
+
+                    if (!collectionData.nfts.length) acc.group.delete(address);
+
+                    return acc;
+                },
+                {
+                    group: new Map(),
+                    totalGroupBalance: BigNumber(0),
+                },
+            );
+        };
+
+        try {
+            const nfts = await getNfts();
+
+            const { group: collections, totalGroupBalance } = groupNftsByCollections(nfts as NftBalance[]);
 
             const nftList = [...collections.values()];
-
-            const totalGroupBalance = nftList.reduce((acc: BigNumber, item: any) => acc.plus(item.totalGroupBalance), new BigNumber(0));
 
             return {
                 list: orderBy(nftList, (nft) => +nft.totalGroupBalance || 0, ['desc']).slice(0, nftIndex),
