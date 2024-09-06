@@ -291,15 +291,14 @@ class BalancesDB extends Dexie {
         try {
             const integrations = await getIntegrations();
 
-            integrations.length = 0;
-
             const { group: byPlatforms, totalGroupBalance } = groupIntegrationsByPlatforms(integrations as IntegrationBalance[]);
 
             list = [...byPlatforms.values()];
 
-            byPlatforms.clear();
-
             const orderedList = orderBy(list, (platform) => +platform.totalGroupBalance || 0, ['desc']);
+
+            byPlatforms.clear();
+            integrations.length = 0;
 
             return {
                 list: orderedList,
@@ -409,9 +408,7 @@ class BalancesDB extends Dexie {
 
             collections.clear();
 
-            const orderedList = orderBy(nftList, (nft) => +nft.totalGroupBalance || 0, ['desc']);
-
-            list = orderedList;
+            list = nftList;
 
             return {
                 list: orderBy(nftList, (nft) => +nft.totalGroupBalance || 0, ['desc']).slice(0, nftIndex),
