@@ -166,9 +166,13 @@ class BalancesDB extends Dexie {
             );
         };
 
+        let assetsList = null;
+
         try {
             const assets = await getAssets();
             const { list, totalBalance } = filterAndCalculateTotalBalance(assets as AssetBalance[]);
+            assets.length = 0;
+            assetsList = list;
             const orderedList = orderBy(list, (balance) => +balance.balanceUsd || 0, ['desc']);
 
             return {
@@ -184,6 +188,8 @@ class BalancesDB extends Dexie {
                 total: 0,
                 totalBalance: '0',
             };
+        } finally {
+            if (assetsList) assetsList.length = 0;
         }
     }
 
@@ -280,15 +286,23 @@ class BalancesDB extends Dexie {
             );
         };
 
+        let list = null;
+
         try {
             const integrations = await getIntegrations();
 
+            integrations.length = 0;
+
             const { group: byPlatforms, totalGroupBalance } = groupIntegrationsByPlatforms(integrations as IntegrationBalance[]);
 
-            const list = [...byPlatforms.values()];
+            list = [...byPlatforms.values()];
+
+            byPlatforms.clear();
+
+            const orderedList = orderBy(list, (platform) => +platform.totalGroupBalance || 0, ['desc']);
 
             return {
-                list: orderBy(list, (platform) => +platform.totalGroupBalance || 0, ['desc']),
+                list: orderedList,
                 total: list.length,
                 totalBalance: totalGroupBalance.toString(),
             };
@@ -299,6 +313,8 @@ class BalancesDB extends Dexie {
                 total: 0,
                 totalBalance: '0',
             };
+        } finally {
+            if (list) list.length = 0;
         }
     }
 
@@ -380,12 +396,22 @@ class BalancesDB extends Dexie {
             );
         };
 
+        let list = null;
+
         try {
             const nfts = await getNfts();
 
             const { group: collections, totalGroupBalance } = groupNftsByCollections(nfts as NftBalance[]);
 
+            nfts.length = 0;
+
             const nftList = [...collections.values()];
+
+            collections.clear();
+
+            const orderedList = orderBy(nftList, (nft) => +nft.totalGroupBalance || 0, ['desc']);
+
+            list = orderedList;
 
             return {
                 list: orderBy(nftList, (nft) => +nft.totalGroupBalance || 0, ['desc']).slice(0, nftIndex),
@@ -399,6 +425,8 @@ class BalancesDB extends Dexie {
                 total: 0,
                 totalBalance: '0',
             };
+        } finally {
+            if (list) list.length = 0;
         }
     }
 

@@ -176,9 +176,10 @@ class ConfigsDB extends Dexie {
         }
     }
 
-    async bulkDeleteByKeys(store: string, key: string, value: string) {
+    async bulkDeleteByKeys(store: string, key: string, value?: string) {
         try {
             await this.transaction('rw', this.table(store), async () => {
+                if (!value) return await this.table(store).clear();
                 await this.table(store).where(key).equals(value).delete();
             });
         } catch (error) {

@@ -92,7 +92,7 @@ export const getCosmologyTokensConfig = async ({ lastUpdated } = { lastUpdated: 
     }
 
     try {
-        await configsDB.bulkDeleteByKeys(store, 'chain', 'cosmology');
+        await configsDB.bulkDeleteByKeys(store, 'chain_name');
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/cosmos/all/tokens`);
 

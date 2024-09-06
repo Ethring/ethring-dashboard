@@ -132,7 +132,7 @@ export default {
             store.dispatch('tokens/resetIndexes');
 
             // ! Close the IndexedDB connection
-            balancesDB.close();
+            // balancesDB.close();
         });
 
         const ASSETS_COLUMNS = [

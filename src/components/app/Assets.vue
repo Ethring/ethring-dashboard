@@ -11,7 +11,7 @@
             <template #expandIcon>
                 <ArrowDownIcon class="arrow" />
             </template>
-            <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
+            <a-collapse-panel v-once key="assets" class="assets-block-panel" data-qa="assets-panel">
                 <template #header>
                     <AssetGroupHeader
                         class="assets-section__group-header"
@@ -21,7 +21,7 @@
                     />
                 </template>
 
-                <AssetsTable type="Asset" :data="assetsForAccount.list" :columns="ASSET_COLUMNS" />
+                <AssetsTable v-once type="Asset" :data="assetsForAccount.list" :columns="ASSET_COLUMNS" />
 
                 <div v-if="assetsForAccount.total > assetsForAccount.list.length" class="assets-block-show-more">
                     <UiButton :title="$t('tokenOperations.showMore')" @click="handleShowAllAssets" />
@@ -31,7 +31,7 @@
             <template v-if="integrationByPlatforms.list.length > 0">
                 <a-collapse-panel
                     v-for="item in integrationByPlatforms.list"
-                    :key="item?.platform"
+                    :key="item.platform"
                     class="assets-block-panel"
                     @vue:mounted="handleOnMountPlatform(item?.platform)"
                 >
@@ -153,8 +153,11 @@ export default {
         };
 
         const makeRequest = async () => {
+            console.log('makeRequest');
             try {
-                await Promise.all([getAssetsForAccount(), getIntegrationByPlatforms()]);
+                await getAssetsForAccount();
+                await delay(300);
+                await getIntegrationByPlatforms();
             } catch (error) {
                 console.error('Error requesting assets & integrations', error);
             }
@@ -221,7 +224,6 @@ export default {
         onMounted(async () => {
             handleOnUpdateCollapsedAssets();
             store.dispatch('tokens/resetIndexes');
-            await delay(300);
             await makeRequest();
         });
 
@@ -238,6 +240,7 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
+            console.log('Assets onUnmounted');
             store.dispatch('tokens/resetIndexes');
             handleOnUpdateCollapsedAssets();
 
@@ -246,7 +249,14 @@ export default {
             unWatchKeysToRequest();
 
             // ! Close the IndexedDB connection
-            balancesDB.close();
+            // balancesDB.close();
+
+            // ! Clear the data
+            console.log('Clearing data');
+            console.log('Clearing assets');
+            assetsForAccount.value = { list: [], total: 0, totalBalance: 0 };
+            console.log('Clearing integrations');
+            integrationByPlatforms.value = { list: [], total: 0, totalBalance: 0 };
         });
 
         const COMMON_NAME_COLUMN = {

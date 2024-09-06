@@ -117,11 +117,21 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
+            console.log('NFTs unmounted');
             store.dispatch('tokens/resetIndexes');
             unWatchKeysToRequest();
 
             // ! Close the IndexedDB connection
-            balancesDB.close();
+            // balancesDB.close();
+
+            // ! Clear the NFTs
+
+            console.log('Clearing NFTs');
+            nftsByCollections.value = {
+                list: [],
+                total: 0,
+                totalBalance: 0,
+            };
         });
 
         const COLUMNS = [
