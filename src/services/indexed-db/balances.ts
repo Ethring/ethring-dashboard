@@ -138,19 +138,15 @@ class BalancesDB extends Dexie {
         total: number;
         totalBalance: string;
     }> {
-        const getAssets = async () => {
-            const accountLower = account.toLowerCase();
+        const accountLower = account.toLowerCase();
 
-            try {
-                return await this.balances.where({ account: accountLower, dataType: Type.tokens }).toArray();
-            } catch (error) {
-                logger.error('getAssetsForAccount', error);
-                return [];
-            }
-        };
+        let assetsList = null;
 
-        const filterAndCalculateTotalBalance = (assets: AssetBalance[]) => {
-            return assets.reduce(
+        try {
+            const assets = await this.balances.where({ account: accountLower, dataType: Type.tokens }).toArray();
+            console.log('ASSETS_SIZE', JSON.stringify(assets).length);
+
+            const { list, totalBalance } = assets.reduce(
                 (acc: any, item: any) => {
                     if (!filterSmallBalances(item, minBalance)) return acc;
 
@@ -164,13 +160,7 @@ class BalancesDB extends Dexie {
                     totalBalance: BigNumber(0),
                 },
             );
-        };
 
-        let assetsList = null;
-
-        try {
-            const assets = await getAssets();
-            const { list, totalBalance } = filterAndCalculateTotalBalance(assets as AssetBalance[]);
             assets.length = 0;
             assetsList = list;
             const orderedList = orderBy(list, (balance) => +balance.balanceUsd || 0, ['desc']);
@@ -229,19 +219,14 @@ class BalancesDB extends Dexie {
         total: number;
         totalBalance: string;
     }> {
-        const getIntegrations = async () => {
-            const accountLower = account.toLowerCase();
+        const accountLower = account.toLowerCase();
 
-            try {
-                return await this.balances.where({ account: accountLower, dataType: Type.integrations }).toArray();
-            } catch (error) {
-                logger.error('getProtocolsByPlatforms', error);
-                return [];
-            }
-        };
+        let list = null;
 
-        const groupIntegrationsByPlatforms = (integrations: IntegrationBalance[]) => {
-            return integrations.reduce(
+        try {
+            const integrations = await this.balances.where({ account: accountLower, dataType: Type.integrations }).toArray();
+
+            const { group: byPlatforms, totalGroupBalance } = integrations.reduce(
                 (acc: any, integration: IntegrationBalance) => {
                     const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
 
@@ -284,14 +269,6 @@ class BalancesDB extends Dexie {
                     totalGroupBalance: BigNumber(0),
                 },
             );
-        };
-
-        let list = null;
-
-        try {
-            const integrations = await getIntegrations();
-
-            const { group: byPlatforms, totalGroupBalance } = groupIntegrationsByPlatforms(integrations as IntegrationBalance[]);
 
             list = [...byPlatforms.values()];
 
@@ -342,19 +319,14 @@ class BalancesDB extends Dexie {
     }> {
         if (!account) return { list: [], total: 0, totalBalance: '0' };
 
-        const getNfts = async () => {
-            const accountLower = account.toLowerCase();
+        const accountLower = account.toLowerCase();
 
-            try {
-                return await this.balances.where({ account: accountLower, dataType: Type.nfts }).toArray();
-            } catch (error) {
-                logger.error('getNftsByCollections', error);
-                return [];
-            }
-        };
+        let list = null;
 
-        const groupNftsByCollections = (nfts: NftBalance[]) => {
-            return nfts.reduce(
+        try {
+            const nfts = await this.balances.where({ account: accountLower, dataType: Type.nfts }).toArray();
+
+            const { group: collections, totalGroupBalance } = nfts.reduce(
                 (acc: any, nft: NftBalance) => {
                     const { collection, token, chainLogo } = nft || {};
 
@@ -393,14 +365,6 @@ class BalancesDB extends Dexie {
                     totalGroupBalance: BigNumber(0),
                 },
             );
-        };
-
-        let list = null;
-
-        try {
-            const nfts = await getNfts();
-
-            const { group: collections, totalGroupBalance } = groupNftsByCollections(nfts as NftBalance[]);
 
             nfts.length = 0;
 
