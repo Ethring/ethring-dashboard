@@ -78,6 +78,7 @@ interface IState {
     mitosisOnfo: {
         [key: string]: string;
     };
+    isVaultsLoading: boolean;
 }
 
 export default {
@@ -104,6 +105,7 @@ export default {
         deBridgeInfo: {},
         vaults: {},
         mitosisOnfo: {},
+        isVaultsLoading: false,
     }),
 
     // ================================================================================
@@ -132,6 +134,8 @@ export default {
         getDeBridgeInfo: (state: IState) => (address: string) => state.deBridgeInfo[address],
         getVaultsInfo: (state: IState) => (address: string) => state.vaults[address],
         getMitosisInfo: (state: IState) => (address: string) => state.mitosisOnfo[address],
+
+        getIsVaultsLoading: (state: IState) => state.isVaultsLoading,
 
         getShortcutOpInfoById: (state: IState) => (shortcutId: string, operationId: string) => {
             // ! if shortcut id is not provided, return null
@@ -442,6 +446,9 @@ export default {
             commit(TYPES.SET_DEBRIDGE_INFO, data);
         },
         async loadUserVaults({ state, commit }: any, address: string) {
+            if (!address) return;
+            if (!state.vaults.length) state.isVaultsLoading = true;
+
             const service = new BerachainApi();
 
             const response = await service.getUserVaults(address);
@@ -452,24 +459,18 @@ export default {
             };
 
             commit(TYPES.SET_VAULTS_INFO, data);
+            state.isVaultsLoading = false;
         },
         async loadMitosisPoints({ state, commit }: any, address: string) {
+            if (state.mitosisOnfo[address]) return state.mitosisOnfo[address];
+
             const service = new MitosisApi();
 
             const lineaResponse = await service.getLineaPoints(address);
 
-            // const mitosisResponse = await service.getPoints(address);
-            // console.log(mitosisResponse, '---mitosis');
-
             const data = {
                 ...state.mitosisOnfo,
-                [address]: {
-                    // mitosis: {
-                    //     totalPoints: mitosisResponse?.items[0]?.totalPoints || 0,
-                    //     multiplier: mitosisResponse?.mitoPoints?.boost || 1,
-                    // },
-                    linea: lineaResponse.length ? lineaResponse[0] : null,
-                },
+                [address]: lineaResponse.length ? lineaResponse[0] : {},
             };
 
             commit(TYPES.SET_MITOSIS_POINTS, data);

@@ -18,6 +18,9 @@ export const EVM_NETWORKS = [
     'manta',
     'mode',
     'celo',
+    'zora',
+    'scroll',
+    'berachain',
 ];
 
 export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
@@ -344,6 +347,7 @@ export enum IGNORED_LOCATORS {
     TOKEN_ICON_3 = 'div.token-icon[data-qa="Polygon"]',
     TOKEN_ICON_4 = 'div.token-icon[data-qa="Stader MaticX"]',
     TOKEN_ICON_5 = 'div.token-icon[data-qa="Stargate Finance"]',
+    TOKEN_ICON_6 = 'div.token-icon[data-qa="ARB"]',
     TRANSACTION_PROGRESS = 'div.notification-progress-line',
     RELOAD_ROUTE = 'div[data-qa="reload-route"]',
 }

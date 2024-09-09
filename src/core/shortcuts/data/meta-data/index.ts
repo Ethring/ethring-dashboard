@@ -6,6 +6,7 @@ interface IShortcutMeta extends IShortcutData {
     ecosystems: string[];
     author: IAuthor;
     isActive: boolean;
+    callShortcutMethod?: string;
 }
 
 const META_DATA: Record<string, IShortcutMeta> = {
@@ -241,6 +242,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         minUsdAmount: 2,
         author: getAuthorById(ShortcutAuthor.DeBridge),
         isActive: true,
+        callShortcutMethod: 'loadDebridgeInfo',
     },
     [AvailableShortcuts.AddLiquidityPool1]: {
         id: AvailableShortcuts.AddLiquidityPool1,
@@ -300,6 +302,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         minUsdAmount: 0,
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
+        callShortcutMethod: 'loadUsersPoolList',
     },
     [AvailableShortcuts.JumperSuperfest]: {
         id: AvailableShortcuts.JumperSuperfest,
@@ -395,6 +398,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         minUsdAmount: 0,
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
+        callShortcutMethod: 'loadUserVaults',
     },
     [AvailableShortcuts.MorphoBlueVault]: {
         id: AvailableShortcuts.MorphoBlueVault,
@@ -433,6 +437,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         minUsdAmount: 0,
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
+        callShortcutMethod: 'loadMitosisPoints',
     },
 };
 

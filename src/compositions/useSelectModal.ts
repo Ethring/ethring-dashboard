@@ -1,4 +1,4 @@
-import { filter, slice } from 'lodash';
+import { filter, orderBy, slice } from 'lodash';
 
 import { ref, computed, nextTick, watch, ComputedRef, onUnmounted } from 'vue';
 import { useStore, Store } from 'vuex';
@@ -233,10 +233,12 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
 
     // * Search in tokens
     const searchInTokens = (list = [], value: string) => {
-        return filter(
+        const filtered = filter(
             list,
             (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address'),
         );
+
+        return orderBy(filtered, [(tkn) => tkn.logo], ['desc']);
     };
 
     // * Get chains for modules

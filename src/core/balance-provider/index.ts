@@ -7,14 +7,15 @@ import { storeBalanceForAccount } from '@/core/balance-provider/utils';
 import { getBalancesByAddress } from '@/core/balance-provider/api';
 
 import RequestQueue from '@/core/balance-provider/queue';
-import { Type, BaseType, POOL_BALANCES_CHAINS, DP_CHAINS } from '@/core/balance-provider/models/enums';
+import { Type, BaseType, POOL_BALANCES_CHAINS } from '@/core/balance-provider/models/enums';
 import { ChainAddresses, BalanceResponse, BalanceType, RecordOptions, ProviderRequestOptions } from '@/core/balance-provider/models/types';
 
-import PortalFiApi from '@/modules/portal-fi/api';
 import BerachainApi from '@/modules/berachain/api';
 import { BASE_ABI } from '@/core/wallet-adapter/config';
 import { TokenData } from '@/shared/models/types/TokenData';
 import { getContract } from '@/shared/utils/contract';
+import PortalFiApi from '@/modules/portal-fi/api';
+import { formatResponse } from '@/core/balance-provider/format';
 
 const DEFAULT_PROVIDER = 'Pulsar';
 
@@ -61,11 +62,6 @@ export const updateBalanceByChain = async (account: string, address: string, cha
         for (const type in BaseType)
             await storeBalanceForAccount(type as BalanceType, account, chain, address, balanceForChain[type] as any, { ...opt, store });
 
-        if (POOL_BALANCES_CHAINS.includes(chain as DP_CHAINS)) {
-            const pools = await loadUsersPoolList(chain, address);
-            await storeBalanceForAccount(Type.pools, account, chain, address, pools, { ...opt, store });
-        }
-
         if (chain === 'berachain') await loadBalancesFromContract(chain, account, { ...opt, store });
     } catch (error) {
         console.error('Error getting balance for chain', chain, error);
@@ -74,12 +70,23 @@ export const updateBalanceByChain = async (account: string, address: string, cha
     }
 };
 
-export const loadUsersPoolList = async (net: string, ownerAddress: string) => {
+export const loadUsersPoolList = async (params: { address: string; isBalanceUpdate: boolean; chain: string }) => {
+    const { address, isBalanceUpdate, chain } = params;
+
+    const accountPools = store.getters['tokens/getPoolsByAccount'](address);
+
+    if (accountPools && !isBalanceUpdate) return accountPools;
+
     const poolService = new PortalFiApi();
+    const chains = isBalanceUpdate ? [chain] : POOL_BALANCES_CHAINS;
 
-    const response = await poolService.getUserBalancePoolList({ net, ownerAddress });
+    for (const net of chains) {
+        const response = await poolService.getUserBalancePoolList({ net, address });
 
-    return response;
+        const pools = formatResponse(Type.pools, response, { chain: net });
+
+        store.dispatch('tokens/setDataFor', { type: Type.pools, account: address, chain: net, data: pools });
+    }
 };
 
 // temporary solution for berachain testnet balances

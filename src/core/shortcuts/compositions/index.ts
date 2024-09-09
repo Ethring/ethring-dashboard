@@ -17,9 +17,13 @@ import { IShortcutOp } from '@/core/shortcuts/core/ShortcutOp';
 // ********************* Shared Models *********************
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { IConnectedWallet } from '@/shared/models/types/Account';
-import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { delay } from '@/shared/utils/helpers';
 import { IAsset } from '@/shared/models/fields/module-fields';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+
+// ********************* Balance Provider *********************
+import { loadUsersPoolList } from '@/core/balance-provider';
 
 const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
     if (!Shortcut) {
@@ -292,6 +296,24 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         performDisabledOrHiddenFields(currentStepId.value, moduleType, params);
     };
 
+    const initShortcutMetaInfo = async (isBalanceUpdate = false) => {
+        if (!walletAccount.value || !currentChainInfo.value?.chain || !shortcut.callShortcutMethod) return false;
+
+        switch (shortcut.callShortcutMethod) {
+            case 'loadUsersPoolList':
+                await loadUsersPoolList({
+                    chain: currentChainInfo.value.chain as string,
+                    address: walletAccount.value,
+                    isBalanceUpdate,
+                });
+                break;
+            default:
+                await store.dispatch(`shortcuts/${shortcut.callShortcutMethod}`, walletAccount.value);
+        }
+
+        return true;
+    };
+
     // ****************************************************************************************************
     // * Initializations
     // ****************************************************************************************************
@@ -303,6 +325,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         await initShortcutSteps();
         await performShortcut(true, true, 'initializations');
         await initShortcutService();
+        await initShortcutMetaInfo();
         await delay(400);
         isShortcutLoading.value = false;
     };
@@ -356,6 +379,8 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
                 from: 'handleChangeWalletAccount',
             });
         }
+
+        await initShortcutMetaInfo();
 
         return true;
     };
@@ -425,6 +450,13 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         return false;
     };
 
+    const handleOnChangeShortcutStatus = async (newVal: string) => {
+        if (newVal !== STATUSES.SUCCESS) return;
+
+        store.dispatch('app/toggleModal', 'successShortcutModal');
+        await initShortcutMetaInfo(true);
+    };
+
     // **************************************************************************************************
     // ************************************* ON MOUNTED *************************************************
     // **************************************************************************************************
@@ -445,6 +477,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     const unWatchIsConnecting = watch(isConnecting, handleOnChangeIsConnecting);
     const unWatchConnectedWallets = watch(connectedWallets, handleOnChangeConnectedWallets);
     const unWatchIsQuoteLoading = watch(isQuoteLoading, handleOnChangeIsQuoteLoading);
+    const unWatchShortcutStatus = watch(shortcutStatus, handleOnChangeShortcutStatus);
 
     // * Store watchers
     const unWatchCurrentOp = store.watch(
@@ -486,6 +519,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         unWatchConnectedWallets();
         unWatchTokenList();
         unWatchCurrentOp();
+        unWatchShortcutStatus();
     });
 
     return {
@@ -504,6 +538,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         initShortcutAndLayout,
         initShortcutService,
         initShortcutSteps,
+        initShortcutMetaInfo,
 
         initDisabledOrHiddenFields,
 

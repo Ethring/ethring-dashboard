@@ -329,6 +329,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
             case ModuleType.stake:
             case ModuleType.send:
+            case ModuleType.liquidityProvider:
                 // 1. If the source token is changed, then set the source token
                 await updateSrcTokenIfNeed();
                 break;

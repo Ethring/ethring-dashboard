@@ -164,12 +164,6 @@ export default {
         const unWatchAcc = watch(walletAccount, async () => {
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
 
-            if (currentChainInfo.value?.ecosystem === Ecosystem.EVM) {
-                store.dispatch('shortcuts/loadDebridgeInfo', walletAddress.value);
-                store.dispatch('shortcuts/loadMitosisPoints', walletAddress.value);
-                store.dispatch('shortcuts/loadUserVaults', walletAddress.value);
-            }
-
             await onLoadWallets();
         });
 

@@ -47,7 +47,7 @@ export interface IGetQuoteRemoveLiquidityResponse {
 
 export interface IGetUserBalancePoolListRequest {
     net: string;
-    ownerAddress: string;
+    address: string;
 }
 
 export interface IGetPoolListRequest {
@@ -63,6 +63,12 @@ export interface IGetPoolListRequest {
 }
 
 export interface IGetUsersPoolListResponse {
+    id?: string;
+    balanceUsd?: string | number;
+    net?: string;
+    logo?: string;
+    chain?: string;
+    chainLogo?: string;
     name: string;
     decimals: number;
     symbol: string;
@@ -71,7 +77,7 @@ export interface IGetUsersPoolListResponse {
     addresses: any;
     platform: string;
     network: string;
-    images: [];
+    images: string[];
     tokens: [];
     liquidity: number;
     metrics: {

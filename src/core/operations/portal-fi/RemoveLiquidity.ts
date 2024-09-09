@@ -40,7 +40,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, ownerAddresses = {}, slippageTolerance, slippage } = this.params as any;
+            const { net, ownerAddresses = {}, slippage } = this.params as any;
 
             const { from } = this.getTokens();
 
@@ -48,12 +48,12 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
                 net,
                 poolID: from?.address as string,
                 amount: formatNumber(amount, from?.decimals, false),
-                slippageTolerance: slippage || slippageTolerance,
+                slippageTolerance: slippage,
                 tokenAddress: this.tokenAddress,
                 ownerAddress: ownerAddresses[net],
             };
 
-            const userBalancePoolList = await this.service.getUserBalancePoolList({ net, ownerAddress: ownerAddresses[net] });
+            const userBalancePoolList = await this.service.getUserBalancePoolList({ net, address: ownerAddresses[net] });
 
             const poolBalance = userBalancePoolList?.find((elem: IGetUsersPoolListResponse) => elem.address === from?.address);
 
@@ -91,18 +91,14 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, ownerAddresses, slippageTolerance, slippage } = this.params as any;
+            const { net, ownerAddresses, slippage } = this.params as any;
 
-            const srcToken = store.getters['tokenOps/srcToken'];
-            const dstToken = store.getters['tokenOps/dstToken'];
+            const { from, to } = this.getTokens();
 
-            const { from } = this.getTokens();
-
-            const tokenOut = from?.address === srcToken?.address ? dstToken : srcToken;
-            if (!tokenOut) throw Error('Select output token');
+            if (!to) throw Error('Select output token');
             if (!from?.id?.includes('pools')) throw Error('Select lp token');
 
-            this.tokenAddress = tokenOut?.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+            this.tokenAddress = to?.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
             this.approveService.params = {
@@ -117,16 +113,14 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID: from?.address as string,
-                amount: formatNumber(amount, tokenOut.decimals, false),
-                slippageTolerance: slippage || slippageTolerance,
+                amount: formatNumber(amount, to.decimals, false),
+                slippageTolerance: slippage,
                 tokenAddress: this.tokenAddress,
             };
 
             const response = await this.service.getQuoteRemoveLiquidity(params);
 
-            const { outputAmount } = response?.data;
-
-            if (outputAmount) this.setParamByField('outputAmount', outputAmount);
+            if (response?.data?.outputAmount) this.setParamByField('outputAmount', response.data.outputAmount);
         } catch (error) {
             console.error('LiquidityProvider.estimateOutput', error);
             throw error;

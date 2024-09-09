@@ -105,7 +105,7 @@ class BasePage {
     }
 
     async mockPoolBalanceRequest(net: string, mockData: object, address: string, statusCode: number = 200) {
-        const URL = `**/srv-portal-fi-add-portal-fi/api/getUserBalancePoolList?net=${net}&ownerAddress=${address}**`;
+        const URL = `**/api/balances?provider=Portal?net=${net}&address=${address}**`;
         await this.mockRoute(URL, mockData, statusCode);
     }
 

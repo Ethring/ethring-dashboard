@@ -632,7 +632,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             (oldSrcToken?.id !== srcToken?.id ||
                 oldSrcToken?.address !== srcToken?.address ||
                 oldSrcToken?.balance !== srcToken?.balance) &&
-            !srcTokenField?.value
+            !srcTokenField?.value &&
+            srcToken?.chain === srcTokenField?.chain
         )
             setTokenParams(operation, 'from', srcToken);
 

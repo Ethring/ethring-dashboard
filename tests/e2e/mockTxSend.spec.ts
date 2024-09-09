@@ -18,6 +18,7 @@ testMetaMask.describe('Mocked send tx Metamask', () => {
     testMetaMask('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const networkNameInMM = 'Polygon Mainnet';
+        const networkSymbol = 'POL';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
@@ -29,7 +30,7 @@ testMetaMask.describe('Mocked send tx Metamask', () => {
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
         await balancePromise;
 
-        await setCustomRpc(context, METAMASK_FAKE_URL_NODE.POLYGON, networkNameInMM);
+        await setCustomRpc(context, METAMASK_FAKE_URL_NODE.POLYGON, networkNameInMM, networkSymbol);
 
         const finalTxStatusEventPromise = sendPage.waitEventInSocket('update_transaction_status');
         await sendPage.page.reload();

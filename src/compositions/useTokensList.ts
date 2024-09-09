@@ -219,8 +219,14 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
 
                 // Sorting by verified
                 (tkn) => tkn.verified,
+
+                // Sorting by whether the symbol starts with a letter (true) or not (false)
+                (tkn) => /^[a-zA-Z]/.test(tkn.symbol),
+
+                // Sorting by token symbol alphabetically
+                (tkn) => tkn.symbol?.toLowerCase(),
             ],
-            ['desc', 'desc', 'desc'],
+            ['desc', 'desc', 'desc', 'desc', 'desc', 'asc'],
         );
 
         return sortedList;
