@@ -1,4 +1,4 @@
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import { startsWith, debounce } from 'lodash';
 
@@ -325,22 +325,6 @@ export default function useModule(moduleType: ModuleType) {
         await getEstimateInfo(true);
     };
 
-    watch(isNeedApprove, () => {
-        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
-        opTitle.value = DEFAULT_TITLE;
-    });
-
-    watch(isNeedAddLpApprove, () => {
-        if (isNeedAddLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
-        opTitle.value = DEFAULT_TITLE;
-    });
-
-    watch(isNeedRemoveLpApprove, () => {
-        if (CurrentShortcut.value !== AvailableShortcuts.RemoveLiquidityPool) return;
-        if (isNeedRemoveLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
-        opTitle.value = DEFAULT_TITLE;
-    });
-
     onMounted(() => {
         module.value = moduleType;
         isNeedAddLpApprove.value = false;
@@ -349,20 +333,36 @@ export default function useModule(moduleType: ModuleType) {
         opTitle.value = checkSelectedNetwork();
     });
 
-    watch(walletAccount, () => (opTitle.value = checkSelectedNetwork()));
+    const unWatchIsNeedApprove = watch(isNeedApprove, () => {
+        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
 
-    watch(selectedRoute, () => {
+    const unWatchIsNeedAddLp = watch(isNeedAddLpApprove, () => {
+        if (isNeedAddLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
+
+    const unWatchIsNeedRemove = watch(isNeedRemoveLpApprove, () => {
+        if (CurrentShortcut.value !== AvailableShortcuts.RemoveLiquidityPool) return;
+        if (isNeedRemoveLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
+
+    const unWatchWalletAccount = watch(walletAccount, () => (opTitle.value = checkSelectedNetwork()));
+
+    const unWatchSelectedRoute = watch(selectedRoute, () => {
         if (pathRoute.path.startsWith('/shortcuts')) return;
         if (selectedRoute.value && selectedRoute.value?.toAmount) dstAmount.value = selectedRoute.value.toAmount;
     });
 
-    watch(isQuoteLoading, () => {
+    const unWatchIsQuote = watch(isQuoteLoading, () => {
         if (!isQuoteLoading.value) nextTick(() => inputFocus());
     });
 
-    watch([isConfigsLoading, module], () => callOnMounted());
+    const unWatchIsConfig = watch([isConfigsLoading, module], () => callOnMounted());
 
-    watch(
+    const unWatchRouteTime = watch(
         () => routeTimer.value.seconds,
         async () => {
             if (pathRoute.path.startsWith('/shortcuts')) return;
@@ -374,6 +374,17 @@ export default function useModule(moduleType: ModuleType) {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
         opTitle.value = checkSelectedNetwork();
+    });
+
+    onUnmounted(() => {
+        unWatchIsNeedApprove();
+        unWatchIsNeedAddLp();
+        unWatchIsNeedRemove();
+        unWatchWalletAccount();
+        unWatchSelectedRoute();
+        unWatchIsQuote();
+        unWatchIsConfig();
+        unWatchRouteTime();
     });
 
     return {

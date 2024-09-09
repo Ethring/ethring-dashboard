@@ -6,8 +6,6 @@ import BalancesDB from '@/services/indexed-db/balances';
 
 import { Type } from './models/enums';
 
-const balancesDB = new BalancesDB(1);
-
 // * Store balance for account in Vuex and IndexedDB by type
 export const storeBalanceForAccount = async (
     type: BalanceType,
@@ -28,13 +26,13 @@ export const storeBalanceForAccount = async (
 
     try {
         // * Save data to indexedDB cache to load data page faster
-        await balancesDB.saveBalancesByTypes(formatted, { dataType: type, account, address, chain });
+        await BalancesDB.saveBalancesByTypes(formatted, { dataType: type, account, address, chain });
 
         // * Save data to Vuex store (Only for tokens and pools)
         if (![Type.integrations, Type.nfts].includes(type))
             await store.dispatch('tokens/setDataFor', { type, account, chain, data: formatted });
 
-        const { total, assetsBalance } = await balancesDB.getTotalBalance(account);
+        const { total, assetsBalance } = await BalancesDB.getTotalBalance(account);
 
         // * Save total balance to Vuex store
         await Promise.all([

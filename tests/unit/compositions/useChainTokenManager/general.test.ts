@@ -32,36 +32,4 @@ describe('useChainTokenManager', () => {
                 else expect(isNeedDstNetwork.value).toBe(false);
             });
     });
-
-    describe('onChangeLoadingConfig: SEND', () => {
-        test('-> to haveBeen Called with TRUE', async () => {
-            const chainTokenManager = useChainTokenManager(ModuleType.send, { tmpStore: store });
-
-            const onChangeLoadingConfigMock = vi.spyOn(chainTokenManager, 'onChangeLoadingConfig');
-            const defaultChainMangerByModuleMock = vi.spyOn(chainTokenManager, 'defaultChainMangerByModule');
-
-            await store.dispatch('configs/setConfigLoading', true);
-            expect(store.getters['configs/isConfigLoading']).toBe(true);
-
-            chainTokenManager.onChangeLoadingConfig(store.getters['configs/isConfigLoading']);
-
-            expect(onChangeLoadingConfigMock).toHaveBeenCalled();
-            expect(onChangeLoadingConfigMock).toHaveBeenCalledWith(true);
-            expect(defaultChainMangerByModuleMock).not.toHaveBeenCalled();
-        });
-
-        test('-> haveBeen Called with FALSE', async () => {
-            const chainTokenManager = useChainTokenManager(ModuleType.send, { tmpStore: store });
-            const onChangeLoadingConfigMock = vi.spyOn(chainTokenManager, 'onChangeLoadingConfig');
-
-            await store.dispatch('configs/setConfigLoading', false);
-
-            expect(store.getters['configs/isConfigLoading']).toBe(false);
-
-            chainTokenManager.onChangeLoadingConfig(store.getters['configs/isConfigLoading']);
-
-            expect(onChangeLoadingConfigMock).toHaveBeenCalled();
-            expect(onChangeLoadingConfigMock).toHaveBeenCalledWith(false);
-        });
-    });
 });

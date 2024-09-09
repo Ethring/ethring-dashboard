@@ -40,7 +40,7 @@ export default {
     },
     setup() {
         const store = useStore();
-        const balancesDB = new BalancesDB(1);
+        const isMounted = ref(false);
         const { walletAccount } = useAdapter();
 
         const collapseActiveKey = ref(['assets']);
@@ -69,7 +69,8 @@ export default {
 
         const getAssetsForAccount = async () => {
             try {
-                const response = await balancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                if (!isMounted.value) return console.log('Assets not mounted, skipping update');
+                const response = await BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
                     assetIndex: assetIndex.value,
                 });
                 assetsForAccount.value = response;
@@ -107,6 +108,7 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
+            isMounted.value = true;
             store.dispatch('tokens/resetIndexes');
             store.dispatch('tokens/loadMoreAssets');
 
@@ -117,22 +119,18 @@ export default {
         // * Watchers
         // *********************************************************************************
 
-        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, loadingByAccount], handleOnChangeKeysToRequest, {
-            immediate: true,
-        });
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, loadingByAccount], handleOnChangeKeysToRequest);
 
         // *********************************************************************************
         // * OnUnmounted
         // *********************************************************************************
 
         onUnmounted(() => {
+            isMounted.value = false;
             unWatchKeysToRequest();
 
             // * Reset indexes
             store.dispatch('tokens/resetIndexes');
-
-            // ! Close the IndexedDB connection
-            // balancesDB.close();
         });
 
         const ASSETS_COLUMNS = [

@@ -19,7 +19,7 @@
                     </div>
                     <div v-if="item.leverageRate" class="apr"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
                     <div v-if="item.nfts" class="count">
-                        <a-badge :count="item.nfts.length" class="asset-nfts-count" />
+                        <a-badge :count="item.nfts" class="asset-nfts-count" />
                     </div>
                 </div>
             </div>

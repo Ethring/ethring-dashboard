@@ -2,8 +2,6 @@ import { values, orderBy } from 'lodash';
 
 import Dexie from 'dexie';
 
-import logger from '@/shared/logger';
-
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 import { Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import { formatRecord } from '@/shared/tokens-format/base-format';
@@ -49,10 +47,10 @@ class ConfigsDB extends Dexie {
         try {
             await this.transaction('rw', table, async () => {
                 await table.bulkPut(values(networks));
-                logger.debug(`All ${ecosystem} networks saved`);
+                console.debug(`All ${ecosystem} networks saved`);
             });
         } catch (error) {
-            logger.error(`[IndexedDB](saveNetworksConfig): ${store}`, error);
+            console.error(`[IndexedDB](saveNetworksConfig): ${store}`, error);
         }
     }
 
@@ -72,12 +70,12 @@ class ConfigsDB extends Dexie {
         try {
             await this.transaction('rw', this.tokens, async () => {
                 await this.tokens.bulkPut(values(formattedTokensObject));
-                logger.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
+                console.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
             });
 
             return formattedTokensObject;
         } catch (error) {
-            logger.error(`[IndexedDB](saveTokensConfig): ${DB_TABLES.TOKENS}`, error);
+            console.error(`[IndexedDB](saveTokensConfig): ${DB_TABLES.TOKENS}`, error);
         }
     }
 
@@ -89,10 +87,10 @@ class ConfigsDB extends Dexie {
 
             await this.transaction('rw', this.cosmologyAssets, async () => {
                 await this.cosmologyAssets.bulkPut(configs);
-                logger.debug(`All cosmology tokens saved`);
+                console.debug(`All cosmology tokens saved`);
             });
         } catch (error) {
-            logger.error(`[IndexedDB](saveCosmologyAssets):`, error);
+            console.error(`[IndexedDB](saveCosmologyAssets):`, error);
         }
     }
 
@@ -100,7 +98,7 @@ class ConfigsDB extends Dexie {
         try {
             return await this.networks.where('ecosystem').equals(ecosystem).toArray();
         } catch (error) {
-            logger.error(`[IndexedDB](getAllNetworksByEcosystem):`, error);
+            console.error(`[IndexedDB](getAllNetworksByEcosystem):`, error);
             return [];
         }
     }
@@ -116,7 +114,7 @@ class ConfigsDB extends Dexie {
             }, {});
             return networksHash;
         } catch (error) {
-            logger.error(`[IndexedDB](getAllNetworksByEcosystem):`, error);
+            console.error(`[IndexedDB](getAllNetworksByEcosystem):`, error);
             return {};
         }
     }
@@ -130,7 +128,7 @@ class ConfigsDB extends Dexie {
             }, {});
             return networksHash;
         } catch (error) {
-            logger.error(`[IndexedDB](getAllCosmologyNetworks):`, error);
+            console.error(`[IndexedDB](getAllCosmologyNetworks):`, error);
             return {};
         }
     }
@@ -144,7 +142,7 @@ class ConfigsDB extends Dexie {
             }, {});
             return tokensHash;
         } catch (error) {
-            logger.error(`[IndexedDB](getAllTokensByChainHash):`, error);
+            console.error(`[IndexedDB](getAllTokensByChainHash):`, error);
             return {};
         }
     }
@@ -154,7 +152,7 @@ class ConfigsDB extends Dexie {
             const tokens = await this.tokens.where({ chain }).toArray();
             return orderBy(tokens, ['name', 'verified'], ['asc', 'desc']);
         } catch (error) {
-            logger.error(`[IndexedDB](getAllTokensByNetwork):`, error);
+            console.error(`[IndexedDB](getAllTokensByNetwork):`, error);
             return [];
         }
     }
@@ -163,7 +161,7 @@ class ConfigsDB extends Dexie {
         try {
             return await this.cosmologyAssets.toArray();
         } catch (error) {
-            logger.error(`[IndexedDB](getAllCosmologyTokens):`, error);
+            console.error(`[IndexedDB](getAllCosmologyTokens):`, error);
             return [];
         }
     }
@@ -172,7 +170,7 @@ class ConfigsDB extends Dexie {
         try {
             this.table(store).clear();
         } catch (error) {
-            logger.error(`[IndexedDB](clearTable): ${store}`, error);
+            console.error(`[IndexedDB](clearTable): ${store}`, error);
         }
     }
 
@@ -183,7 +181,7 @@ class ConfigsDB extends Dexie {
                 await this.table(store).where(key).equals(value).delete();
             });
         } catch (error) {
-            logger.error(`[IndexedDB](bulkDeleteByKeys): ${store}`, error);
+            console.error(`[IndexedDB](bulkDeleteByKeys): ${store}`, error);
         }
     }
 
@@ -191,7 +189,7 @@ class ConfigsDB extends Dexie {
         try {
             return await this.tokens.where({ chain, address }).first();
         } catch (error) {
-            logger.error(`[IndexedDB](getTokenByAddress):`, error);
+            console.error(`[IndexedDB](getTokenByAddress):`, error);
             return null;
         }
     }
@@ -200,10 +198,12 @@ class ConfigsDB extends Dexie {
         try {
             return await this.tokens.where({ address }).first();
         } catch (error) {
-            logger.error(`[IndexedDB](getTokenByAddress):`, error);
+            console.error(`[IndexedDB](getTokenByAddress):`, error);
             return null;
         }
     }
 }
 
-export default ConfigsDB;
+const configsDB = new ConfigsDB(1);
+
+export default configsDB;

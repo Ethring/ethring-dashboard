@@ -36,7 +36,9 @@
                 </a-col>
             </a-row>
             <router-view v-slot="{ Component }">
-                <component :is="Component" />
+                <keep-alive max="2">
+                    <component :is="Component" />
+                </keep-alive>
             </router-view>
         </template>
     </div>

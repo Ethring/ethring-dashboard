@@ -89,7 +89,8 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const balancesDB = new BalancesDB(1);
+
+        const isMounted = ref(false);
 
         const { walletAccount } = useAdapter();
 
@@ -134,7 +135,8 @@ export default {
 
         const getIntegrationByPlatforms = async () => {
             try {
-                const response = await balancesDB.getProtocolsByPlatforms(walletAccount.value, minBalance.value);
+                if (!isMounted.value) return console.log('Not mounted, skipping integrationByPlatforms');
+                const response = await BalancesDB.getProtocolsByPlatforms(walletAccount.value, minBalance.value);
                 integrationByPlatforms.value = response;
             } catch (error) {
                 console.error('Error getting protocols by platforms', error);
@@ -143,7 +145,8 @@ export default {
 
         const getAssetsForAccount = async () => {
             try {
-                const response = await balancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                if (!isMounted.value) return console.log('Not mounted, skipping assetsForAccount');
+                const response = await BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
                     assetIndex: assetIndex.value,
                 });
                 assetsForAccount.value = response;
@@ -153,7 +156,6 @@ export default {
         };
 
         const makeRequest = async () => {
-            console.log('makeRequest');
             try {
                 await getAssetsForAccount();
                 await delay(300);
@@ -222,6 +224,7 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
+            isMounted.value = true;
             handleOnUpdateCollapsedAssets();
             store.dispatch('tokens/resetIndexes');
             await makeRequest();
@@ -240,7 +243,7 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
-            console.log('Assets onUnmounted');
+            isMounted.value = false;
             store.dispatch('tokens/resetIndexes');
             handleOnUpdateCollapsedAssets();
 
@@ -248,14 +251,8 @@ export default {
             unWatchAccount();
             unWatchKeysToRequest();
 
-            // ! Close the IndexedDB connection
-            // balancesDB.close();
-
             // ! Clear the data
-            console.log('Clearing data');
-            console.log('Clearing assets');
             assetsForAccount.value = { list: [], total: 0, totalBalance: 0 };
-            console.log('Clearing integrations');
             integrationByPlatforms.value = { list: [], total: 0, totalBalance: 0 };
         });
 

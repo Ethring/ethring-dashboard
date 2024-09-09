@@ -76,6 +76,7 @@ const connectedWalletsStorage = useLocalStorage(STORAGE.CONNECTED_WALLETS_KEY, [
  * @classdesc Adapter for interacting with the Ethereum ecosystem.
  * @export default EthereumAdapter - The Ethereum adapter class.
  */
+
 export class EthereumAdapter implements IEthereumAdapter {
     // * Singleton instance
     private static instance: EthereumAdapter | null = null;
@@ -83,7 +84,6 @@ export class EthereumAdapter implements IEthereumAdapter {
     // ****************************************************
     // * Adapter properties
     // ****************************************************
-    store: any;
     walletName: string | null = null;
     walletManager: OnboardAPI | any;
     addressByNetwork: IAddressByNetwork = {};
@@ -91,7 +91,6 @@ export class EthereumAdapter implements IEthereumAdapter {
     initialized: boolean = false;
 
     private constructor() {
-        this.store = null;
         this.walletManager = null;
         this.addressByNetwork = {};
     }
@@ -108,13 +107,12 @@ export class EthereumAdapter implements IEthereumAdapter {
 
     async init(store: Store<any>): Promise<void> {
         if (this.initialized) return;
-        this.store = store;
         const initOptions = web3OnBoardConfig as InitOptions;
         initOptions.chains = await getBlocknativeConfig();
         this.walletManager = init(initOptions);
         this.walletManager.state.select('wallets').subscribe((wallet: any) => {
-            if (!wallet?.length && this.walletName) this.connectWallet(this.walletName);
-            this.setAddressForChains();
+            if (!wallet?.length && this.walletName) this.connectWallet(this.walletName, { store });
+            this.setAddressForChains({ store });
         });
         this.initialized = true;
     }
@@ -140,7 +138,10 @@ export class EthereumAdapter implements IEthereumAdapter {
     // * Wallet Connection & Disconnection
     // ****************************************************
 
-    async connectWallet(walletName: string | null): Promise<{ isConnected: boolean; walletName: string | null }> {
+    async connectWallet(
+        walletName: string | null,
+        { store }: { store: Store<any> },
+    ): Promise<{ isConnected: boolean; walletName: string | null }> {
         const { connectWallet, connectedWallet } = useOnboard();
 
         let connectionOption: ConnectOptions | undefined = undefined;
@@ -160,7 +161,7 @@ export class EthereumAdapter implements IEthereumAdapter {
             await connectWallet(connectionOption);
             const { wallets = [] } = this.walletManager.state.get() || {};
 
-            if (wallets.length) this.setAddressForChains();
+            if (wallets.length) this.setAddressForChains({ store: store });
 
             return {
                 isConnected: !!wallets.length,
@@ -172,6 +173,8 @@ export class EthereumAdapter implements IEthereumAdapter {
                 isConnected: false,
                 walletName: null,
             };
+        } finally {
+            store = null as any;
         }
     }
 
@@ -220,7 +223,7 @@ export class EthereumAdapter implements IEthereumAdapter {
     // * Wallet Address & Chain Info
     // ****************************************************
 
-    setAddressForChains() {
+    setAddressForChains({ store }: { store: Store<any> }) {
         if (!this.addressByNetwork) this.addressByNetwork = {};
 
         const { chains } = this.walletManager.state.get();
@@ -230,7 +233,7 @@ export class EthereumAdapter implements IEthereumAdapter {
 
         for (const { id } of chains) {
             if (!id) continue;
-            const chainInfo = this.store.getters['configs/getChainConfigByChainId'](id, Ecosystem.EVM) || {};
+            const chainInfo = store.getters['configs/getChainConfigByChainId'](id, Ecosystem.EVM) || {};
 
             // ! Skip if chain info is not available
             if (!chainInfo) continue;
@@ -245,6 +248,8 @@ export class EthereumAdapter implements IEthereumAdapter {
                 nativeTokenLogo: native_token?.logo,
             };
         }
+
+        store = null as any;
     }
 
     getDefaultWalletAddress(): string | null {
@@ -255,8 +260,8 @@ export class EthereumAdapter implements IEthereumAdapter {
         return chainWithAddress.address;
     }
 
-    async getAddressesWithChains(): Promise<IAddressByNetwork> {
-        this.setAddressForChains();
+    async getAddressesWithChains(store: Store<any>): Promise<IAddressByNetwork> {
+        this.setAddressForChains({ store });
         return this.addressByNetwork || {};
     }
 
@@ -274,57 +279,56 @@ export class EthereumAdapter implements IEthereumAdapter {
         return label;
     }
 
+    updateIcon(index: number, icon: string, store: Store<any>) {
+        if (index === -1) return;
+
+        const connectedWallet: IConnectedWallet = connectedWalletsStorage.value[index];
+
+        if (!connectedWallet) return;
+
+        connectedWallet.icon = icon;
+
+        store.dispatch('adapters/SET_WALLET', { ecosystem: Ecosystem.EVM, wallet: connectedWallet });
+    }
+
+    getWalletIconFromStore(walletModule: string | null, store: Store<any>): string | null {
+        const index = connectedWalletsStorage.value.findIndex((wallet: IConnectedWallet) => wallet.walletModule === walletModule);
+        if (index === -1) return null;
+
+        const wallet: IConnectedWallet = connectedWalletsStorage.value[index];
+        if (!wallet) return null;
+
+        this.updateIcon(index, wallet.icon, store);
+
+        return wallet.icon;
+    }
+
+    async getWalletLogoFromOnboard(walletModule: string | null, store: Store<any>): Promise<string | null> {
+        const { walletModules } = this.walletManager.state.get() || {};
+        const exist = walletModules.find((module: any) => module.label === walletModule);
+
+        if (!exist) return null;
+
+        const index = connectedWalletsStorage.value.findIndex((wallet: IConnectedWallet) => wallet.walletModule === walletModule);
+
+        try {
+            const icon = await exist.getIcon();
+
+            this.updateIcon(index, icon, store);
+
+            return icon;
+        } catch (error) {
+            console.error('Failed to get icon for', walletModule, error);
+            return null;
+        }
+    }
+
     async getWalletLogo(walletModule: string | null, store: any): Promise<string | null> {
         if (!walletModule) return null;
 
-        const adaptersDispatch = (...args: { ecosystem: string; wallet: any }[]) => store.dispatch('adapters/SET_WALLET', ...args);
+        if (this.getWalletIconFromStore(walletModule, store)) return this.getWalletIconFromStore(walletModule, store);
 
-        const updateIcon = async (index: number, icon: string) => {
-            if (index === -1) return;
-
-            const connectedWallet: IConnectedWallet = connectedWalletsStorage.value[index];
-
-            if (!connectedWallet) return;
-
-            connectedWallet.icon = icon;
-
-            adaptersDispatch({ ecosystem: Ecosystem.EVM, wallet: connectedWallet });
-        };
-
-        const getWalletIconFromStore = () => {
-            const index = connectedWalletsStorage.value.findIndex((wallet: IConnectedWallet) => wallet.walletModule === walletModule);
-            if (index === -1) return null;
-
-            const wallet: IConnectedWallet = connectedWalletsStorage.value[index];
-            if (!wallet) return null;
-
-            updateIcon(index, wallet.icon);
-
-            return wallet.icon;
-        };
-
-        const getWalletFromOnboard = async () => {
-            const { walletModules } = this.walletManager.state.get() || {};
-            const exist = walletModules.find((module: any) => module.label === walletModule);
-
-            if (!exist) return null;
-
-            const index = connectedWalletsStorage.value.findIndex((wallet: IConnectedWallet) => wallet.walletModule === walletModule);
-
-            try {
-                const icon = await exist.getIcon();
-                updateIcon(index, icon);
-
-                return icon;
-            } catch (error) {
-                console.error('Failed to get icon for', walletModule, error);
-                return null;
-            }
-        };
-
-        if (getWalletIconFromStore()) return getWalletIconFromStore();
-
-        return await getWalletFromOnboard();
+        return await this.getWalletLogoFromOnboard(walletModule, store);
     }
 
     // ****************************************************
@@ -347,7 +351,7 @@ export class EthereumAdapter implements IEthereumAdapter {
         return address || null;
     }
 
-    getCurrentChain(): IChainConfig | null {
+    getCurrentChain(store: Store<any>): IChainConfig | null {
         const { connectedWallet, connectedChain } = useOnboard();
         const { label = null } = connectedWallet.value || {};
 
@@ -355,9 +359,9 @@ export class EthereumAdapter implements IEthereumAdapter {
 
         if (!id || (id && isNaN(+id))) return null;
 
-        if (!this.store || !this.store.getters) return null;
+        if (!store) return null;
 
-        const chainInfo = this.store.getters['configs/getChainConfigByChainId'](id, Ecosystem.EVM) || {};
+        const chainInfo = store.getters['configs/getChainConfigByChainId'](id, Ecosystem.EVM) || {};
 
         if (JSON.stringify(chainInfo) === '{}') chainInfo.chain_id = id;
 
@@ -395,11 +399,11 @@ export class EthereumAdapter implements IEthereumAdapter {
         return chainsInfo.evm[chain] || null;
     }
 
-    getChainList(allChains: boolean = false): IChainConfig[] {
-        if (!this.store) return [];
-        if (!this.store.getters['configs/getConfigsListByEcosystem']) return [];
+    getChainList({ allChains = false, store }: { allChains?: boolean; store: Store<any> }): IChainConfig[] {
+        if (!store) return [];
+        if (!store.getters['configs/getConfigsListByEcosystem']) return [];
 
-        const chains = this.store.getters['configs/getConfigsListByEcosystem'](Ecosystem.EVM) || [];
+        const chains = store.getters['configs/getConfigsListByEcosystem'](Ecosystem.EVM) || [];
 
         if (!chains.length) return [];
 
@@ -567,18 +571,18 @@ export class EthereumAdapter implements IEthereumAdapter {
     // * Transaction signing methods
     // ****************************************************
 
-    async signSend(transaction: any): Promise<any> {
+    async signSend(transaction: any, { store }: { store: Store<any> }): Promise<any> {
         const ethersProvider = this.getProvider();
 
         // Check timer
-        const txTimerID = this.store.getters['txManager/txTimerID'];
+        const txTimerID = store.getters['txManager/txTimerID'];
 
         if (!txTimerID)
             return {
                 isCanceled: true,
             };
 
-        this.store.dispatch('txManager/setTxTimerID', null);
+        store.dispatch('txManager/setTxTimerID', null);
 
         if (!ethersProvider) throw new Error('EVM provider is not available');
         if (!ethersProvider.getSigner()) throw new Error('EVM provider is not available');

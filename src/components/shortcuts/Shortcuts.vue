@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import ShortcutItem from '@/components/shortcuts/ShortcutItem';
@@ -112,8 +112,12 @@ export default {
             return filter(list, (elem) => searchByKey(elem, value, 'name'));
         };
 
-        watch(shortcuts, (newShortcuts) => {
+        const unWatchList = watch(shortcuts, (newShortcuts) => {
             shortcutList.value = searchShortcut(newShortcuts, searchInput.value);
+        });
+
+        onUnmounted(() => {
+            unWatchList();
         });
 
         return {

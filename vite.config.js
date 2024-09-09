@@ -129,7 +129,7 @@ export default defineConfig({
                 ],
             },
         }),
-        nodePolyfills({ include: ['buffer', 'crypto', 'path', 'stream', 'util'] }),
+        nodePolyfills({ include: ['buffer', 'path', 'stream', 'util'] }),
         VitePWA({
             mode: process.env.NODE_ENV,
             strategies: 'injectManifest',

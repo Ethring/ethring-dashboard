@@ -58,7 +58,7 @@
     </a-modal>
 </template>
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import UiButton from '@/components/ui/Button.vue';
@@ -145,9 +145,11 @@ export default {
             return amountToUsd.toString();
         };
 
-        watch(isRoutesModalOpen, () => {
+        const unWatch = watch(isRoutesModalOpen, () => {
             if (isRoutesModalOpen.value) selected.value = selectedRoute.value;
         });
+
+        onUnmounted(() => unWatch());
 
         return {
             quoteRoutes,

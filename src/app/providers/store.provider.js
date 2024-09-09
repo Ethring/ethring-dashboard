@@ -5,6 +5,7 @@ import app from '@/store/app';
 
 // Balances
 import tokens from '@/store/tokens';
+// import portfolio from '@/store/portfolio';
 
 // Chain-registry and tokens
 import configs from '@/store/configs';
@@ -35,6 +36,7 @@ export default createStore({
     actions: {},
     modules: {
         app,
+        // portfolio,
         configs,
         adapters,
         tokens,

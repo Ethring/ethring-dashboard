@@ -9,7 +9,6 @@ import { filterSmallBalances, getIntegrationsBalance, getTotalBalance, getTotalB
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
-import logger from '@/shared/logger';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
 class BalancesDB extends Dexie {
@@ -20,7 +19,7 @@ class BalancesDB extends Dexie {
 
         this.version(version).stores({
             [DB_TABLES.BALANCES]:
-                'uniqueId, id, [account+chain+accountAddress+dataType], [account+chain+accountAddress], [account+chain+dataType], [account+chain], [account+dataType], [account+dataType+id]',
+                'uniqueId, id, [account+chain+accountAddress+dataType], [account+chain+accountAddress], [account+chain+dataType], [account+chain], [account+dataType], [account+dataType+id], [account+dataType+collection.address]',
         });
 
         this.balances = this.table(DB_TABLES.BALANCES);
@@ -74,7 +73,7 @@ class BalancesDB extends Dexie {
                 await this.balances.bulkPut(data);
             });
         } catch (error) {
-            logger.error('saveBalancesByTypes', error);
+            console.error('saveBalancesByTypes', error);
         }
     }
 
@@ -90,7 +89,26 @@ class BalancesDB extends Dexie {
         try {
             return await this.balances.where({ account, dataType }).toArray();
         } catch (error) {
-            logger.error(error);
+            console.error(error);
+            return [];
+        }
+    }
+
+    /**
+     * Get balances by account
+     *
+     * @param {string} dataType Type of data (tokens, integrations, nfts)
+     * @param {string} account Account address to get balances
+     *
+     * @returns {Promise<IAsset[]>} Balances
+     * @memberof BalancesDB
+     */
+    async getBalancesByAccount(dataType: string, account: string): Promise<IAsset[]> {
+        try {
+            const accountLower = account.toLowerCase();
+            return await this.balances.where({ account: accountLower, dataType }).toArray();
+        } catch (error) {
+            console.error(error);
             return [];
         }
     }
@@ -124,7 +142,7 @@ class BalancesDB extends Dexie {
 
             return balancesByChains;
         } catch (error) {
-            logger.error(error);
+            console.error(error);
             return {};
         }
     }
@@ -141,37 +159,25 @@ class BalancesDB extends Dexie {
         const accountLower = account.toLowerCase();
 
         let assetsList = null;
+        const list = [];
+        let totalBalance = BigNumber(0);
 
         try {
-            const assets = await this.balances.where({ account: accountLower, dataType: Type.tokens }).toArray();
-            console.log('ASSETS_SIZE', JSON.stringify(assets).length);
+            assetsList = await this.balances.where({ account: accountLower, dataType: Type.tokens }).toArray();
 
-            const { list, totalBalance } = assets.reduce(
-                (acc: any, item: any) => {
-                    if (!filterSmallBalances(item, minBalance)) return acc;
-
-                    acc.list.push(item);
-                    acc.totalBalance = acc.totalBalance.plus(item.balanceUsd || 0);
-
-                    return acc;
-                },
-                {
-                    list: [],
-                    totalBalance: BigNumber(0),
-                },
-            );
-
-            assets.length = 0;
-            assetsList = list;
-            const orderedList = orderBy(list, (balance) => +balance.balanceUsd || 0, ['desc']);
+            for (const asset of assetsList) {
+                if (!filterSmallBalances(asset, minBalance)) continue;
+                list.push(asset);
+                totalBalance = totalBalance.plus(asset.balanceUsd || 0);
+            }
 
             return {
-                list: orderedList.slice(0, assetIndex),
+                list: orderBy(list, (asset) => +asset.balanceUsd || 0, ['desc']).slice(0, assetIndex),
                 total: list.length,
                 totalBalance: totalBalance.toFixed(6),
             };
         } catch (error) {
-            logger.error('getAssetsForAccount', error);
+            console.error('getAssetsForAccount', error);
 
             return {
                 list: [],
@@ -180,6 +186,8 @@ class BalancesDB extends Dexie {
             };
         } finally {
             if (assetsList) assetsList.length = 0;
+            if (list) list.length = 0;
+            if (totalBalance) totalBalance = BigNumber(0);
         }
     }
 
@@ -196,7 +204,7 @@ class BalancesDB extends Dexie {
         try {
             await this.balances.where({ account, dataType: Type.tokens, id }).modify({ logo: image });
         } catch (error) {
-            logger.error('updateTokenImage', error);
+            console.error('updateTokenImage', error);
         }
     }
 
@@ -221,76 +229,63 @@ class BalancesDB extends Dexie {
     }> {
         const accountLower = account.toLowerCase();
 
-        let list = null;
+        let integrations = null;
+        const byPlatforms: Record<string, any> = {};
+        let totalBalance = BigNumber(0);
 
         try {
-            const integrations = await this.balances.where({ account: accountLower, dataType: Type.integrations }).toArray();
+            integrations = await this.balances.where({ account: accountLower, dataType: Type.integrations }).toArray();
 
-            const { group: byPlatforms, totalGroupBalance } = integrations.reduce(
-                (acc: any, integration: IntegrationBalance) => {
-                    const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
+            for (const integration of integrations) {
+                const { platform, balances = [], logo = null, healthRate = null, leverageRate } = integration;
 
-                    const filteredBalances = balances.filter((elem: any) => filterSmallBalances(elem, minBalance));
+                const filteredBalances = balances.filter((elem: any) => filterSmallBalances(elem, minBalance));
 
-                    if (!filteredBalances.length) return acc;
+                if (!filteredBalances.length) continue;
 
-                    if (!acc.group.has(platform))
-                        acc.group.set(platform, {
-                            data: [],
-                            platform,
-                            healthRate: healthRate || null,
-                            logoURI: logo || null,
-                            totalGroupBalance: 0,
-                            totalRewardsBalance: 0,
-                        });
+                if (!byPlatforms[integration.platform])
+                    byPlatforms[integration.platform] = {
+                        data: [],
+                        platform,
+                        healthRate: healthRate || null,
+                        logoURI: logo || null,
+                        totalGroupBalance: 0,
+                        totalRewardsBalance: 0,
+                    };
 
-                    const platformData = acc.group.get(platform);
+                byPlatforms[integration.platform].data.push({ ...integration, balances: filteredBalances });
+                byPlatforms[integration.platform].healthRate = healthRate || null;
+                byPlatforms[integration.platform].logoURI = logo || null;
 
-                    platformData.data.push({ ...integration, balances: filteredBalances });
-                    platformData.healthRate = healthRate || null;
-                    platformData.logoURI = logo || null;
+                for (const balance of filteredBalances) balance.leverageRate = leverageRate || null;
 
-                    for (const balance of filteredBalances) balance.leverageRate = leverageRate || null;
+                byPlatforms[integration.platform].totalGroupBalance = BigNumber(byPlatforms[integration.platform].totalGroupBalance)
+                    .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], integration.type as IntegrationBalanceType))
+                    .toString();
 
-                    platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
-                        .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], type as IntegrationBalanceType))
-                        .toString();
+                byPlatforms[integration.platform].totalRewardsBalance = BigNumber(byPlatforms[integration.platform].totalRewardsBalance)
+                    .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], IntegrationBalanceType.PENDING))
+                    .toString();
 
-                    platformData.totalRewardsBalance = BigNumber(platformData.totalRewardsBalance)
-                        .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], IntegrationBalanceType.PENDING))
-                        .toString();
-
-                    acc.totalGroupBalance = acc.totalGroupBalance.plus(platformData.totalGroupBalance);
-
-                    return acc;
-                },
-                {
-                    group: new Map(),
-                    totalGroupBalance: BigNumber(0),
-                },
-            );
-
-            list = [...byPlatforms.values()];
-
-            const orderedList = orderBy(list, (platform) => +platform.totalGroupBalance || 0, ['desc']);
-
-            byPlatforms.clear();
-            integrations.length = 0;
+                totalBalance = totalBalance.plus(byPlatforms[integration.platform].totalGroupBalance);
+            }
 
             return {
-                list: orderedList,
-                total: list.length,
-                totalBalance: totalGroupBalance.toString(),
+                list: orderBy(Object.values(byPlatforms), (platform) => +platform.totalGroupBalance || 0, ['desc']),
+                total: Object.keys(byPlatforms).length,
+                totalBalance: totalBalance.toString(),
             };
         } catch (error) {
-            logger.error('getProtocolsByPlatforms', error);
+            console.error('getProtocolsByPlatforms', error);
             return {
                 list: [],
                 total: 0,
                 totalBalance: '0',
             };
         } finally {
-            if (list) list.length = 0;
+            if (integrations) integrations.length = 0;
+            for (const key in byPlatforms) if (byPlatforms[key]) delete byPlatforms[key];
+            if (totalBalance) totalBalance = BigNumber(0);
         }
     }
 
@@ -321,73 +316,71 @@ class BalancesDB extends Dexie {
 
         const accountLower = account.toLowerCase();
 
-        let list = null;
+        let nfts = null;
+        const collections: Record<string, any> = {};
+        let totalBalance = BigNumber(0);
 
         try {
-            const nfts = await this.balances.where({ account: accountLower, dataType: Type.nfts }).toArray();
+            nfts = await this.balances.where({ account: accountLower, dataType: Type.nfts }).toArray();
 
-            const { group: collections, totalGroupBalance } = nfts.reduce(
-                (acc: any, nft: NftBalance) => {
-                    const { collection, token, chainLogo } = nft || {};
+            for (const nft of nfts) {
+                const { collection, token, chainLogo } = nft || {};
 
-                    const { address } = collection || {};
+                const { address } = collection || {};
 
-                    if (!acc.group.has(address))
-                        acc.group.set(address, {
-                            ...collection,
-                            chainLogo,
-                            token,
-                            nfts: [],
-                            floorPriceUsd: BigNumber(0),
-                            totalGroupBalance: BigNumber(0),
-                        });
+                if (!collections[address])
+                    collections[address] = {
+                        ...collection,
+                        chainLogo,
+                        token,
+                        nfts: 0,
+                        floorPriceUsd: BigNumber(0),
+                        totalGroupBalance: BigNumber(0),
+                    };
 
-                    const collectionData = acc.group.get(address);
+                collections[address].totalGroupBalance = BigNumber(nft.price || 0)
+                    .multipliedBy(token.price || 0)
+                    .toString();
 
-                    collectionData.totalGroupBalance = BigNumber(nft.price || 0)
-                        .multipliedBy(token.price || 0)
-                        .toString();
+                collections[address].floorPriceUsd = BigNumber(collection.floorPrice || 0)
+                    .multipliedBy(token.price || 0)
+                    .toString();
 
-                    collectionData.floorPriceUsd = BigNumber(collection.floorPrice || 0)
-                        .multipliedBy(token.price || 0)
-                        .toString();
+                if (BigNumber(collections[address].floorPriceUsd).isGreaterThanOrEqualTo(minBalance)) collections[address].nfts += 1;
+                else collections[address].nfts = collections[address].nfts !== 0 ? collections[address].nfts - 1 : 0;
 
-                    if (BigNumber(collectionData.floorPriceUsd).isGreaterThanOrEqualTo(minBalance)) collectionData.nfts.push(nft);
+                totalBalance = totalBalance.plus(collections[address].totalGroupBalance);
 
-                    acc.totalGroupBalance = acc.totalGroupBalance.plus(collectionData.totalGroupBalance);
-
-                    if (!collectionData.nfts.length) acc.group.delete(address);
-
-                    return acc;
-                },
-                {
-                    group: new Map(),
-                    totalGroupBalance: BigNumber(0),
-                },
-            );
-
-            nfts.length = 0;
-
-            const nftList = [...collections.values()];
-
-            collections.clear();
-
-            list = nftList;
+                if (!collections[address].nfts) delete collections[address];
+            }
 
             return {
-                list: orderBy(nftList, (nft) => +nft.totalGroupBalance || 0, ['desc']).slice(0, nftIndex),
-                total: nftList.length,
-                totalBalance: totalGroupBalance.toString(),
+                list: orderBy(Object.values(collections), (collection) => +collection.totalGroupBalance || 0, ['desc']).slice(0, nftIndex),
+                total: Object.keys(collections).length,
+                totalBalance: totalBalance.toString(),
             };
         } catch (error) {
-            logger.error('getNftsByCollections', error);
+            console.error('getNftsByCollections', error);
             return {
                 list: [],
                 total: 0,
                 totalBalance: '0',
             };
         } finally {
-            if (list) list.length = 0;
+            if (nfts) nfts.length = 0;
+            for (const key in collections) if (collections[key]) delete collections[key];
+            if (totalBalance) totalBalance = BigNumber(0);
+        }
+    }
+
+    async getNftInfoByCollection(account: string, collection: string): Promise<any> {
+        const accountLower = account.toLowerCase();
+
+        try {
+            return await this.balances.where({ account: accountLower, dataType: Type.nfts, 'collection.address': collection }).toArray();
+        } catch (error) {
+            console.error('getNftInfoByCollection', error);
+            return [];
         }
     }
 
@@ -425,7 +418,7 @@ class BalancesDB extends Dexie {
                 integrationsBalance: integrationsBalance.toString(),
             };
         } catch (error) {
-            logger.error('getTotalBalance', error);
+            console.error('getTotalBalance', error);
             return {
                 total: '0',
                 assetsBalance: '0',
@@ -435,4 +428,6 @@ class BalancesDB extends Dexie {
     }
 }
 
-export default BalancesDB;
+const db = new BalancesDB(1.1);
+
+export default db;

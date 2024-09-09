@@ -9,8 +9,6 @@ import { getTotalBalance } from '@/core/balance-provider/calculation';
 import BalancesDB from '@/services/indexed-db/balances';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
-const balancesDB = new BalancesDB(1);
-
 const minBalanceStorage = useLocalStorage('dashboard:minBalance', 0, { mergeDefaults: true });
 
 const BUNDLED_ACCOUNT = 'all';
@@ -299,7 +297,7 @@ export default {
                 break;
             }
 
-            if (accountToUpdate) balancesDB.updateTokenImage(accountToUpdate, id, image);
+            if (accountToUpdate) BalancesDB.updateTokenImage(accountToUpdate, id, image);
         },
     },
 
@@ -310,8 +308,8 @@ export default {
         ) {
             try {
                 const [balances, totalBalances] = await Promise.all([
-                    await balancesDB.getBalancesByAccountAndTypeWithChains(type, account),
-                    await balancesDB.getTotalBalance(account),
+                    await BalancesDB.getBalancesByAccountAndTypeWithChains(type, account),
+                    await BalancesDB.getTotalBalance(account),
                 ]);
 
                 if (!balances) return;

@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 
 import { useClipboard } from '@vueuse/core';
 
@@ -101,11 +101,6 @@ export default {
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
 
-        watch(currentChainInfo, () => {
-            if (props.wallet.ecosystem === Ecosystem.EVM && currentChainInfo.value?.ecosystem === Ecosystem.EVM)
-                selectedChain.value = currentChainInfo.value.chain_id;
-        });
-
         const handleSelectedChainChange = async () => {
             const newChain = selectedChain.value;
             const oldChain = props.wallet.chain;
@@ -161,6 +156,12 @@ export default {
 
             reset(mixpanel);
         };
+        const unWatch = watch(currentChainInfo, () => {
+            if (props.wallet.ecosystem === Ecosystem.EVM && currentChainInfo.value?.ecosystem === Ecosystem.EVM)
+                selectedChain.value = currentChainInfo.value.chain_id;
+        });
+
+        onUnmounted(() => unWatch());
 
         return {
             chainInfo,

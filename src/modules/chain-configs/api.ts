@@ -9,8 +9,6 @@ import logger from '@/shared/logger';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
-const configsDB = new ConfigsDB(1);
-
 const apiClient = new ApiClient({
     baseURL: process.env.CORE_API || '',
 });
@@ -56,7 +54,7 @@ export const getConfigsByEcosystems = async (
     const store = isCosmology ? DB_TABLES.COSMOLOGY_NETWORKS : DB_TABLES.NETWORKS;
 
     try {
-        const configsHash = await configsDB.getAllNetworksByEcosystemHash(ecosystem, isCosmology);
+        const configsHash = await ConfigsDB.getAllNetworksByEcosystemHash(ecosystem, isCosmology);
         if (!isNeedToUpdate(configsHash, lastUpdated)) return configsHash;
     } catch (error) {
         logger.error('Error while getting networks from indexedDB', error);
@@ -64,14 +62,14 @@ export const getConfigsByEcosystems = async (
 
     try {
         // ! Clear the table before saving new data
-        await configsDB.bulkDeleteByKeys(store, 'ecosystem', ecosystem);
+        await ConfigsDB.bulkDeleteByKeys(store, 'ecosystem', ecosystem);
 
         const { data, status }: AxiosResponse = await axiosInstance.get(`networks/${ecosystem.toLowerCase()}${query}`);
 
         if (status !== HttpStatusCode.Ok) return {};
 
         // * Save the data to indexedDB
-        await configsDB.saveNetworksConfig(store, data, ecosystem, lastUpdated);
+        await ConfigsDB.saveNetworksConfig(store, data, ecosystem, lastUpdated);
 
         // * Return the data
         return data;
@@ -85,18 +83,18 @@ export const getCosmologyTokensConfig = async ({ lastUpdated } = { lastUpdated: 
     const store = DB_TABLES.COSMOLOGY_TOKENS;
 
     try {
-        const tokensList = await configsDB.getAllCosmologyTokens();
+        const tokensList = await ConfigsDB.getAllCosmologyTokens();
         if (!isNeedToUpdate(tokensList, lastUpdated)) return tokensList;
     } catch (error) {
         logger.error('Error while getting cosmology tokens from indexedDB', error);
     }
 
     try {
-        await configsDB.bulkDeleteByKeys(store, 'chain_name');
+        await ConfigsDB.bulkDeleteByKeys(store, 'chain_name');
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/cosmos/all/tokens`);
 
-        await configsDB.saveCosmologyAssets(data, lastUpdated);
+        await ConfigsDB.saveCosmologyAssets(data, lastUpdated);
 
         return data;
     } catch (err) {
@@ -109,18 +107,18 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string, {
     const store = DB_TABLES.TOKENS;
 
     try {
-        const tokensHash = await configsDB.getAllTokensByChainHash(chain);
+        const tokensHash = await ConfigsDB.getAllTokensByChainHash(chain);
         if (!isNeedToUpdate(tokensHash, lastUpdated)) return tokensHash;
     } catch (error) {
         logger.error('Error while getting tokens from indexedDB', error);
     }
 
     try {
-        await configsDB.bulkDeleteByKeys(store, 'chain', chain);
+        await ConfigsDB.bulkDeleteByKeys(store, 'chain', chain);
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/${chain}/tokens`);
 
-        const formatted = await configsDB.saveTokensConfig(data, ecosystem as any, chain, lastUpdated);
+        const formatted = await ConfigsDB.saveTokensConfig(data, ecosystem as any, chain, lastUpdated);
 
         return formatted;
     } catch (err) {

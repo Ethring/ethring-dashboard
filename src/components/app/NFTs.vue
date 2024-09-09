@@ -10,7 +10,34 @@
                         icon="NftsIcon"
                     />
                 </template>
-                <AssetsTable :data="nftsByCollections.list || []" type="NFTS" :columns="COLUMNS" />
+
+                <a-table
+                    class="assets-table"
+                    expand-row-by-click
+                    :columns="COLUMNS"
+                    :data-source="nftsByCollections.list"
+                    :pagination="false"
+                    :bordered="false"
+                    :scroll="{ x: 700 }"
+                    :row-key="rowKey"
+                    :expanded-row-keys="expandedRowKeys"
+                    :show-expand-column="true"
+                    @expand="onExpand"
+                >
+                    <template #headerCell="{ title, column }">
+                        <p v-if="column && column.name">
+                            {{ title }}
+                        </p>
+                    </template>
+
+                    <template #bodyCell="{ column, record }">
+                        <AssetItem v-if="record && column" :item="record" :column="column.dataIndex" type="NFTS" />
+                    </template>
+
+                    <template #expandedRowRender="{ index }">
+                        <ExpandNftInfo v-if="nftInfoByCollection" :key="index" :record="nftInfoByCollection" />
+                    </template>
+                </a-table>
                 <div v-if="nftsByCollections.list.length >= nftIndex" class="assets-block-show-more">
                     <UiButton :title="$t('tokenOperations.showMore')" @click="handleNFTsLoadMore" />
                 </div>
@@ -25,7 +52,6 @@ import { useStore } from 'vuex';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import BalancesDB from '@/services/indexed-db/balances';
 
-import AssetsTable from '@/components/app/assets/AssetsTable.vue';
 import AssetGroupHeader from '@/components/app/assets/AssetGroupHeader.vue';
 import UiButton from '@/components/ui/Button.vue';
 
@@ -33,14 +59,14 @@ export default {
     name: 'NFTs',
     components: {
         AssetGroupHeader,
-        AssetsTable,
         UiButton,
     },
     setup() {
         const store = useStore();
-        const balancesDB = new BalancesDB(1);
+        const isMounted = ref(false);
 
         const collapseActiveKey = ref(['nfts']);
+        const expandedRowKeys = ref([]);
 
         const { walletAccount } = useAdapter();
 
@@ -62,14 +88,32 @@ export default {
             totalBalance: 0,
         });
 
+        const nftInfoByCollection = shallowRef({
+            nfts: [],
+        });
+
         // *********************************************************************************
         // * Request to IndexedDB
         // *********************************************************************************
 
         const getNftsByCollections = async () => {
             try {
-                const response = await balancesDB.getNftsByCollections(targetAccount.value, minBalance.value, nftIndex.value);
+                if (!isMounted.value) return console.log('NFTs not mounted, skipping update');
+                const response = await BalancesDB.getNftsByCollections(targetAccount.value, minBalance.value, nftIndex.value);
                 nftsByCollections.value = response;
+            } catch (error) {
+                console.error('Error requesting NFTs', error);
+            }
+        };
+
+        const getNftInfoByCollection = async (collection) => {
+            try {
+                if (!isMounted.value) return console.log('NFTs not mounted, skipping update');
+                const response = await BalancesDB.getNftInfoByCollection(targetAccount.value, collection.address, minBalance.value);
+                nftInfoByCollection.value = {
+                    ...collection,
+                    nfts: response,
+                };
             } catch (error) {
                 console.error('Error requesting NFTs', error);
             }
@@ -93,13 +137,36 @@ export default {
         // * Watch for changes in the target account, min balance, and asset index
         // *********************************************************************************
 
-        const handleOnChangeKeysToRequest = async ([account, minBalance, nftIndex, loading]) => {
+        const handleOnChangeKeysToRequest = async (
+            [account, minBalance, nftIndex, loading],
+            [oldAccount, oldMinBalance, oldNftIndex, oldLoading],
+        ) => {
             // ! If loading is true, do not request
             if (loading) return;
+
+            if (minBalance !== oldMinBalance) expandedRowKeys.value = [];
+
             await makeRequest();
         };
 
+        const rowKey = (record) => `NFTS-${record.address}`;
+
+        const onExpand = async (expanded, record) => {
+            if (expanded) {
+                expandedRowKeys.value = [rowKey(record)];
+
+                return await getNftInfoByCollection(record);
+            }
+
+            expandedRowKeys.value = [];
+
+            nftInfoByCollection.value = {
+                nfts: [],
+            };
+        };
+
         onMounted(async () => {
+            isMounted.value = true;
             store.dispatch('tokens/resetIndexes');
             await makeRequest();
         });
@@ -108,25 +175,18 @@ export default {
         // * Watchers
         // *********************************************************************************
 
-        const unWatchKeysToRequest = watch([targetAccount, minBalance, nftIndex, loadingByAccount], handleOnChangeKeysToRequest, {
-            immediate: true,
-        });
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, nftIndex, loadingByAccount], handleOnChangeKeysToRequest);
 
         // *********************************************************************************
         // * Unmount
         // *********************************************************************************
 
         onUnmounted(() => {
-            console.log('NFTs unmounted');
+            isMounted.value = false;
             store.dispatch('tokens/resetIndexes');
             unWatchKeysToRequest();
 
-            // ! Close the IndexedDB connection
-            // balancesDB.close();
-
             // ! Clear the NFTs
-
-            console.log('Clearing NFTs');
             nftsByCollections.value = {
                 list: [],
                 total: 0,
@@ -166,12 +226,17 @@ export default {
 
             // * Assets & Protocols & NFTs from IndexedDB
             nftsByCollections,
+            nftInfoByCollection,
             nftIndex,
 
             // * Columns for the table
             COLUMNS,
 
             handleNFTsLoadMore,
+
+            rowKey,
+            expandedRowKeys,
+            onExpand,
         };
     },
 };

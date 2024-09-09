@@ -15,8 +15,6 @@ const TYPES = {
     SET_LAST_UPDATED: 'SET_LAST_UPDATED',
 };
 
-const configsDB = new ConfigsDB(1);
-
 export default {
     namespaced: true,
 
@@ -121,7 +119,7 @@ export default {
 
         async getTokensListForChain({}, chain) {
             try {
-                return await configsDB.getAllTokensByChain(chain);
+                return await ConfigsDB.getAllTokensByChain(chain);
             } catch (error) {
                 return [];
             }
@@ -142,8 +140,8 @@ export default {
                 const { chain, address } = tokenInfo;
 
                 const [byChain, byAddress] = await Promise.all([
-                    configsDB.getTokenByChainAndAddress(chain, address),
-                    configsDB.getTokenByAddress(address),
+                    ConfigsDB.getTokenByChainAndAddress(chain, address),
+                    ConfigsDB.getTokenByAddress(address),
                 ]);
 
                 if (!byChain && byAddress) {

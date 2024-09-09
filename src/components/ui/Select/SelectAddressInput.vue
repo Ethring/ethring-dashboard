@@ -44,7 +44,7 @@
 import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
-import { ref, watch, computed, inject } from 'vue';
+import { ref, watch, computed, inject, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 export default {
@@ -159,10 +159,12 @@ export default {
 
         if (props.onReset) resetAddress();
 
-        watch(
+        const unWatch = watch(
             () => props.onReset,
             () => resetAddress(),
         );
+
+        onUnmounted(() => unWatch());
 
         return {
             active,

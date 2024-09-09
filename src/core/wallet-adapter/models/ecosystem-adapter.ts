@@ -17,11 +17,6 @@ export interface IBaseAdapter {
     DEFAULT_CHAIN: string;
 
     /**
-     * Vuex store instance for the adapter.
-     */
-    store: Store<any>;
-
-    /**
      * Current using wallet provider name
      */
     walletName: string | null;
@@ -67,7 +62,10 @@ export interface IBaseAdapter {
      * @param walletName - The name of the wallet to connect.
      * @returns A promise that resolves to an object indicating the connection status and the wallet name, or a boolean value.
      */
-    connectWallet(walletName: string | null): Promise<{ isConnected: boolean; walletName: string | null }>;
+    connectWallet(
+        walletName: string | null,
+        { store, chain }: { store: any; chain?: string },
+    ): Promise<{ isConnected: boolean; walletName: string | null }>;
 
     /**
      * Disconnects the wallet by label.
@@ -86,7 +84,7 @@ export interface IBaseAdapter {
      * Gets the addresses with chains.
      * @returns A promise that resolves to an object with addresses mapped to chains.
      */
-    getAddressesWithChains(): Promise<IAddressByNetwork | null>;
+    getAddressesWithChains(store: Store<any>): Promise<IAddressByNetwork | null>;
 
     // ****************************************************
     // * Wallet Info methods
@@ -164,7 +162,7 @@ export interface IBaseAdapter {
      * @param store - The Vuex store instance.
      * @returns An array of chain objects.
      */
-    getChainList(allChains?: boolean): IChainInfo[];
+    getChainList({ allChains, store }: { allChains?: any; store?: any }): any[];
 
     /**
      * Sets or changes the chain.
@@ -221,7 +219,7 @@ export interface IBaseAdapter {
      * @param transaction - The transaction object.
      * @returns A promise that resolves to the signed and sent transaction object.
      */
-    signSend(transaction: any): Promise<any>;
+    signSend(transaction: any, { store, ecosystem, chain }: { store: any; ecosystem?: string; chain?: string }): Promise<any>;
 
     // ****************************************************
     // * Explorer methods
@@ -283,7 +281,7 @@ export interface IEthereumAdapter extends IBaseAdapter {
     /**
      * Sets the address for chains.
      */
-    setAddressForChains(): void;
+    setAddressForChains({ store }: { store: any }): void;
 
     /**
      * Method to get the Ethereum provider.
@@ -312,7 +310,7 @@ export interface ICosmosAdapter extends IBaseAdapter {
      * Method to set the address for chains.
      * @returns A promise that resolves when the address is set for chains.
      */
-    setAddressForChains(walletName: string): Promise<void>;
+    setAddressForChains({ walletName, store }: { walletName: string; store: any }): Promise<void>;
 
     /**
      * Method to check if the client is available.
