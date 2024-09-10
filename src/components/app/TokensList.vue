@@ -12,16 +12,12 @@
                 </template>
 
                 <AssetsTable type="Asset" :data="assetsForAccount.list" :columns="ASSETS_COLUMNS" />
-
-                <div v-if="assetsForAccount.total > assetsForAccount.list.length" class="assets-block-show-more">
-                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleAssetLoadMore" />
-                </div>
             </a-collapse-panel>
         </a-collapse>
     </div>
 </template>
 <script>
-import { ref, computed, onMounted, watch, onUnmounted, shallowRef } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted, shallowRef, onDeactivated } from 'vue';
 import { useStore } from 'vuex';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -29,14 +25,12 @@ import BalancesDB from '@/services/indexed-db/balances';
 
 import AssetsTable from '@/components/app/assets/AssetsTable.vue';
 import AssetGroupHeader from '@/components/app/assets/AssetGroupHeader.vue';
-import UiButton from '@/components/ui/Button.vue';
 
 export default {
     name: 'TokensList',
     components: {
         AssetGroupHeader,
         AssetsTable,
-        UiButton,
     },
     setup() {
         const store = useStore();
@@ -48,7 +42,7 @@ export default {
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
         const minBalance = computed(() => store.getters['tokens/minBalance']);
         const assetIndex = computed(() => store.getters['tokens/assetIndex']);
-        const loadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
+        const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](targetAccount.value));
 
         // *********************************************************************************
         // * Assets from IndexedDB
@@ -71,6 +65,7 @@ export default {
             try {
                 if (!isMounted.value) return console.log('Assets not mounted, skipping update');
                 const response = await BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                    isAll: true,
                     assetIndex: assetIndex.value,
                 });
                 assetsForAccount.value = response;
@@ -88,19 +83,12 @@ export default {
         };
 
         // *********************************************************************************
-        // * Load more Assets
-        // *********************************************************************************
-
-        const handleAssetLoadMore = () => store.dispatch('tokens/loadMoreAssets');
-
-        // *********************************************************************************
         // * Watcher's handler
         // *********************************************************************************
 
-        const handleOnChangeKeysToRequest = async ([account, minBalance, assetIndex, loading]) => {
-            // ! If loading, do not request
-            if (loading) return;
-            await makeRequest();
+        const handleOnChangeKeysToRequest = async ([account, minBalance, assetIndex, isNeedToLoadFromIndexedDB]) => {
+            if (!isNeedToLoadFromIndexedDB) return;
+            return await makeRequest();
         };
 
         // *********************************************************************************
@@ -109,9 +97,6 @@ export default {
 
         onMounted(async () => {
             isMounted.value = true;
-            store.dispatch('tokens/resetIndexes');
-            store.dispatch('tokens/loadMoreAssets');
-
             await makeRequest();
         });
 
@@ -119,13 +104,21 @@ export default {
         // * Watchers
         // *********************************************************************************
 
-        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, loadingByAccount], handleOnChangeKeysToRequest);
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
 
         // *********************************************************************************
         // * OnUnmounted
         // *********************************************************************************
 
         onUnmounted(() => {
+            isMounted.value = false;
+            unWatchKeysToRequest();
+
+            // * Reset indexes
+            store.dispatch('tokens/resetIndexes');
+        });
+
+        onDeactivated(() => {
             isMounted.value = false;
             unWatchKeysToRequest();
 
@@ -162,11 +155,9 @@ export default {
 
         return {
             collapseActiveKey,
+
             // * Assets from IndexedDB
-
             assetsForAccount,
-
-            handleAssetLoadMore,
 
             // * Columns for the table
             ASSETS_COLUMNS,

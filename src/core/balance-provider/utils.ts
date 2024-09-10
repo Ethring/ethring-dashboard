@@ -26,6 +26,7 @@ export const storeBalanceForAccount = async (
     try {
         // * Save data to indexedDB cache to load data page faster
         await BalancesDB.saveBalancesByTypes(formatted, { dataType: type, account, address, chain });
+        await store.dispatch('tokens/setLoadFromIndexedDB', { account, chain, value: true });
 
         // * Save data to Vuex store (Only for tokens and pools)
         if (![Type.integrations, Type.nfts].includes(type))
@@ -40,5 +41,7 @@ export const storeBalanceForAccount = async (
         ]);
     } catch (error) {
         console.error(`[storeBalanceForAccount] ${type}`, error);
+    } finally {
+        await store.dispatch('tokens/setLoadFromIndexedDB', { account, chain, value: false });
     }
 };

@@ -150,7 +150,7 @@ class BalancesDB extends Dexie {
     async getAssetsForAccount(
         account: string,
         minBalance: number,
-        { assetIndex = 0 }: { assetIndex?: number },
+        { assetIndex = 0, isAll = false }: { assetIndex?: number; isAll?: boolean },
     ): Promise<{
         list: any[];
         total: number;
@@ -170,6 +170,13 @@ class BalancesDB extends Dexie {
                 list.push(asset);
                 totalBalance = totalBalance.plus(asset.balanceUsd || 0);
             }
+
+            if (isAll)
+                return {
+                    list: orderBy(list, (asset) => +asset.balanceUsd || 0, ['desc']),
+                    total: list.length,
+                    totalBalance: totalBalance.toFixed(6),
+                };
 
             return {
                 list: orderBy(list, (asset) => +asset.balanceUsd || 0, ['desc']).slice(0, assetIndex),

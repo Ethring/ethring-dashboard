@@ -24,7 +24,7 @@
                 <AssetsTable v-once type="Asset" :data="assetsForAccount.list" :columns="ASSET_COLUMNS" />
 
                 <div v-if="assetsForAccount.total > assetsForAccount.list.length" class="assets-block-show-more">
-                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleShowAllAssets" />
+                    <UiButton :title="$t('tokenOperations.showAll')" @click="handleShowAllAssets" />
                 </div>
             </a-collapse-panel>
 
@@ -63,7 +63,7 @@
     </div>
 </template>
 <script>
-import { ref, computed, onMounted, watch, onUnmounted, shallowRef } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted, shallowRef, onActivated } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -102,6 +102,7 @@ export default {
         const minBalance = computed(() => store.getters['tokens/minBalance']);
         const assetIndex = computed(() => store.getters['tokens/assetIndex']);
         const loadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
+        const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](targetAccount.value));
 
         const collapseActiveKey = ref(['assets']);
 
@@ -213,11 +214,20 @@ export default {
             collapsedAssets.value = allActiveKeys.value.filter((key) => !keys.includes(key));
         };
 
-        const handleOnChangeKeysToRequest = async ([account, minBalance, assetIndex, loading]) => {
-            // ! If loading is true, do not request
-            if (loading) return;
-            await makeRequest();
+        const handleOnChangeKeysToRequest = async ([account, minBalance, assetIndex, isNeedToLoadFromIndexedDB]) => {
+            if (!isNeedToLoadFromIndexedDB) return;
+            return await makeRequest();
         };
+
+        // *********************************************************************************
+        // * OnActivated
+        // *********************************************************************************
+
+        onActivated(async () => {
+            isMounted.value = true;
+            handleOnUpdateCollapsedAssets();
+            store.dispatch('tokens/resetIndexes');
+        });
 
         // *********************************************************************************
         // * OnMounted
@@ -236,7 +246,7 @@ export default {
 
         const unWatchAccount = watch(walletAccount, async (account, oldAccount) => await handleOnChangeAccount(account, oldAccount));
 
-        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, loadingByAccount], handleOnChangeKeysToRequest);
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
 
         // *********************************************************************************
         // * OnUnmounted

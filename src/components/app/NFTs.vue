@@ -72,6 +72,7 @@ export default {
 
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
         const loadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
+        const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](targetAccount.value));
         const minBalance = computed(() => store.getters['tokens/minBalance']);
         const nftIndex = computed(() => store.getters['tokens/nftIndex']);
 
@@ -138,11 +139,10 @@ export default {
         // *********************************************************************************
 
         const handleOnChangeKeysToRequest = async (
-            [account, minBalance, nftIndex, loading],
+            [account, minBalance, nftIndex, isNeedToLoadFromIndexedDB],
             [oldAccount, oldMinBalance, oldNftIndex, oldLoading],
         ) => {
-            // ! If loading is true, do not request
-            if (loading) return;
+            if (!isNeedToLoadFromIndexedDB) return;
 
             if (minBalance !== oldMinBalance) expandedRowKeys.value = [];
 
@@ -175,7 +175,7 @@ export default {
         // * Watchers
         // *********************************************************************************
 
-        const unWatchKeysToRequest = watch([targetAccount, minBalance, nftIndex, loadingByAccount], handleOnChangeKeysToRequest);
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, nftIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
 
         // *********************************************************************************
         // * Unmount

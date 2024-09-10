@@ -49,6 +49,8 @@ const TYPES = {
     SET_NFT_INDEX: 'SET_NFT_INDEX',
 
     SET_NEW_TOKEN_IMAGE: 'SET_NEW_TOKEN_IMAGE',
+
+    SET_LOAD_FROM_INDEXED_DB: 'SET_LOAD_FROM_INDEXED_DB',
 };
 
 interface IState {
@@ -78,6 +80,8 @@ interface IState {
     [Type.integrations]: Record<string, Record<string, Record<string, any[]>>>;
     [Type.nfts]: Record<string, Record<string, Record<string, any[]>>>;
     [Type.pools]: Record<string, Record<string, Record<string, any[]>>>;
+
+    isNeedToLoadFromIndexedDB: Record<string, boolean>;
 }
 
 export default {
@@ -110,6 +114,8 @@ export default {
         networksToShow: {},
 
         minBalance: minBalanceStorage.value,
+
+        isNeedToLoadFromIndexedDB: {},
     }),
 
     getters: {
@@ -192,6 +198,8 @@ export default {
         },
 
         networksToShow: (state: IState) => state.networksToShow || {},
+
+        isNeedToLoadFromIndexedDB: (state: IState) => (account: string) => state.isNeedToLoadFromIndexedDB[account] || false,
     },
 
     mutations: {
@@ -299,6 +307,10 @@ export default {
 
             if (accountToUpdate) BalancesDB.updateTokenImage(accountToUpdate, id, image);
         },
+
+        [TYPES.SET_LOAD_FROM_INDEXED_DB](state: IState, { account, value }: { account: string; value: boolean }) {
+            state.isNeedToLoadFromIndexedDB[account] = value;
+        },
     },
 
     actions: {
@@ -388,6 +400,9 @@ export default {
 
         setTotalBalances({ commit }: { commit: any }, value: { account: string; data: number }) {
             commit(TYPES.SET_TOTAL_BALANCE, value);
+        },
+        setLoadFromIndexedDB({ commit }: { commit: any }, value: { account: string; value: boolean }) {
+            commit(TYPES.SET_LOAD_FROM_INDEXED_DB, value);
         },
     },
 };
