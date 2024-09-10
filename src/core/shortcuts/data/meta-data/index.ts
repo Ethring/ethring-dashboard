@@ -439,6 +439,26 @@ const META_DATA: Record<string, IShortcutMeta> = {
         isActive: true,
         callShortcutMethod: 'loadMitosisPoints',
     },
+    [AvailableShortcuts.MantlePendleLP]: {
+        id: AvailableShortcuts.MantlePendleLP,
+        name: 'Earn fixed yield on Pendle and Mantle',
+        logoURI: 'https://storage.googleapis.com/prod-pendle-bucket-a/images/uploads/4c97a4d4-6217-4404-ac09-a8a1a305dab9.svg',
+        keywords: ['pendle', 'yield', 'mantle'],
+        tags: ['PENDLE', 'MANTLE'],
+        ecosystems: ['EVM'],
+        networksConfig: {
+            fullEcosystems: [],
+            additionalNetworks: ['mantle'],
+        },
+        type: 'yield',
+        description: 'Optimize your strategies and increase your earnings with Pendle',
+        wallpaper: '/img/wallpapers/mantle.png',
+        website: 'https://pendle.finance/',
+        minUsdAmount: 0.1,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+        callShortcutMethod: 'loadMantlePoints',
+    },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {
