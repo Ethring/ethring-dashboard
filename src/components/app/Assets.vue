@@ -214,8 +214,18 @@ export default {
             collapsedAssets.value = allActiveKeys.value.filter((key) => !keys.includes(key));
         };
 
-        const handleOnChangeKeysToRequest = async ([account, minBalance, assetIndex, isNeedToLoadFromIndexedDB]) => {
+        const handleOnChangeKeysToRequest = async (
+            [account, minBalance, assetIndex, isNeedToLoadFromIndexedDB],
+            [oldAccount, oldMinBalance, oldAssetIndex, oldIsNeedToLoadFromIndexedDB],
+        ) => {
+            if (account !== oldAccount) return await makeRequest();
+
+            if (minBalance !== oldMinBalance) return await makeRequest();
+
+            if (assetIndex !== oldAssetIndex) return await makeRequest();
+
             if (!isNeedToLoadFromIndexedDB) return;
+
             return await makeRequest();
         };
 

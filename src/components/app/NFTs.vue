@@ -142,9 +142,17 @@ export default {
             [account, minBalance, nftIndex, isNeedToLoadFromIndexedDB],
             [oldAccount, oldMinBalance, oldNftIndex, oldLoading],
         ) => {
-            if (!isNeedToLoadFromIndexedDB) return;
+            if (account !== oldAccount) {
+                expandedRowKeys.value = [];
+                return await makeRequest();
+            }
 
-            if (minBalance !== oldMinBalance) expandedRowKeys.value = [];
+            if (minBalance !== oldMinBalance) {
+                expandedRowKeys.value = [];
+                return await makeRequest();
+            }
+
+            if (!isNeedToLoadFromIndexedDB) return;
 
             await makeRequest();
         };
