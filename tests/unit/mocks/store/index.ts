@@ -13,7 +13,7 @@ import adapterStore from '../../../../src/core/wallet-adapter/store/index';
 import shortcutStore from '../../../../src/core/shortcuts/store';
 import bridgeDexAPIStore from '../../../../src/modules/bridge-dex/store';
 
-export function createTestStore() {
+export function createTestStore(isWalletConnected = true) {
     return createStore({
         state: {},
         mutations: {},
@@ -27,6 +27,7 @@ export function createTestStore() {
                     ...adapterStore.getters,
                     getAddressesByEcosystem: (state: any) => (ecosystem: string) => {
                         if (!ecosystem) return [];
+                        if (!isWalletConnected) return [];
                         if (!CONNECTED_WALLETS.find((wallet) => wallet.ecosystem === ecosystem)) return [];
                         const wallet = CONNECTED_WALLETS.find((wallet) => wallet.ecosystem === ecosystem);
                         const { addresses } = wallet || {};

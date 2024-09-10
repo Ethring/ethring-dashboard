@@ -336,3 +336,20 @@ export const MOCKED_ADDRESSES_BY_CHAIN = {
     injective: 'inj15sccpqcda8efupv6yhwaw00hewshkps36dj6mm',
     terra2: 'terra1u62x7r58gfcx7jhppvcn8y423qp3n2vsp73lya',
 };
+
+export const SRC_TOKEN = {
+    name: 'ETH Native Token',
+    symbol: 'ETH',
+    address: null,
+    decimals: 18,
+    logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Ethereum.png',
+    price: '2322.69',
+    priceChange: '0',
+    balanceUsd: '197.24271',
+    balance: '0.0848764668053733',
+    chain: 'arbitrum',
+    chainLogo: 'https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg?1680097630',
+    id: 'arbitrum:tokens__native:ETH',
+    verified: true,
+    selected: true,
+};

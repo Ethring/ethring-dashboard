@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
 import { resolve } from 'path'; // * Path for resolving the paths
 
@@ -39,6 +39,9 @@ export default defineConfig({
             reporter: ['html', 'json'],
         },
         includeTaskLocation: true,
+        environment: 'jsdom',
+
+        env: loadEnv('', process.cwd(), ''),
     },
     // * ========= Settings for build (vite build) =========
     build: {

@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 import { computed, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 
 import {
     addTransactionToExistingQueue,
@@ -23,15 +23,15 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import { formatNumber } from '@/shared/utils/numbers';
 
-export default function useTransactions() {
-    const store = useStore();
+export default function useTransactions({ tmpStore }) {
+    const store = tmpStore || useStore();
 
     const { showNotification, closeNotification } = useNotification();
 
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const { signSend, currentChainInfo, connectedWallet, callTransactionAction, getTxExplorerLink } = useAdapter();
+    const { signSend, currentChainInfo, connectedWallet, callTransactionAction, getTxExplorerLink } = useAdapter({ tmpStore: store });
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {

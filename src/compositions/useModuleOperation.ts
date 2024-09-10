@@ -1,6 +1,6 @@
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 import { useRouter } from 'vue-router';
-import { isEqual, startsWith, uniq, isEmpty, CondPairNullary } from 'lodash';
+import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
@@ -44,8 +44,8 @@ import { callTrackEvent } from '@/app/modules/mixpanel/track';
 import mixpanel from 'mixpanel-browser';
 import { IChainConfig } from '@/shared/models/types/chain-config';
 
-const useModuleOperations = (module: ModuleType) => {
-    const store = useStore();
+const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
+    const store = tmpStore || useStore();
     const route = useRouter();
 
     // ************************************** SHORTCUTS **************************************
@@ -106,7 +106,7 @@ const useModuleOperations = (module: ModuleType) => {
         getConnectedStatus,
         switchEcosystem,
         callContractMethod,
-    } = useAdapter();
+    } = useAdapter({ tmpStore: store });
 
     // ===============================================================================================
     // * Notification
@@ -116,7 +116,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     // * Module values
     // ===============================================================================================
-    const moduleInstance = useServices(currentModule.value);
+    const moduleInstance = useServices(currentModule.value, { tmpStore: store });
 
     const {
         isInput,
@@ -156,7 +156,7 @@ const useModuleOperations = (module: ModuleType) => {
         makeAllowanceRequest,
     } = moduleInstance;
 
-    const { signAndSend } = useTransactions();
+    const { signAndSend } = useTransactions({ tmpStore: store });
 
     // * Input validation composition helpers
     const {
@@ -170,7 +170,7 @@ const useModuleOperations = (module: ModuleType) => {
         isQuoteRouteSet,
         isSrcAddressesEmpty,
         isDstAddressesEmpty,
-    } = useInputValidation();
+    } = useInputValidation({ tmpStore: store });
 
     // const currentServiceType = computed(() => {
     //     if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) return ServiceType.bridgedex;
@@ -218,19 +218,11 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const ecosystemToConnect = computed<Ecosystems | null>(() => {
-        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut, ModuleType.liquidityProvider].includes(currentModule.value);
-
-        // ! If not super swap, return
-        if (!isSuperSwap) {
-            opTitle.value = `tokenOperations.confirm`;
-            return null;
-        }
-
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
 
-        const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
-        const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
+        const isSrcEmpty = isSrcAddressesEmpty.value;
+        const isDstEmpty = isDstAddressesEmpty.value;
 
         if (!isSrcEmpty && !isDstEmpty) {
             opTitle.value = `tokenOperations.confirm`;
