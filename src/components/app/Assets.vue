@@ -218,13 +218,7 @@ export default {
             [account, minBalance, assetIndex, isNeedToLoadFromIndexedDB],
             [oldAccount, oldMinBalance, oldAssetIndex, oldIsNeedToLoadFromIndexedDB],
         ) => {
-            if (account !== oldAccount) return await makeRequest();
-
-            if (minBalance !== oldMinBalance) return await makeRequest();
-
-            if (assetIndex !== oldAssetIndex) return await makeRequest();
-
-            if (!isNeedToLoadFromIndexedDB) return;
+            if (isNeedToLoadFromIndexedDB) return await makeRequest();
 
             return await makeRequest();
         };

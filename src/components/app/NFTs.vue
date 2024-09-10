@@ -142,19 +142,13 @@ export default {
             [account, minBalance, nftIndex, isNeedToLoadFromIndexedDB],
             [oldAccount, oldMinBalance, oldNftIndex, oldLoading],
         ) => {
-            if (account !== oldAccount) {
-                expandedRowKeys.value = [];
-                return await makeRequest();
-            }
+            if (account !== oldAccount) expandedRowKeys.value = [];
 
-            if (minBalance !== oldMinBalance) {
-                expandedRowKeys.value = [];
-                return await makeRequest();
-            }
+            if (minBalance !== oldMinBalance) expandedRowKeys.value = [];
 
-            if (!isNeedToLoadFromIndexedDB) return;
+            if (isNeedToLoadFromIndexedDB) return await makeRequest();
 
-            await makeRequest();
+            return await makeRequest();
         };
 
         const rowKey = (record) => `NFTS-${record.address}`;
