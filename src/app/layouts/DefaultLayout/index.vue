@@ -8,9 +8,7 @@
             <NavBar />
             <a-layout-content class="content main-layout-content" data-qa="content">
                 <router-view v-slot="{ Component }">
-                    <keep-alive max="5">
-                        <component :is="Component" />
-                    </keep-alive>
+                    <component :is="Component" />
                 </router-view>
             </a-layout-content>
         </a-layout>

@@ -19,16 +19,19 @@ export const routes = [
         children: [
             {
                 path: '',
+                name: 'Wallet Overview',
                 alias: 'portfolio',
                 component: () => import('@/components/app/Assets.vue'),
             },
             {
                 path: 'nfts',
+                name: "Wallet's NFTs",
                 alias: 'nfts',
                 component: () => import('@/components/app/NFTs.vue'),
             },
             {
                 path: 'tokens',
+                name: "Wallet's Assets List",
                 alias: 'tokens',
                 component: () => import('@/components/app/TokensList.vue'),
             },
