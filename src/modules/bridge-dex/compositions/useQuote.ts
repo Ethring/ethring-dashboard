@@ -1,5 +1,5 @@
 import { computed, onUnmounted, ref, watch } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
@@ -40,8 +40,12 @@ import { useRoute } from 'vue-router';
  * - quoteErrorMessage - A ref for the quote route error message
  *
  */
-const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
-    const store = useStore();
+const useBridgeDexQuote = (
+    targetType: ServiceTypes,
+    bridgeDexService: BridgeDexService<any>,
+    { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null },
+) => {
+    const store = tmpStore || useStore();
 
     const route = useRoute();
 
@@ -63,7 +67,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         isDstTokenChainCorrectSwap,
         isQuoteRouteSet,
         isQuoteRouteSelected,
-    } = useInputValidation();
+    } = useInputValidation({ tmpStore: store });
 
     // ===========================================================================================
     // * Loading

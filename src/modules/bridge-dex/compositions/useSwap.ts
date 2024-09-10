@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
@@ -28,8 +28,12 @@ import { NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
  * - makeSwapRequest - A function for making a swap request to the service
  *
  */
-const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
-    const store = useStore();
+const useBridgeDexSwap = (
+    targetType: ServiceTypes,
+    bridgeDexService: BridgeDexService<any>,
+    { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null },
+) => {
+    const store = tmpStore || useStore();
 
     const type = ServiceType[targetType];
 

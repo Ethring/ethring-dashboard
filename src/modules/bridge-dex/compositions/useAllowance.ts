@@ -1,5 +1,5 @@
 import { computed, onUnmounted, watch } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
@@ -38,8 +38,12 @@ import { AddressByChainHash } from '@/shared/models/types/Address';
  * - makeAllowanceRequest - A function for making an allowance request to the service
  *
  */
-const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
-    const store = useStore();
+const useBridgeDexAllowance = (
+    targetType: ServiceTypes,
+    bridgeDexService: BridgeDexService<any>,
+    { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null },
+) => {
+    const store = tmpStore || useStore();
 
     const { walletAddress } = useAdapter();
 
