@@ -116,8 +116,8 @@ export const trackingBalanceUpdate = (store: any) => {
         const isSrcLpToken = srcToken.value?.id?.includes('pools');
         const isDstLpToken = dstToken.value?.id?.includes('pools');
 
-        if (isSrcLpToken && !pools[config.net].length) srcToken.value = null;
-        if (isDstLpToken && !pools[config.net].length) dstToken.value = null;
+        if (isSrcLpToken && pools && !pools[config.net]?.length) srcToken.value = null;
+        if (isDstLpToken && pools && !pools[config.net]?.length) dstToken.value = null;
 
         if (srcToken.value && config.net === srcToken.value.net) {
             const list = isSrcLpToken ? pools[config.net] : tokens;

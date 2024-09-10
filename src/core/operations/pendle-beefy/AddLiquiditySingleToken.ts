@@ -28,7 +28,7 @@ export default class PendleAddLiquiditySingleToken extends BaseOperation {
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
-        const { fromNet, net, ownerAddresses = {} } = this.params as any;
+        const { fromNet, net, ownerAddresses = {}, slippage } = this.params as any;
 
         const network = net || fromNet;
 
@@ -48,7 +48,7 @@ export default class PendleAddLiquiditySingleToken extends BaseOperation {
             tokenInAddr: tokenIn,
             syTokenInAddr: this.getParamByField('syTokenInAddr'),
             amountTokenIn: amountBN,
-            slippage: 0.005,
+            slippage: slippage / 100,
         };
 
         try {
@@ -77,7 +77,7 @@ export default class PendleAddLiquiditySingleToken extends BaseOperation {
         }
 
         try {
-            const { fromNet, net, ownerAddresses = {} } = this.params as any;
+            const { fromNet, net, ownerAddresses = {}, slippage } = this.params as any;
             const network = net || fromNet;
 
             const { from } = this.getTokens();
@@ -94,7 +94,7 @@ export default class PendleAddLiquiditySingleToken extends BaseOperation {
                 tokenInAddr: tokenIn,
                 syTokenInAddr: this.getParamByField('syTokenInAddr'),
                 amountTokenIn: amountBN,
-                slippage: 0.005,
+                slippage: slippage / 100,
             };
 
             const transaction = await this.service.addLiquiditySingleToken(params);

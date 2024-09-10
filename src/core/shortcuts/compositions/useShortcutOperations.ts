@@ -486,16 +486,19 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         const callOnFailOnFirstOp = () => {
             const id = operationsFactory.value.getOperationIdByKey(firstOperation.value.getUniqueId());
 
-            if (currentStepId.value !== id) {
-                operationsFactory.value.removeOperationByKey(currentStepId.value);
-                operationsFactory.value.removeOperationById(currentStepId.value);
-                operationsFactory.value.resetEstimatedOutputs();
+            const operations = operationsFactory.value.getFullOperationFlow();
 
-                store.dispatch('shortcuts/setCurrentStepId', {
-                    stepId: id,
-                    shortcutId: currentShortcutID,
-                });
-            }
+            for (const op of operations)
+                if (op.make === TRANSACTION_TYPES.APPROVE && op.operationId) {
+                    operationsFactory.value.removeOperationByKey(op.operationId);
+                    operationsFactory.value.removeOperationById(op.operationId);
+                    operationsFactory.value.resetEstimatedOutputs();
+                }
+
+            store.dispatch('shortcuts/setCurrentStepId', {
+                stepId: id,
+                shortcutId: currentShortcutID,
+            });
 
             return store.dispatch('shortcuts/setShortcutStatus', {
                 shortcutId: currentShortcutID,
@@ -622,7 +625,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         // Update dstNet if necessary
         if (oldDstNet?.net !== dstNet?.net && dstNet?.net) operation?.setParamByField('toNet', dstNet.net);
 
-        const { params = [] } = currentOp.value;
+        const { params = [], dependencies = {} } = currentOp.value;
 
         const srcTokenField = params.find((param) => param.name === 'srcToken');
         const dstTokenField = params.find((param) => param.name === 'dstToken');
@@ -636,6 +639,19 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             srcToken?.chain === srcTokenField?.chain
         )
             setTokenParams(operation, 'from', srcToken);
+
+        // Update dependent srcToken for other operations
+        const srcTokenDependent = dependencies?.operationParams?.find((param: any) => param?.paramKey === 'srcToken');
+        if (srcTokenDependent) {
+            const allOperations = operationsFactory.value.getFullOperationFlow();
+
+            for (const item of allOperations) {
+                if (!item.operationId || item.operationId === currentOp.value.id) continue;
+
+                const nextOp = operationsFactory.value.getOperationById(item.operationId);
+                setTokenParams(nextOp, 'from', srcToken);
+            }
+        }
 
         // Update dstToken if necessary
         if (

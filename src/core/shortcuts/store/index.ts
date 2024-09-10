@@ -19,6 +19,7 @@ import { IBaseOperation } from '@/core/operations/models/Operations';
 import DebridgeApi from '@/modules/debridge/api';
 import BerachainApi from '@/modules/berachain/api';
 import MitosisApi from '@/modules/mitosis/api';
+import MantleApi from '@/modules/mantle/api';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -37,6 +38,7 @@ const TYPES = {
     SET_DEBRIDGE_INFO: 'SET_DEBRIDGE_INFO',
     SET_VAULTS_INFO: 'SET_VAULTS_INFO',
     SET_MITOSIS_POINTS: 'SET_MITOSIS_POINTS',
+    SET_MANTLE_POINTS: 'SET_MANTLE_POINTS',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -78,6 +80,9 @@ interface IState {
     mitosisOnfo: {
         [key: string]: string;
     };
+    mantleInfo: {
+        [key: string]: string;
+    };
     isVaultsLoading: boolean;
 }
 
@@ -106,6 +111,7 @@ export default {
         vaults: {},
         mitosisOnfo: {},
         isVaultsLoading: false,
+        mantleInfo: {},
     }),
 
     // ================================================================================
@@ -134,6 +140,7 @@ export default {
         getDeBridgeInfo: (state: IState) => (address: string) => state.deBridgeInfo[address],
         getVaultsInfo: (state: IState) => (address: string) => state.vaults[address],
         getMitosisInfo: (state: IState) => (address: string) => state.mitosisOnfo[address],
+        getMantleInfo: (state: IState) => (address: string) => state.mantleInfo[address],
 
         getIsVaultsLoading: (state: IState) => state.isVaultsLoading,
 
@@ -333,6 +340,9 @@ export default {
         [TYPES.SET_MITOSIS_POINTS](state: IState, value: any) {
             state.mitosisOnfo = value;
         },
+        [TYPES.SET_MANTLE_POINTS](state: IState, value: any) {
+            state.mantleInfo = value;
+        },
     },
 
     // ================================================================================
@@ -474,6 +484,20 @@ export default {
             };
 
             commit(TYPES.SET_MITOSIS_POINTS, data);
+        },
+        async loadMantlePoints({ state, commit }: any, address: string) {
+            if (state.mantleInfo[address]) return state.mantleInfo[address];
+
+            const service = new MantleApi();
+
+            const response = await service.getPoints(address);
+
+            const data = {
+                ...state.mantleInfo,
+                [address]: response,
+            };
+
+            commit(TYPES.SET_MANTLE_POINTS, data);
         },
     },
 };
