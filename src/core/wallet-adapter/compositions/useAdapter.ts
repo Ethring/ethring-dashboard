@@ -587,6 +587,8 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
+        if (!adapter.walletName) return false;
+
         if (adapter.isLocked()) {
             adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
             return false;

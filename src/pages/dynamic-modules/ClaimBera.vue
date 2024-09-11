@@ -31,6 +31,11 @@ export default {
         const successMessage = ref(false);
         const loading = ref(false);
 
+        const address = computed({
+            get: () => store.getters['tokenOps/receiverAddress'],
+            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
+        });
+
         const opBtnState = computed(() => {
             return {
                 class: 'module-layout-view-btn',
@@ -38,12 +43,8 @@ export default {
                 title: 'tokenOperations.claimTokens',
                 size: 'large',
                 loading: loading.value,
+                disabled: !address.value,
             };
-        });
-
-        const address = computed({
-            get: () => store.getters['tokenOps/receiverAddress'],
-            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
         });
 
         const handleOnConfirm = async () => {

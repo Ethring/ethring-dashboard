@@ -23,7 +23,6 @@
                 v-else
                 v-model:value="amount"
                 v-debounce:1s="onInput"
-                :name="name"
                 type="text"
                 data-qa="input-amount"
                 class="base-input input-balance"

@@ -1,5 +1,5 @@
 import { computed, onMounted, onUnmounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
@@ -29,12 +29,12 @@ import useSwap from './useSwap';
  * - all methods and variables from useQuote, useAllowance, useApprove compositions
  *
  */
-const useBridgeDexService = (type: ModuleTypes) => {
+const useBridgeDexService = (type: ModuleTypes, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
     const typeByModule = ServiceByModule[type]; // * ServiceType by ModuleType (swap = dex, bridge = bridge, superSwap = bridgedex);
     const TARGET_TYPE = ServiceType[typeByModule]; // * Target service type (bridge, dex, bridgedex)
     const bridgeDexService = new BridgeDexService(TARGET_TYPE); // * BridgeDexService instance for the target service type
 
-    const store = useStore();
+    const store = tmpStore || useStore();
 
     // ===========================================================================================
     // * Quote Routes List by ServiceType (bridge, dex, bridgedex)
@@ -74,10 +74,10 @@ const useBridgeDexService = (type: ModuleTypes) => {
         selectedRoute, // Selected Route for ServiceType (bridge, dex, bridgedex)
 
         // * Service variables and methods for Quote, Allowance, Approve, Swap
-        ...useQuote(TARGET_TYPE, bridgeDexService),
-        ...useAllowance(TARGET_TYPE, bridgeDexService),
-        ...useApprove(TARGET_TYPE, bridgeDexService),
-        ...useSwap(TARGET_TYPE, bridgeDexService),
+        ...useQuote(TARGET_TYPE, bridgeDexService, { tmpStore: store }),
+        ...useAllowance(TARGET_TYPE, bridgeDexService, { tmpStore: store }),
+        ...useApprove(TARGET_TYPE, bridgeDexService, { tmpStore: store }),
+        ...useSwap(TARGET_TYPE, bridgeDexService, { tmpStore: store }),
     };
 };
 

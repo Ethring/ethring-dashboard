@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
@@ -31,8 +31,12 @@ import { ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
  * - makeApproveRequest - A function for making an approve request to the service
  *
  */
-const useBridgeDexApprove = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
-    const store = useStore();
+const useBridgeDexApprove = (
+    targetType: ServiceTypes,
+    bridgeDexService: BridgeDexService<any>,
+    { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null },
+) => {
+    const store = tmpStore || useStore();
 
     // ===========================================================================================
     // * Loading

@@ -1,5 +1,5 @@
-import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from 'vue';
-import { useStore } from 'vuex';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useStore, Store } from 'vuex';
 import { startsWith, debounce } from 'lodash';
 
 import BigNumber from 'bignumber.js';
@@ -15,11 +15,11 @@ import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { useRoute } from 'vue-router';
 import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
 
-export default function useModule(moduleType: ModuleType) {
-    const store = useStore();
+export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) {
+    const store = tmpStore || useStore();
     const pathRoute = useRoute();
 
-    useChainTokenManger(moduleType);
+    useChainTokenManger(moduleType, { tmpStore: store });
 
     const selectedSrcNetwork = computed({
         get: (): IChainInfo => store.getters['tokenOps/srcNetwork'],
@@ -52,7 +52,7 @@ export default function useModule(moduleType: ModuleType) {
         makeAllowanceRequest,
         clearAllowance,
         resetQuoteRoutes,
-    } = useBridgeDexService(moduleType);
+    } = useBridgeDexService(moduleType, { tmpStore: store });
 
     // =================================================================================================================
 
@@ -84,7 +84,7 @@ export default function useModule(moduleType: ModuleType) {
 
     // =================================================================================================================
 
-    const { walletAccount, currentChainInfo, chainList } = useAdapter();
+    const { walletAccount, currentChainInfo, chainList } = useAdapter({ tmpStore: store });
 
     // =================================================================================================================
 

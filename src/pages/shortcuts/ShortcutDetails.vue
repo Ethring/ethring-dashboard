@@ -23,6 +23,26 @@
             <p v-if="shortcut.id === AvailableShortcuts.MitosisVault && mitosisInfo" class="shortcut-details__points">
                 Linea: {{ Math.round(mitosisInfo?.xp) || 0 }} points
             </p>
+
+            <a-dropdown
+                v-if="shortcut.id === AvailableShortcuts.MantlePendleLP && mantleInfo"
+                :arrow="{ pointAtCenter: true }"
+                placement="bottom"
+                class="shortcut-details__points-block"
+            >
+                <p class="shortcut-details__points">Points: {{ Math.round(mantleInfo?.totalPoints) || 0 }}</p>
+                <template #overlay>
+                    <a-menu class="shortcut-details__points-overlay">
+                        <p v-if="mantleInfo?.rank">Rank: {{ mantleInfo?.rank }}</p>
+                        <hr v-if="mantleInfo?.rank" />
+                        <p>L1 points: {{ Math.round(mantleInfo?.l1Points) || 0 }}</p>
+                        <p>L2 points: {{ Math.round(mantleInfo?.l2Points) || 0 }}</p>
+                        <hr />
+                        <p>Token points: {{ Math.round(mantleInfo?.tokenPoints) || 0 }}</p>
+                        <p>Referral points: {{ Math.round(mantleInfo?.referralPoints) || 0 }}</p>
+                    </a-menu>
+                </template>
+            </a-dropdown>
             <a-dropdown
                 v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points"
                 :arrow="{ pointAtCenter: true }"
@@ -152,6 +172,7 @@ export default {
 
         const deBridgeInfo = computed(() => store.getters['shortcuts/getDeBridgeInfo'](walletAddress.value));
         const mitosisInfo = computed(() => store.getters['shortcuts/getMitosisInfo'](walletAddress.value));
+        const mantleInfo = computed(() => store.getters['shortcuts/getMantleInfo'](walletAddress.value));
 
         onMounted(async () => {
             if (isEmpty(shortcut.value)) return router.push('/shortcuts');
@@ -173,6 +194,8 @@ export default {
             LikeIcon,
             deBridgeInfo,
             mitosisInfo,
+            mantleInfo,
+
             AvailableShortcuts,
         };
     },
