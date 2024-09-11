@@ -320,9 +320,14 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
             routeId: selectedRoute.value?.routeId,
         });
 
-        resetQuoteRoutes();
+        // * if tab is active then it will get new estimate info
+        if (!document.hidden) {
+            resetQuoteRoutes();
+            return await getEstimateInfo(true);
+        }
 
-        await getEstimateInfo(true);
+        // ! If tab is not active then it will not get new estimate info
+        return console.warn('Route timer is cleared');
     };
 
     watch(isNeedApprove, () => {
