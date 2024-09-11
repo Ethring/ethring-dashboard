@@ -19,7 +19,7 @@ class BalancesDB extends Dexie {
 
         this.version(version).stores({
             [DB_TABLES.BALANCES]:
-                'uniqueId, id, [account+chain+accountAddress+dataType], [account+chain+accountAddress], [account+chain+dataType], [account+chain], [account+dataType], [account+dataType+id], [account+dataType+collection.address]',
+                'uniqueId, id, [account+chain+accountAddress+dataType], [account+chain+accountAddress], [account+chain+dataType], [account+chain+dataType+provider], [account+chain], [account+dataType], [account+dataType+id], [account+dataType+collection.address]',
         });
 
         this.balances = this.table(DB_TABLES.BALANCES);
@@ -34,11 +34,13 @@ class BalancesDB extends Dexie {
      *             account: string;
      *             address: string;
      *             chain: string;
+     *             provider: string;
      *         }} {
      *             dataType,
      *             account,
      *             address,
      *             chain,
+     *             provider,
      *         }
      * @memberof BalancesDB
      */
@@ -49,15 +51,18 @@ class BalancesDB extends Dexie {
             account,
             address,
             chain,
+            provider,
         }: {
             dataType: BalanceType;
             account: string;
             address: string;
             chain: string;
+            provider: string;
         },
     ) {
         const accountLower = account.toLowerCase();
         const addressLower = address.toLowerCase();
+        const dateTime = new Date();
 
         if (Array.isArray(data) && data.length)
             data.forEach((item: any) => {
@@ -66,6 +71,8 @@ class BalancesDB extends Dexie {
                 item.accountAddress = addressLower;
                 item.dataType = dataType;
                 item.uniqueId = `${accountLower}__${addressLower}__${item.id}`;
+                item.updatedAt = Number(dateTime);
+                item.provider = provider;
             });
 
         try {
@@ -110,6 +117,27 @@ class BalancesDB extends Dexie {
         } catch (error) {
             console.error(error);
             return [];
+        }
+    }
+
+    /**
+     * Get balance for provider
+     *
+     * @param {string} provider Provider name
+     * @param {string} dataType Type of data (tokens, integrations, nfts)
+     * @param {string} account Account address to get balances
+     * @param {string} chain Chain name
+     *
+     * @returns {Promise<IAsset | null>} Balances
+     * @memberof BalancesDB
+     */
+    async getBalanceForProvider(provider: string, dataType: string, account: string, chain: string): Promise<IAsset | null> {
+        try {
+            const accountLower = account.toLowerCase();
+            return await this.balances.where({ account: accountLower, dataType, chain, provider }).first();
+        } catch (error) {
+            console.error(error);
+            return null;
         }
     }
 
@@ -435,6 +463,6 @@ class BalancesDB extends Dexie {
     }
 }
 
-const db = new BalancesDB(1.1);
+const db = new BalancesDB(1.2);
 
 export default db;

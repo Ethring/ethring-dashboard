@@ -1,3 +1,5 @@
+export const TIME_TO_BLOCK = 20000; // 20 seconds in milliseconds
+
 export enum Providers {
     Pulsar = 'Pulsar',
     GoldRush = 'GoldRush',

@@ -15,8 +15,6 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import { pick } from 'lodash';
-
 import Socket from '@/app/modules/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
@@ -36,7 +34,6 @@ import { updateBalanceForAccount } from '@/core/balance-provider';
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
-import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { delay } from '@/shared/utils/helpers';
 import { Providers, Type } from '../core/balance-provider/models/enums';

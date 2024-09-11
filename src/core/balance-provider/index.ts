@@ -3,11 +3,11 @@ import BigNumber from 'bignumber.js';
 
 import store from '@/app/providers/store.provider';
 
-import { storeBalanceForAccount } from '@/core/balance-provider/utils';
+import { storeBalanceForAccount, checkIfBalanceIsUpdated } from '@/core/balance-provider/utils';
 import { getBalancesByAddress } from '@/core/balance-provider/api';
 
 import RequestQueue from '@/core/balance-provider/queue';
-import { Type, BaseType, POOL_BALANCES_CHAINS } from '@/core/balance-provider/models/enums';
+import { Type, BaseType, POOL_BALANCES_CHAINS, TIME_TO_BLOCK } from '@/core/balance-provider/models/enums';
 import { ChainAddresses, BalanceResponse, BalanceType, RecordOptions, ProviderRequestOptions } from '@/core/balance-provider/models/types';
 
 import BerachainApi from '@/modules/berachain/api';
@@ -47,6 +47,18 @@ export const updateBalanceByChain = async (account: string, address: string, cha
     const isInitCalled = store.getters['tokens/isInitCalled'](account, opt.provider);
 
     if (isInitCalled && !isUpdate) return;
+
+    try {
+        const isUpdated = await checkIfBalanceIsUpdated(account, chain, opt.provider as string);
+
+        if (isUpdated) {
+            console.warn(`Balance is already updated for account in last ${TIME_TO_BLOCK / 1000} seconds`);
+            console.table({ account, chain, provider: opt.provider });
+            return;
+        }
+    } catch (error) {
+        console.error('Error checking if balance is updated', error);
+    }
 
     const providerOptions: ProviderRequestOptions = {
         provider: opt.provider || DEFAULT_PROVIDER,
