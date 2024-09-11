@@ -651,7 +651,7 @@ const mockBalanceDataBySendTest = {
             tokens: [
                 {
                     name: 'Polygon',
-                    symbol: 'MATIC',
+                    symbol: 'POL',
                     address: null,
                     decimals: 18,
                     logo: 'https://assets.coingecko.com/coins/images/4713/large/polygon.png?1698233745',

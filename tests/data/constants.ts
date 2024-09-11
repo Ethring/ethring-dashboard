@@ -20,7 +20,7 @@ export const EVM_NETWORKS = [
     'celo',
     'zora',
     'scroll',
-    'berachain',
+    // 'berachain',
 ];
 
 export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
