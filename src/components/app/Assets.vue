@@ -1,7 +1,7 @@
 <template>
     <div class="assets-section">
         <a-collapse
-            v-model:activeKey="collapseActiveKey"
+            v-model:active-key="collapseActiveKey"
             expand-icon-position="end"
             class="assets-block"
             ghost
@@ -193,10 +193,7 @@ export default {
             collapseActiveKey.value = allActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
         };
 
-        const handleShowAllAssets = () => {
-            router.push({ path: `/main/tokens` });
-            store.dispatch('tokens/loadMoreAssets');
-        };
+        const handleShowAllAssets = () => router.push({ path: `/main/tokens` });
 
         // *********************************************************************************
         // * Watcher's functions
