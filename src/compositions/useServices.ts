@@ -1,4 +1,4 @@
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, onUnmounted } from 'vue';
 import { useStore, Store } from 'vuex';
 import { startsWith, debounce } from 'lodash';
 
