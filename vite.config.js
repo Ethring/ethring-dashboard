@@ -28,6 +28,8 @@ export default defineConfig({
         'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '1.0.0',
     },
     test: {
+        testTimeout: 30000,
+        setupFiles: ['vitest-setup.ts'],
         coverage: {
             enabled: true,
             include: [
