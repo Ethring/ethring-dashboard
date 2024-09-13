@@ -14,6 +14,8 @@ import socket from '@/app/modules/socket';
 import initSentry from '@/app/modules/sentry';
 import initMixpanel from '@/app/modules/mixpanel';
 
+import DataProviderSocket from '@/core/balance-provider/socket';
+
 import SimpleBridge from '@/pages/dynamic-modules/SimpleBridge.vue';
 import SimpleSend from '@/pages/dynamic-modules/SimpleSend.vue';
 import SimpleSwap from '@/pages/dynamic-modules/SimpleSwap.vue';
@@ -46,6 +48,7 @@ import '@/app/scripts/window-custom.ts';
 import '@/assets/styles/index.scss';
 
 socket.init(Store);
+DataProviderSocket.init(Store);
 
 // * Create app
 const app = createApp(App);

@@ -45,6 +45,7 @@ npm run test:report
 | `PROXY_API`          | The main API for obtaining the prices of tokens via the proxy                                        |
 | `IS_ANALYZE`         | The main flag for analyzing the bundle for production build                                          |
 | `PORTAL_FI_API`      | The main API for make POOL operations                                                                |
+| `APPS_API`           | The main API for interacting with the application |
 
 ### Important `DATA_PROVIDER_API`
 
@@ -64,8 +65,8 @@ npm run test:e2e:updateSnapshot
 
 Для выполнения тестов, в которых подписываются транзакции используется 2 вспомогательных сервиса:
 
-1. https://git.citadel.one/zomet/services/stubtxmanager
-2. https://git.citadel.one/zomet/services/evm-fake-node
+1. <https://git.citadel.one/zomet/services/stubtxmanager>
+2. <https://git.citadel.one/zomet/services/evm-fake-node>
 
 ### Stubtxmanager
 
@@ -80,8 +81,8 @@ npm run test:e2e:updateSnapshot
 Важной особенностью работы со stubtxmanager является то - что данные для ответа нужно посылать в пакете запроса, в дополнительных полях. Playwright позволяет модифицировать данные в любом http запросе, отправляемом со страницы.
 Поэтому в тестах используем методы modifyDataByPostTxRequest/modifyDataByGetTxRequest/modifyDataByPutTxRequest. В эти методы аргументом необходимо передавать:
 
--   объект который будет отдан stubtxmanager в качестве http ответа на запрос
--   объект который будет отдан stubtxmanager в сокет клиента в качестве эвента
+- объект который будет отдан stubtxmanager в качестве http ответа на запрос
+- объект который будет отдан stubtxmanager в сокет клиента в качестве эвента
 
 Конкретные примеры использования можно увидеть в самих тестах, например в `Case#: Send tx in Polygon`
 

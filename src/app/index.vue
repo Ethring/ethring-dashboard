@@ -15,9 +15,8 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import { pick } from 'lodash';
-
 import Socket from '@/app/modules/socket';
+import SocketDataProvider from '@/core/balance-provider/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
 import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
@@ -36,10 +35,9 @@ import { updateBalanceForAccount } from '@/core/balance-provider';
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
-import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { delay } from '@/shared/utils/helpers';
-import { Providers } from '../core/balance-provider/models/enums';
+import { Providers, Type } from '../core/balance-provider/models/enums';
 
 export default {
     name: 'App',
@@ -101,21 +99,16 @@ export default {
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
 
+                // * Load balances from IndexedDB cache
+                for (const chain in addresses) {
+                    const { address } = addresses[chain];
+                    for (const type in Type) await store.dispatch('tokens/loadFromCache', { account, chain, address, type });
+                }
+
                 switch (ecosystem) {
                     case Ecosystem.EVM:
-                        await updateBalanceForAccount(account, addresses, {
-                            provider: Providers.GoldRush,
-                            fetchIntegrations: false,
-                            fetchNfts: false,
-                            fetchTokens: true,
-                        });
-
-                        await updateBalanceForAccount(account, addresses, {
-                            provider: Providers.Pulsar,
-                            fetchTokens: false,
-                            fetchIntegrations: true,
-                            fetchNfts: true,
-                        });
+                        SocketDataProvider.subscribeToAddress(Providers.GoldRush, account, addresses);
+                        await SocketDataProvider.updateBalance(account);
 
                         break;
                     case Ecosystem.COSMOS:
