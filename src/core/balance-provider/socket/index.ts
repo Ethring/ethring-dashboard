@@ -53,7 +53,12 @@ class SocketInstance {
 
         // * Receive balance update, store it in Vuex and IndexedDB
         this.socket.on(SocketEvents.update_balance, async (data: BalanceResponse) => {
+            if (!this.store) return logger.warn('[Socket-data-provider] Store is not initialized');
             try {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                this.store.dispatch('tokens/setLoadingByChain', { chain: data.net, account: this.account, value: true });
+
                 for (const type in BaseType) {
                     const chainInfo = this.addresses[data.net] || {};
 
@@ -64,6 +69,10 @@ class SocketInstance {
                 }
             } catch (error) {
                 logger.error('[Socket-data-provider] Error on update_balance event', error);
+            } finally {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                this.store.dispatch('tokens/setLoadingByChain', { chain: data.net, account: this.account, value: false });
             }
         });
     }
