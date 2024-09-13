@@ -28,6 +28,7 @@ export default defineConfig({
         'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '1.0.0',
     },
     test: {
+        setupFiles: ['fake-indexeddb/auto'],
         coverage: {
             enabled: true,
             include: [
