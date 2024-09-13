@@ -35,6 +35,7 @@ export default defineConfig({
             include: [
                 'src/compositions',
                 'src/core/shortcuts/compositions',
+                // 'src/core/balance-provider',
                 // 'src' // Uncomment to include all files
             ],
             exclude: ['src/components'],
