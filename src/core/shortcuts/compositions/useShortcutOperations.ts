@@ -588,7 +588,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     ) => {
         // Helper function to set token parameters
         const setTokenParams = (operation: IBaseOperation | null, type: 'from' | 'to', token: IAsset) => {
-            if (!token?.id || currentShortcut.value.isComingSoon) return;
+            if (currentShortcut.value.isComingSoon) return;
 
             const { address, base, denom_units } = token || {};
 
@@ -620,10 +620,14 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             operation?.setParamByField('net', srcNet.net);
             operation?.setParamByField('fromNet', srcNet.net);
             operation?.setAccount(addressesByChain.value[srcNet.net]);
+            setTokenParams(operation, 'from', srcToken);
         }
 
         // Update dstNet if necessary
-        if (oldDstNet?.net !== dstNet?.net && dstNet?.net) operation?.setParamByField('toNet', dstNet.net);
+        if (oldDstNet?.net !== dstNet?.net && dstNet?.net) {
+            operation?.setParamByField('toNet', dstNet.net);
+            setTokenParams(operation, 'to', dstToken);
+        }
 
         const { params = [], dependencies = {} } = currentOp.value;
 
