@@ -89,40 +89,46 @@ export default {
         };
 
         const updateBalanceForAllAccounts = async () => {
-            await store.dispatch('tokens/setLoader', true);
+            try {
+                await store.dispatch('tokens/setLoader', true);
 
-            for (const wallet of connectedWallets.value) {
-                // ?Skip if wallet is undefined or null
-                if (!wallet) continue;
+                for (const wallet of connectedWallets.value) {
+                    // ?Skip if wallet is undefined or null
+                    if (!wallet) continue;
 
-                const { account, ecosystem, addresses } = wallet || {};
+                    const { account, ecosystem, addresses } = wallet || {};
 
-                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
+                    store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
 
-                // * Load balances from IndexedDB cache
-                for (const chain in addresses) {
-                    const { address } = addresses[chain];
-                    for (const type in Type) await store.dispatch('tokens/loadFromCache', { account, chain, address, type });
+                    // * Load balances from IndexedDB cache
+                    for (const chain in addresses) {
+                        const { address } = addresses[chain];
+                        for (const type in Type) await store.dispatch('tokens/loadFromCache', { account, chain, address, type });
+                    }
+
+                    switch (ecosystem) {
+                        case Ecosystem.EVM:
+                            SocketDataProvider.subscribeToAddress(Providers.GoldRush, account, addresses);
+                            await SocketDataProvider.updateBalance(account);
+
+                            break;
+                        case Ecosystem.COSMOS:
+                            await updateBalanceForAccount(account, addresses, {
+                                provider: Providers.Pulsar,
+                                fetchTokens: true,
+                                fetchIntegrations: true,
+                                fetchNfts: true,
+                            });
+
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
-                switch (ecosystem) {
-                    case Ecosystem.EVM:
-                        SocketDataProvider.subscribeToAddress(Providers.GoldRush, account, addresses);
-                        await SocketDataProvider.updateBalance(account);
-
-                        break;
-                    case Ecosystem.COSMOS:
-                        await updateBalanceForAccount(account, addresses, {
-                            provider: Providers.Pulsar,
-                            fetchTokens: true,
-                            fetchIntegrations: true,
-                            fetchNfts: true,
-                        });
-
-                        break;
-                    default:
-                        break;
-                }
+            } catch (error) {
+                console.error('Error while updating balance for all accounts', error);
+            } finally {
+                await store.dispatch('tokens/setLoader', false);
             }
         };
 
