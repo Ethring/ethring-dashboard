@@ -88,8 +88,9 @@ export const updateBalanceByChain = async (account: string, address: string, cha
     }
 };
 
-export const loadUsersPoolList = async (params: { address: string; isBalanceUpdate: boolean; chain: string }) => {
-    const { address, isBalanceUpdate, chain } = params;
+export const loadUsersPoolList = async (params: { address: string; ecosystem: string; isBalanceUpdate: boolean; chain: string }) => {
+    const { address, isBalanceUpdate, chain, ecosystem } = params;
+    if (!address || ecosystem !== Ecosystem.EVM) return;
 
     const accountPools = store.getters['tokens/getPoolsByAccount'](address);
 

@@ -302,13 +302,17 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         switch (shortcut.callShortcutMethod) {
             case 'loadUsersPoolList':
                 await loadUsersPoolList({
+                    ecosystem: currentChainInfo.value.ecosystem,
                     chain: currentChainInfo.value.chain as string,
                     address: walletAccount.value,
                     isBalanceUpdate,
                 });
                 break;
             default:
-                await store.dispatch(`shortcuts/${shortcut.callShortcutMethod}`, walletAccount.value);
+                await store.dispatch(`shortcuts/${shortcut.callShortcutMethod}`, {
+                    address: walletAccount.value,
+                    ecosystem: currentChainInfo.value.ecosystem,
+                });
         }
 
         return true;

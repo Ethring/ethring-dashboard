@@ -65,7 +65,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             return response.data[0];
         } catch (error) {
-            console.error('LiquidityProvider.performTx', error);
+            console.error('PortalFiRemoveLiquidity.performTx', error);
             throw error;
         }
     }
@@ -121,8 +121,9 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const response = await this.service.getQuoteRemoveLiquidity(params);
 
             if (response?.data?.outputAmount) this.setParamByField('outputAmount', response.data.outputAmount);
+            else console.error('PortalFiRemoveLiquidity.estimateOutput -> empty response', response);
         } catch (error) {
-            console.error('LiquidityProvider.estimateOutput', error);
+            console.error('PortalFiRemoveLiquidity.estimateOutput', error);
             throw error;
         }
     }

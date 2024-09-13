@@ -636,7 +636,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
                 oldSrcToken?.address !== srcToken?.address ||
                 oldSrcToken?.balance !== srcToken?.balance) &&
             !srcTokenField?.value &&
-            srcToken?.chain === srcTokenField?.chain
+            currentShortcut.value.networksConfig?.additionalNetworks?.includes(srcToken?.chain)
         )
             setTokenParams(operation, 'from', srcToken);
 

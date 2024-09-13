@@ -20,6 +20,7 @@ import DebridgeApi from '@/modules/debridge/api';
 import BerachainApi from '@/modules/berachain/api';
 import MitosisApi from '@/modules/mitosis/api';
 import MantleApi from '@/modules/mantle/api';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -433,7 +434,8 @@ export default {
         setIsCallEstimate({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             commit(TYPES.SET_IS_CALL_ESTIMATE, { shortcutId, value });
         },
-        async loadDebridgeInfo({ state, commit }: any, address: string) {
+        async loadDebridgeInfo({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
             if (state.deBridgeInfo[address]) return state.deBridgeInfo[address];
 
             const service = new DebridgeApi();
@@ -455,8 +457,8 @@ export default {
 
             commit(TYPES.SET_DEBRIDGE_INFO, data);
         },
-        async loadUserVaults({ state, commit }: any, address: string) {
-            if (!address) return;
+        async loadUserVaults({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
             if (!state.vaults.length) state.isVaultsLoading = true;
 
             const service = new BerachainApi();
@@ -471,7 +473,8 @@ export default {
             commit(TYPES.SET_VAULTS_INFO, data);
             state.isVaultsLoading = false;
         },
-        async loadMitosisPoints({ state, commit }: any, address: string) {
+        async loadMitosisPoints({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
             if (state.mitosisOnfo[address]) return state.mitosisOnfo[address];
 
             const service = new MitosisApi();
@@ -485,7 +488,8 @@ export default {
 
             commit(TYPES.SET_MITOSIS_POINTS, data);
         },
-        async loadMantlePoints({ state, commit }: any, address: string) {
+        async loadMantlePoints({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
             if (state.mantleInfo[address]) return state.mantleInfo[address];
 
             const service = new MantleApi();
