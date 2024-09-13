@@ -29,7 +29,7 @@ export default defineConfig({
     },
     test: {
         testTimeout: 30000,
-        setupFiles: ['vitest-setup.ts'],
+        setupFiles: ['fake-indexeddb/auto'],
         coverage: {
             enabled: true,
             include: [
