@@ -346,32 +346,40 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
 
     // * Disconnect Wallet by Ecosystem
     const disconnectWallet = async (ecosystem: Ecosystems, wallet: IConnectedWallet): Promise<void> => {
-        const { walletModule } = wallet || {};
+        try {
+            const { walletModule } = wallet || {};
 
-        if (ecosystem === currEcosystem.value) console.log('disconnectWallet curr', ecosystem, walletModule);
+            if (ecosystem === currEcosystem.value) console.log('disconnectWallet curr', ecosystem, walletModule);
 
-        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        unsubscribeFromWalletsChange(adapter);
+            unsubscribeFromWalletsChange(adapter);
 
-        adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
+            adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
 
-        await adapter.disconnectWallet(walletModule);
+            await adapter.disconnectWallet(walletModule);
 
-        await storeWalletInfo();
+            await storeWalletInfo();
+        } catch (error) {
+            console.error('Failed to disconnect wallet', error);
+        }
     };
 
     // * Disconnect All Wallets
     const disconnectAllWallets = async () => {
-        for (const ecosystem in Ecosystem) {
-            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-            if (!adapter) continue;
-            adapter.disconnectAllWallets && (await adapter.disconnectAllWallets());
-            await store.dispatch('tokens/resetIsInitCall', { isAll: true });
-        }
+        try {
+            for (const ecosystem in Ecosystem) {
+                const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+                if (!adapter) continue;
+                adapter.disconnectAllWallets && (await adapter.disconnectAllWallets());
+                await store.dispatch('tokens/resetIsInitCall', { isAll: true });
+            }
 
-        adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
-        reset(mixpanel);
+            adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
+            reset(mixpanel);
+        } catch (error) {
+            console.error('Failed to disconnect all wallets', error);
+        }
     };
 
     // * Validate Address

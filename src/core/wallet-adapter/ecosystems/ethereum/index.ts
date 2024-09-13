@@ -178,14 +178,7 @@ export class EthereumAdapter implements IEthereumAdapter {
     }
 
     async disconnectWallet(label: string) {
-        const { disconnectWallet, connectedWallet } = useOnboard();
-
-        try {
-            const [connectedWalletAccount] = connectedWallet.value?.accounts || [];
-            SocketDataProvider.stopUpdateBalance(connectedWalletAccount?.address as string);
-        } catch (error) {
-            console.error('Error while stop update balance', error);
-        }
+        const { disconnectWallet } = useOnboard();
 
         try {
             Logger.info('Disconnecting wallet:', label);
