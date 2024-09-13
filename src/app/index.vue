@@ -148,8 +148,10 @@ export default {
             await callInit();
         };
 
-        const unWatchAcc = watch(walletAccount, async () => {
-            store.dispatch('tokens/setTargetAccount', walletAccount.value);
+        const unWatchAcc = watch(walletAccount, async (walletAccount, oldWalletAccount) => {
+            store.dispatch('tokens/setTargetAccount', walletAccount);
+
+            if (oldWalletAccount) SocketDataProvider.stopUpdateBalance(oldWalletAccount);
 
             await onLoadWallets();
         });
