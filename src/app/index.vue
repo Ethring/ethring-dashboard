@@ -148,13 +148,18 @@ export default {
             await callInit();
         };
 
-        const unWatchAcc = watch(walletAccount, async (walletAccount, oldWalletAccount) => {
-            store.dispatch('tokens/setTargetAccount', walletAccount);
+        const unWatchAcc = watch(
+            walletAccount,
+            async (walletAccount, oldWalletAccount) => {
+                if (oldWalletAccount) SocketDataProvider.stopUpdateBalance(oldWalletAccount);
 
-            if (oldWalletAccount) SocketDataProvider.stopUpdateBalance(oldWalletAccount);
-
-            await onLoadWallets();
-        });
+                if (walletAccount) {
+                    store.dispatch('tokens/setTargetAccount', walletAccount);
+                    await onLoadWallets();
+                }
+            },
+            { immediate: true },
+        );
 
         const unWatchLoading = watch(isConfigLoading, async () => {
             if (!isConfigLoading.value) await connectLastConnectedWallet();
@@ -197,7 +202,6 @@ export default {
         onMounted(async () => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
-            onLoadWallets();
             // if (process.env.NODE_ENV === 'development') {
             //     import('@/app/scripts/development').then(({ default: dev }) => dev());
             // }
