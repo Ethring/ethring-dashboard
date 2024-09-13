@@ -2534,7 +2534,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'debridge',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
-                excludeChains: ['osmosis', 'cosmoshub', 'injective', 'stargaze', 'juno', 'terra2', 'mars'],
+                includeChains: ['eth', 'arbitrum', 'avalanche', 'bsc', 'fantom', 'optimism', 'polygon', 'base', 'gnosis'],
                 ecosystems: ['EVM'],
                 operationParams: {
                     fromNet: 'bsc',

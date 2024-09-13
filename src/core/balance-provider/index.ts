@@ -16,6 +16,7 @@ import { TokenData } from '@/shared/models/types/TokenData';
 import { getContract } from '@/shared/utils/contract';
 import PortalFiApi from '@/modules/portal-fi/api';
 import { formatResponse } from '@/core/balance-provider/format';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 const DEFAULT_PROVIDER = 'Pulsar';
 
@@ -81,8 +82,9 @@ export const updateBalanceByChain = async (account: string, address: string, cha
     }
 };
 
-export const loadUsersPoolList = async (params: { address: string; isBalanceUpdate: boolean; chain: string }) => {
-    const { address, isBalanceUpdate, chain } = params;
+export const loadUsersPoolList = async (params: { address: string; ecosystem: string; isBalanceUpdate: boolean; chain: string }) => {
+    const { address, isBalanceUpdate, chain, ecosystem } = params;
+    if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
 
     const accountPools = store.getters['tokens/getPoolsByAccount'](address);
 

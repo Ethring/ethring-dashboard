@@ -27,7 +27,12 @@
         </div>
 
         <div v-if="record?.balance || record?.balanceUsd" class="stat-container">
-            <Amount type="currency" :value="record?.balance" :symbol="record?.symbol" :decimals="3" />
+            <Amount
+                type="currency"
+                :value="record?.balance"
+                :symbol="record?.symbol"
+                :decimals="record?.id?.includes('pools') ? record?.decimals : 3"
+            />
             <Amount type="usd" :value="record?.balanceUsd" symbol="$" :decimals="3" />
         </div>
     </div>
