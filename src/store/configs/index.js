@@ -10,7 +10,6 @@ import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 
 const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
-    SET_TOKENS_BY_CHAIN: 'SET_TOKENS_BY_CHAIN',
     SET_CHAIN_CONFIG: 'SET_CHAIN_CONFIG',
     SET_LAST_UPDATED: 'SET_LAST_UPDATED',
 };
@@ -82,12 +81,6 @@ export default {
             state.chains[ecosystem][chain] = config;
         },
 
-        [TYPES.SET_TOKENS_BY_CHAIN](state, { chain, tokens }) {
-            if (!state.tokensByChain[chain]) state.tokensByChain[chain] = {};
-
-            state.tokensByChain[chain] = tokens;
-        },
-
         [TYPES.SET_CONFIG_LOADING](state, value) {
             state.isConfigLoading = value || false;
         },
@@ -99,22 +92,49 @@ export default {
 
     actions: {
         async initConfigs({ dispatch }) {
-            await Promise.all([dispatch('initChainsByEcosystems', Ecosystem.COSMOS), dispatch('initChainsByEcosystems', Ecosystem.EVM)]);
+            try {
+                await Promise.all([
+                    dispatch('initChainsByEcosystems', Ecosystem.COSMOS),
+                    dispatch('initChainsByEcosystems', Ecosystem.EVM),
+                ]);
+            } catch (error) {
+                console.error('Error while fetching configs', error);
+            }
         },
 
         async initChainsByEcosystems({ commit, dispatch, state }, ecosystem) {
-            const response = await getConfigsByEcosystems(ecosystem, { lastUpdated: state.lastUpdated });
+            try {
+                const response = await getConfigsByEcosystems(ecosystem, { lastUpdated: state.lastUpdated });
 
-            for (const chain in response) {
-                if (!state.chains[ecosystem][chain]) commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
+                const dpChains = Object.values(DP_CHAINS);
+                const chains = Object.keys(response);
 
-                if (Object.values(DP_CHAINS).includes(chain))
-                    dispatch('initTokensByChain', { chain, ecosystem, lastUpdated: state.lastUpdated });
+                for (const chain of chains) {
+                    if (state.chains[ecosystem][chain]) continue;
+                    commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
+                }
+
+                // Fetch tokens on secondary thread
+                setTimeout(async () => {
+                    await Promise.all(
+                        chains.map((chain) =>
+                            dpChains.includes(chain)
+                                ? dispatch('initTokensByChain', { chain, ecosystem, lastUpdated: state.lastUpdated })
+                                : null,
+                        ),
+                    );
+                }, 1000);
+            } catch (error) {
+                console.error('Error while fetching chains', error);
             }
         },
 
         async initTokensByChain({}, { chain, ecosystem, lastUpdated }) {
-            await getTokensConfigByChain(chain, ecosystem, { lastUpdated });
+            try {
+                await getTokensConfigByChain(chain, ecosystem, { lastUpdated });
+            } catch (error) {
+                console.error('Error while fetching tokens config', error);
+            }
         },
 
         async getTokensListForChain({}, chain) {
@@ -130,12 +150,16 @@ export default {
         },
 
         async setLastUpdated({ commit }) {
-            const lastUpdated = await getLastUpdated();
+            try {
+                const lastUpdated = await getLastUpdated();
 
-            commit(TYPES.SET_LAST_UPDATED, lastUpdated);
+                commit(TYPES.SET_LAST_UPDATED, lastUpdated);
+            } catch (error) {
+                console.error('Error while fetching last updated date', error);
+            }
         },
 
-        async getTokenImage({ state, commit }, tokenInfo) {
+        async getTokenImage({}, tokenInfo) {
             try {
                 const { chain, address } = tokenInfo;
 
