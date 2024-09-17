@@ -62,7 +62,7 @@ export default {
 
         const { copy, copied } = useClipboard();
 
-        const { walletAccount, currentChainInfo, action } = useAdapter();
+        const { walletAccount, currentChainInfo, action, getRealAddress } = useAdapter();
 
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
@@ -74,8 +74,8 @@ export default {
 
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
-        const handleOnCopyAddress = () => {
-            if (currentChainInfo.value.ecosystem === Ecosystem.EVM) return copy(walletAccount.value);
+        const handleOnCopyAddress = async () => {
+            if (currentChainInfo.value.ecosystem === Ecosystem.EVM) return copy(await getRealAddress(Ecosystem.EVM));
 
             action('SET_MODAL_ECOSYSTEM', currentChainInfo.value.ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });

@@ -57,6 +57,7 @@ export interface IAdapter {
     // ****************************************************
 
     getDefaultAddress: () => string | null;
+    getRealAddress: (ecosystem: Ecosystems) => Promise<string | null>;
     getAccountByEcosystem: (ecosystem: Ecosystems) => string | null;
     getWalletsModuleByEcosystem: (ecosystem: Ecosystems) => string[];
     getAddressesWithChainsByEcosystem: (ecosystem: Ecosystems, options?: { hash: boolean }) => Promise<Record<string, string>>;
@@ -614,6 +615,19 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
         return mainAdapter.value.getDefaultWalletAddress();
     };
 
+    const getRealAddress = async (ecosystem: Ecosystems): Promise<string | null> => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        if (!adapter) return null;
+
+        try {
+            return await adapter.getRealAddress();
+        } catch (error) {
+            console.error('Failed to get real address:', ecosystem, error);
+            return null;
+        }
+    };
+
     const callTransactionAction = async (
         action: TransactionActionType,
         {
@@ -689,6 +703,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
 
         // * Address Methods
         getDefaultAddress,
+        getRealAddress,
         getAccountByEcosystem: (ecosystem: Ecosystems) => adaptersGetter(GETTERS.GET_ACCOUNT_BY_ECOSYSTEM)(ecosystem),
         getAddressesWithChainsByEcosystem,
 

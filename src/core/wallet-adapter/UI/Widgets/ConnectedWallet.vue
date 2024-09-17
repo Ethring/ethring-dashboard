@@ -87,7 +87,9 @@ export default {
 
         const selectedChain = ref(props.wallet.chain);
         const { copy, copied } = useClipboard();
+
         const {
+            getRealAddress,
             getChainListByEcosystem,
             getChainByChainId,
             setNewChain,
@@ -141,8 +143,8 @@ export default {
             }
         };
 
-        const handleOnCopyAddress = (ecosystem) => {
-            if (ecosystem === Ecosystem.EVM) return copy(props.wallet.address);
+        const handleOnCopyAddress = async (ecosystem) => {
+            if (ecosystem === Ecosystem.EVM) return copy(await getRealAddress(ecosystem));
 
             action('SET_MODAL_ECOSYSTEM', ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });

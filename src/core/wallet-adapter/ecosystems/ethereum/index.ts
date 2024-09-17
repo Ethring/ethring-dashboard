@@ -263,6 +263,18 @@ export class EthereumAdapter implements IEthereumAdapter {
         return chainWithAddress.address;
     }
 
+    async getRealAddress(): Promise<string | undefined> {
+        const address = this.getAccountAddress();
+
+        try {
+            const provider = this.getProvider();
+            return provider?._getAddress(address as string);
+        } catch (error) {
+            console.error('Failed to get real address', error);
+            return address || undefined;
+        }
+    }
+
     async getAddressesWithChains(store: Store<any>): Promise<IAddressByNetwork> {
         this.setAddressForChains({ store });
         return this.addressByNetwork || {};
