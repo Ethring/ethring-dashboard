@@ -109,7 +109,7 @@ export default {
 
             commit(TYPES.SET_SHORTCUTS_LOADING, true);
 
-            const shortcuts = await getShortcuts({ limit: 10, offset: state.shortcuts.length });
+            const shortcuts = await getShortcuts({ limit: 30, offset: state.shortcuts.length });
 
             if (!shortcuts.length) state.moreShortcutsExists = false;
             else commit(TYPES.SET_ALL_SHORTCUTS, [...state.shortcuts, ...shortcuts]);
