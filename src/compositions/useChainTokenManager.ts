@@ -290,6 +290,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             case ModuleType.stake:
             case ModuleType.send:
             case ModuleType.nft:
+            case ModuleType.liquidityProvider:
                 selectedDstNetwork.value = null;
                 selectedDstToken.value = null;
                 break;
@@ -332,6 +333,8 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             case ModuleType.liquidityProvider:
                 // 1. If the source token is changed, then set the source token
                 await updateSrcTokenIfNeed();
+                if (CurrentShortcut.value === AvailableShortcuts.RemoveLiquidityPool)
+                    await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
                 break;
 
             case ModuleType.bridge:
@@ -492,6 +495,9 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         defaultSrcNetwork,
         defaultDstNetwork,
+
+        selectedSrcToken,
+        selectedDstToken,
 
         tokensList,
         isTokensLoadingForSrc,
