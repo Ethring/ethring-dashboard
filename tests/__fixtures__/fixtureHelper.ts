@@ -79,7 +79,7 @@ export const authByMmMockEmptyWallets = async (context: BrowserContext, seed: st
 
     await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, emptyBalanceMockData, address)));
 
-    const lastBalancePromise = zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[6]}**`);
+    const lastBalancePromise = zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[0]}**`);
 
     const returnedPage = __loginByMmAndWaitElement__(context, zometPage);
     await lastBalancePromise;
