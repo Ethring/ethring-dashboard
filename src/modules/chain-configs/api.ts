@@ -8,6 +8,7 @@ import ConfigsDB from '@/services/indexed-db/configs';
 import logger from '@/shared/logger';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
+import { EVM_CHAIN_IDS } from '@/core/balance-provider/models/enums';
 
 const apiClient = new ApiClient({
     baseURL: process.env.CORE_API || '',
@@ -130,7 +131,10 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string, {
 export const getBlocknativeConfig = async () => {
     try {
         const { data }: AxiosResponse = await axiosInstance.get('networks/chain-list');
-        return data || [];
+
+        if (!data.length) return [];
+
+        return data.filter((chain: any) => EVM_CHAIN_IDS.includes(chain?.id)) || [];
     } catch (error) {
         logger.error('Error while getting blocknative config from API', error);
         return [];

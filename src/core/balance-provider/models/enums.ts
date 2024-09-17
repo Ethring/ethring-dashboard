@@ -151,6 +151,18 @@ export enum DP_SDK_PROD_CHAINS_EVM {
     // ZKSYNC = 'zksync',
 }
 
+export enum DP_SDK_EVM_CHAIN_IDS {
+    ARBITRUM = '0xa4b1',
+    BASE = '0x2105',
+    BERACHAIN = '0x138d4',
+    BSC = '0x38',
+    ETHEREUM = '0x1',
+    LINEA = '0xe708',
+    MANTLE = '0x1388',
+}
+
+export const EVM_CHAIN_IDS = Object.values(DP_SDK_EVM_CHAIN_IDS);
+
 /**
  * Data Provider SDK Production Chains (CEX)
  * @description Data Provider SDK Production Chains (CEX) enum
