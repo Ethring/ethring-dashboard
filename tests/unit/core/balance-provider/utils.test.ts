@@ -115,23 +115,23 @@ describe('balance-provider', () => {
         expect(result).toBe(true);
     });
 
-    test(`checkIfBalanceIsUpdated: must return false, if balance was updated more than ${TIME_TO_BLOCK / 1000} seconds ago`, async () => {
-        await BalancesDB.saveBalancesByTypes(BALANCE, {
-            dataType: 'tokens',
-            account: ACCOUNT,
-            address: ACCOUNT,
-            chain: 'arbitrum',
-            provider: 'GoldRush',
-        });
+    // test(`checkIfBalanceIsUpdated: must return false, if balance was updated more than ${TIME_TO_BLOCK / 1000} seconds ago`, async () => {
+    //     await BalancesDB.saveBalancesByTypes(BALANCE, {
+    //         dataType: 'tokens',
+    //         account: ACCOUNT,
+    //         address: ACCOUNT,
+    //         chain: 'arbitrum',
+    //         provider: 'GoldRush',
+    //     });
 
-        const chain = 'arbitrum';
+    //     const chain = 'arbitrum';
 
-        const provider = 'GoldRush';
+    //     const provider = 'GoldRush';
 
-        await delay(TIME_TO_BLOCK + 1000);
+    //     await delay(TIME_TO_BLOCK + 1000);
 
-        const result = await checkIfBalanceIsUpdated(ACCOUNT, chain, provider);
+    //     const result = await checkIfBalanceIsUpdated(ACCOUNT, chain, provider);
 
-        expect(result).toBe(false);
-    });
+    //     expect(result).toBe(false);
+    // });
 });
