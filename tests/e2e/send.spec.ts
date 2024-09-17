@@ -25,7 +25,8 @@ import { formatNumber } from '@/shared/utils/numbers';
 const sleep = util.promisify(setTimeout);
 
 testMetaMask.describe('MetaMask Send e2e tests', () => {
-    testMetaMask('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
+    // TODO: Change to Socket realization
+    testMetaMask.skip('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);
 

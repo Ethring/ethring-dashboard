@@ -16,6 +16,7 @@ import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } fr
 import { useStore } from 'vuex';
 
 import Socket from '@/app/modules/socket';
+import SocketDataProvider from '@/core/balance-provider/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
 import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
@@ -88,51 +89,46 @@ export default {
         };
 
         const updateBalanceForAllAccounts = async () => {
-            await store.dispatch('tokens/setLoader', true);
+            try {
+                await store.dispatch('tokens/setLoader', true);
 
-            for (const wallet of connectedWallets.value) {
-                // ?Skip if wallet is undefined or null
-                if (!wallet) continue;
+                for (const wallet of connectedWallets.value) {
+                    // ?Skip if wallet is undefined or null
+                    if (!wallet) continue;
 
-                const { account, ecosystem, addresses } = wallet || {};
+                    const { account, ecosystem, addresses } = wallet || {};
 
-                // Get balances from cache
-                for (const type in Type) {
-                    if ([Type.nfts, Type.integrations].includes(type)) continue;
-                    await store.dispatch('tokens/loadFromCache', { account, type });
+                    store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
+
+                    // * Load balances from IndexedDB cache
+                    for (const chain in addresses) {
+                        const { address } = addresses[chain];
+                        for (const type in Type) await store.dispatch('tokens/loadFromCache', { account, chain, address, type });
+                    }
+
+                    switch (ecosystem) {
+                        case Ecosystem.EVM:
+                            SocketDataProvider.subscribeToAddress(Providers.GoldRush, account, addresses);
+                            await SocketDataProvider.updateBalance(account);
+
+                            break;
+                        case Ecosystem.COSMOS:
+                            await updateBalanceForAccount(account, addresses, {
+                                provider: Providers.Pulsar,
+                                fetchTokens: true,
+                                fetchIntegrations: true,
+                                fetchNfts: true,
+                            });
+
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
-                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
-
-                switch (ecosystem) {
-                    case Ecosystem.EVM:
-                        await updateBalanceForAccount(account, addresses, {
-                            provider: Providers.GoldRush,
-                            fetchIntegrations: false,
-                            fetchNfts: false,
-                            fetchTokens: true,
-                        });
-
-                        await updateBalanceForAccount(account, addresses, {
-                            provider: Providers.Pulsar,
-                            fetchTokens: false,
-                            fetchIntegrations: true,
-                            fetchNfts: true,
-                        });
-
-                        break;
-                    case Ecosystem.COSMOS:
-                        await updateBalanceForAccount(account, addresses, {
-                            provider: Providers.Pulsar,
-                            fetchTokens: true,
-                            fetchIntegrations: true,
-                            fetchNfts: true,
-                        });
-
-                        break;
-                    default:
-                        break;
-                }
+            } catch (error) {
+                console.error('Error while updating balance for all accounts', error);
+            } finally {
+                await store.dispatch('tokens/setLoader', false);
             }
         };
 
@@ -158,11 +154,18 @@ export default {
             await callInit();
         };
 
-        const unWatchAcc = watch(walletAccount, async () => {
-            store.dispatch('tokens/setTargetAccount', walletAccount.value);
+        const unWatchAcc = watch(
+            walletAccount,
+            async (walletAccount, oldWalletAccount) => {
+                if (oldWalletAccount) SocketDataProvider.stopUpdateBalance(oldWalletAccount);
 
-            await onLoadWallets();
-        });
+                if (walletAccount) {
+                    store.dispatch('tokens/setTargetAccount', walletAccount);
+                    await onLoadWallets();
+                }
+            },
+            { immediate: true },
+        );
 
         const unWatchLoading = watch(isConfigLoading, async () => {
             if (!isConfigLoading.value) await connectLastConnectedWallet();
@@ -203,7 +206,6 @@ export default {
         onMounted(async () => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
-            onLoadWallets();
             // if (process.env.NODE_ENV === 'development') {
             //     import('@/app/scripts/development').then(({ default: dev }) => dev());
             // }

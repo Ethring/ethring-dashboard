@@ -33,6 +33,8 @@ import { IChainConfig } from '@/shared/models/types/chain-config';
 import { getBlocknativeConfig } from '@/modules/chain-configs/api';
 import { isDefaultChain } from '@/core/wallet-adapter/utils';
 
+import SocketDataProvider from '@/core/balance-provider/socket';
+
 // *****************************************************************
 // * Constants
 // *****************************************************************
@@ -195,6 +197,7 @@ export class EthereumAdapter implements IEthereumAdapter {
         const { alreadyConnectedWallets } = useOnboard();
 
         try {
+            console.log('Disconnecting all wallets', alreadyConnectedWallets.value);
             await Promise.all(alreadyConnectedWallets.value.map((wallet: any) => this.disconnectWallet(wallet)));
             this.addressByNetwork = {};
             // * Disconnect wallets from store

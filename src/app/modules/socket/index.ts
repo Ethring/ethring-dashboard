@@ -90,7 +90,7 @@ class SocketInstance {
             const targetKey = ecosystem === Ecosystem.EVM ? walletAccount : `${walletAccount}-${chain}`;
 
             if (!this.socket.addresses[ecosystem][targetKey]) {
-                this.socket.emit(SocketEvents['address-subscribe'], address);
+                this.socket.emit(SocketEvents.address_subscribe, address);
                 this.socket.addresses[ecosystem][targetKey] = address;
                 logger.info(`[Socket] Subscribed to address: ${address}`);
             }
@@ -113,7 +113,7 @@ class SocketInstance {
         for (const targetKey in this.socket.addresses[ecosystem]) {
             const address = this.socket.addresses[ecosystem][targetKey];
 
-            this.socket.emit(SocketEvents['address-subscribe'], address);
+            this.socket.emit(SocketEvents.address_subscribe, address);
             logger.info(`[Socket] Subscribed to address: ${address}`);
         }
     }

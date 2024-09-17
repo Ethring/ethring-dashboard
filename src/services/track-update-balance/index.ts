@@ -2,12 +2,16 @@ import { toLower, isEqual } from 'lodash';
 
 import { computed } from 'vue';
 
-import { IChainConfig } from '@/shared/models/types/chain-config';
-import { updateBalanceByChain } from '@/core/balance-provider';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import { delay } from '@/shared/utils/helpers';
-import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+
+import SocketDataProvider from '@/core/balance-provider/socket';
+import { updateBalanceByChain } from '@/core/balance-provider';
+
 import { Providers } from '@/core/balance-provider/models/enums';
+import { IChainConfig } from '@/shared/models/types/chain-config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+
+import { delay } from '@/shared/utils/helpers';
 
 interface IQueue {
     chain: string;
@@ -83,27 +87,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
                 break;
             case Ecosystem.EVM:
-                await updateBalanceByChain(targetAccount, address, config.net, {
-                    isUpdate: true,
-                    chain: config.net,
-                    logo: chainLogo,
-                    nativeTokenLogo,
-                    provider: Providers.GoldRush,
-                    fetchIntegrations: false,
-                    fetchNfts: false,
-                    fetchTokens: true,
-                });
-
-                await updateBalanceByChain(targetAccount, address, config.net, {
-                    isUpdate: true,
-                    chain: config.net,
-                    logo: chainLogo,
-                    nativeTokenLogo,
-                    provider: Providers.Pulsar,
-                    fetchIntegrations: true,
-                    fetchNfts: true,
-                    fetchTokens: false,
-                });
+                await SocketDataProvider.updateBalance(address);
             default:
                 break;
         }

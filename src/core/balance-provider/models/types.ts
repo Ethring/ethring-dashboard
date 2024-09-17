@@ -1,4 +1,4 @@
-import { IntegrationDebtType, Type } from './enums';
+import { IntegrationDebtType, Providers, Type } from './enums';
 
 type BaseToken = {
     name: string | null;
@@ -125,9 +125,13 @@ export type DataProviderResponse = {
 };
 
 export type BalanceResponse = {
-    tokens: BaseToken[];
-    integrations: IntegrationResponse[];
-    nfts: NftResponse[];
+    [Type.tokens]: BaseToken[];
+    [Type.integrations]: IntegrationResponse[];
+    [Type.nfts]: NftResponse[];
+    net: string;
+    fromCache: boolean;
+    provider: keyof typeof Providers;
+    timestamp: number;
 };
 
 export type RequestOptions = {

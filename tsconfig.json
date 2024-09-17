@@ -6,6 +6,9 @@
         "outDir": "dist",
         "strict": true,
         "paths": {
+            "@/core/*": [
+                "src/core/*"
+            ],
             "@/composition/*": [
                 "src/composition/*"
             ],

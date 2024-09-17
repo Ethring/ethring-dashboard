@@ -28,8 +28,11 @@ ARG SENTRY_DSN
 ARG MIXPANEL_TOKEN
 # WalletConnect project ID for Ledger
 ARG WC_PROJECT_ID
+# APPS API
+ARG APPS_API
 # Shortcuts API
 ARG SHORTCUTS_API
+
 # Kado
 ARG KADO_API_KEY
 ARG NODE_ENV
@@ -37,7 +40,6 @@ ENV NODE_OPTIONS="--max_old_space_size=8192"
 
 # Build
 RUN npm run build
-
 
 # Stage #2 - Serving the app
 FROM nginxinc/nginx-unprivileged:1.18.0-alpine

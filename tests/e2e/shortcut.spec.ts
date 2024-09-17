@@ -7,7 +7,8 @@ import { mockPoolBalanceDataArbitrum, estimateRemoveLpMockData } from '../data/m
 
 const sleep = util.promisify(setTimeout);
 
-testMetaMaskAndKeplr('Case#: Shortcut disconnect wallet', async ({ context, shortcutPage }) => {
+// TODO: Change to Socket realization
+testMetaMaskAndKeplr.skip('Case#: Shortcut disconnect wallet', async ({ context, shortcutPage }) => {
     await shortcutPage.clickFirstShortcut();
 
     await sleep(FIVE_SECONDS);

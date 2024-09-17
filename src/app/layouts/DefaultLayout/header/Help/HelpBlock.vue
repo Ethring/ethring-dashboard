@@ -26,6 +26,8 @@ import { useStore } from 'vuex';
 
 import { pick } from 'lodash';
 
+import SocketDataProvider from '@/core/balance-provider/socket';
+
 import { SyncOutlined } from '@ant-design/icons-vue';
 
 import ReleaseNoteIcon from '@/assets/icons/platform-icons/note.svg';
@@ -84,20 +86,7 @@ export default {
 
                 switch (ecosystem) {
                     case Ecosystem.EVM:
-                        await updateBalanceForAccount(account, list, {
-                            provider: Providers.GoldRush,
-                            isUpdate: true,
-                            fetchTokens: true,
-                            fetchIntegrations: false,
-                            fetchNfts: false,
-                        });
-                        await updateBalanceForAccount(account, list, {
-                            provider: Providers.Pulsar,
-                            isUpdate: true,
-                            fetchTokens: false,
-                            fetchIntegrations: true,
-                            fetchNfts: true,
-                        });
+                        await SocketDataProvider.updateBalance(account);
                         break;
                     case Ecosystem.COSMOS:
                         await updateBalanceForAccount(account, list, {
