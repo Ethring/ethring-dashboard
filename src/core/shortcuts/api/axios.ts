@@ -1,10 +1,9 @@
 import ApiClient from '@/shared/axios';
 
 // ============== API Client Settings Start ==============
-const SHORTCUTS_API = 'https://shortcuts-backend.3ahtim54r.ru/';
 
 const apiClient = new ApiClient({
-    baseURL: SHORTCUTS_API,
+    baseURL: process.env.SHORTCUTS_API as string,
 });
 
 const axiosInstance = apiClient.getInstance();

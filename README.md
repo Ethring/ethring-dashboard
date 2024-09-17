@@ -45,6 +45,7 @@ npm run test:report
 | `PROXY_API`          | The main API for obtaining the prices of tokens via the proxy                                        |
 | `IS_ANALYZE`         | The main flag for analyzing the bundle for production build                                          |
 | `PORTAL_FI_API`      | The main API for make POOL operations                                                                |
+| `SHORTCUTS_API`      | The main API for shortcuts operations                                                                |
 
 ### Important `DATA_PROVIDER_API`
 
