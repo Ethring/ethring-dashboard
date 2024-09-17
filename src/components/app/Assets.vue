@@ -28,7 +28,7 @@
                 </div>
             </a-collapse-panel>
 
-            <template v-if="integrationByPlatforms.list.length > 0">
+            <template v-if="integrationByPlatforms.list.length > 0 && connectedWallet.ecosystem === ECOSYSTEMS.COSMOS">
                 <a-collapse-panel
                     v-for="item in integrationByPlatforms.list"
                     :key="item.platform"
@@ -77,6 +77,7 @@ import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 
 import { getFormattedName } from '@/shared/utils/assets';
 import { delay } from '@/shared/utils/helpers';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 export default {
     name: 'Assets',
@@ -92,7 +93,7 @@ export default {
 
         const isMounted = ref(false);
 
-        const { walletAccount } = useAdapter();
+        const { walletAccount, connectedWallet } = useAdapter();
 
         // *********************************************************************************
         // * Computed values from Vuex
@@ -303,6 +304,9 @@ export default {
             integrationByPlatforms,
 
             collapseActiveKey,
+
+            connectedWallet,
+            ECOSYSTEMS,
 
             getFormattedName,
 

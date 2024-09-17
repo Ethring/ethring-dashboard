@@ -69,7 +69,7 @@ export const testMetaMask = base.extend<{
     unauthSuperSwapPage: SuperSwapPage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -93,29 +93,33 @@ export const testMetaMask = base.extend<{
     authPage: async ({ context }, use) => {
         await addWalletToMm(context, SEED_PHRASE_BY_TX);
         const zometPage = new BasePage(await context.newPage());
-        await zometPage.goToPage();
+        await zometPage.goToPage('/main');
         await use(zometPage);
     },
     authPageEmptyWallet: async ({ context }, use) => {
         await addWalletToMm(context, SEED_EMPTY_WALLET);
         const zometPage = new BasePage(await context.newPage());
-        await zometPage.goToPage();
+        await zometPage.goToPage('/main');
         await use(zometPage);
     },
     dashboard: async ({ context }, use) => {
         const zometPage = await authByMm(context, SEED_PHRASE_BY_TX);
+        await zometPage.goToPage('/main');
         await use(zometPage as DashboardPage);
     },
     dashboardEmptyWallet: async ({ context }, use) => {
         const zometPage = await authByMmMockEmptyWallets(context, SEED_EMPTY_WALLET, EMPTY_ETH_ADDRESS);
+        await zometPage.goToPage('/main');
         await use(zometPage as DashboardPage);
     },
     dashboardAllBalanceError: async ({ context }, use) => {
         const zometPage = await authByMmMockErrorBalance(context, SEED_EMPTY_WALLET, EMPTY_ETH_ADDRESS);
+        await zometPage.goToPage('/main');
         await use(zometPage as DashboardPage);
     },
     dashboardProtocol: async ({ context }, use) => {
         const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, ADDRESS_BY_PROTOCOL, mockBalanceData);
+        await zometPage.goToPage('/main');
         await use(zometPage as DashboardPage);
     },
     swapPage: async ({ context }, use) => {
@@ -180,7 +184,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -216,7 +220,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -267,7 +271,7 @@ export const testMetaMaskAndKeplr = base.extend<{
     authPage: BasePage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,

@@ -16,7 +16,7 @@
                                 <span @click="() => handelOnTabChange('portfolio')"> {{ $t('dashboard.tabs.portfolio') }} </span>
                             </template>
                         </a-tab-pane>
-                        <a-tab-pane key="nfts">
+                        <a-tab-pane v-if="connectedWallet.ecosystem === ECOSYSTEMS.COSMOS" key="nfts">
                             <template #tab>
                                 <span> {{ $t('dashboard.tabs.nfts') }} </span>
                             </template>
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onActivated, onUnmounted } from 'vue';
+import { computed, onMounted, onActivated, onUnmounted } from 'vue';
 
 import ConnectWalletAdapter from '@/components/app/ConnectWalletAdapter.vue';
 import WalletInfoLarge from '@/components/app/WalletInfoLarge.vue';
@@ -55,6 +55,7 @@ import HideBalances from '@/components/app/HideBalances.vue';
 import { useRouter } from 'vue-router';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import { useStore } from 'vuex';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 export default {
     name: 'Dashboard',
@@ -68,9 +69,12 @@ export default {
         const router = useRouter();
         const store = useStore();
 
-        const activeTab = ref('portfolio');
+        const activeTab = computed({
+            get: () => store.getters['tokens/activeTab'],
+            set: () => store.dispatch('tokens/setActiveTab'),
+        });
 
-        const { walletAccount } = useAdapter();
+        const { walletAccount, connectedWallet } = useAdapter();
 
         const handelOnTabChange = (key) => {
             store.dispatch('tokens/resetIndexes');
@@ -96,6 +100,9 @@ export default {
         return {
             activeTab,
             walletAccount,
+            connectedWallet,
+            ECOSYSTEMS,
+
             handelOnTabChange,
         };
     },
