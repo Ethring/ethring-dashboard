@@ -90,7 +90,7 @@ describe('useOperations', () => {
             handleOnTryAgain();
 
             expect(store.getters['shortcuts/getShortcutStatus'](MOCK_SC_CITADEL_ONE_STAKE.id)).toEqual('PENDING');
-            expect(store.getters['shortcuts/getCurrentStepId']).toEqual(MOCK_SC_CITADEL_ONE_STAKE.recipe.operations[0].id);
+            expect(store.getters['shortcuts/getCurrentStepId']).toEqual(MOCK_SC_CITADEL_ONE_STAKE.operations[0].id);
         });
 
         test('-> should call callOnSuccess when operation is successful', async () => {
@@ -106,7 +106,7 @@ describe('useOperations', () => {
 
             const { handleOnTryAgain } = useOperationsMock;
             handleOnTryAgain();
-            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             expect(store.getters['shortcuts/getShortcutStatus'](MOCK_SC_CITADEL_ONE_STAKE.id)).toEqual('PENDING');
             expect(store.getters['shortcuts/getCurrentStepId']).toEqual(firstOp.id);
             expect(store.getters['tokenOps/srcAmount']).toBe('');
@@ -116,7 +116,7 @@ describe('useOperations', () => {
         test('-> should call "setCallConfirm" when operation is not successful on not first step', async () => {
             await useShortcutsMock.initializations();
 
-            const [, secondOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [, secondOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             await store.dispatch('shortcuts/setShortcutStatus', {
                 shortcutId: MOCK_SC_CITADEL_ONE_STAKE.id,
@@ -217,7 +217,7 @@ describe('useOperations', () => {
             await useShortcutsMock.initializations();
             const { setOperationAccount, operationsFactory } = useOperationsMock;
 
-            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 force: false,
@@ -236,7 +236,7 @@ describe('useOperations', () => {
             await useShortcutsMock.initializations();
             const { setOperationAccount, operationsFactory } = useOperationsMock;
 
-            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 force: true,
@@ -265,7 +265,7 @@ describe('useOperations', () => {
             const { setOperationAccount } = useOperationsMock;
             await delay(1000);
 
-            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 force: false,
@@ -280,7 +280,7 @@ describe('useOperations', () => {
             await useShortcutsMock.initializations();
             const { setOperationAccount, operationsFactory } = useOperationsMock;
 
-            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 force: false,
@@ -300,7 +300,7 @@ describe('useOperations', () => {
             await useShortcutsMock.initializations();
             const { setOperationAccount, operationsFactory } = useOperationsMock;
 
-            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 force: true,
@@ -704,7 +704,7 @@ describe('useOperations', () => {
             await mockOperations.initOperationsFactory();
             await mockShortcut.initShortcutSteps();
 
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await mockOperations.processShortcutOperation(operation);
 
             expect(result).toBe(true);

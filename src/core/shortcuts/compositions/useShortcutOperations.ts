@@ -34,7 +34,7 @@ import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractM
 import { IShortcutOp } from '@/core/shortcuts/core/ShortcutOp';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { IShortcutData } from '@/core/shortcuts/core/Shortcut';
-import { AvailableShortcuts } from '../data/shortcuts';
+import { TestnetShortcuts } from '@/core/shortcuts/core';
 
 // ********************* Shared Models *********************
 import { STATUS_TYPE, STATUSES } from '@/shared/models/enums/statuses.enum';
@@ -180,12 +180,12 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
     const initOperationsFactory = async () => {
         if (!currentShortcutID) {
-            console.warn('Shortcut ID not found');
+            console.warn('Shortcut ID not found', currentShortcutID);
             return false;
         }
 
         if (!currentShortcut.value) {
-            console.warn('Shortcut not found');
+            console.warn('Shortcut not found', currentShortcut.value);
             return false;
         }
 
@@ -359,7 +359,6 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
         if (minUsdAmount <= 0 || minUsdAmount === null || minUsdAmount === undefined || !isNumber(minUsdAmount)) return true;
 
-        const TestnetShortcuts = [AvailableShortcuts.BerachainStake, AvailableShortcuts.BerachainVault] as string[];
         if (TestnetShortcuts.includes(currentShortcutID)) return true;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
@@ -619,8 +618,10 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             operation?.setChainId((srcNet.chain_id || srcNet.net) as string);
             operation?.setParamByField('net', srcNet.net);
             operation?.setParamByField('fromNet', srcNet.net);
+            operation?.setParamByField('amount', 0);
             operation?.setAccount(addressesByChain.value[srcNet.net]);
             setTokenParams(operation, 'from', srcToken);
+            store.dispatch('tokenOps/setSrcAmount', 0);
         }
 
         // Update dstNet if necessary
@@ -631,8 +632,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
         const { params = [], dependencies = {} } = currentOp.value;
 
-        const srcTokenField = params.find((param) => param.name === 'srcToken');
-        const dstTokenField = params.find((param) => param.name === 'dstToken');
+        const srcTokenField = params?.find((param) => param.name === 'srcToken');
+        const dstTokenField = params?.find((param) => param.name === 'dstToken');
 
         // Update srcToken if necessary
         if (

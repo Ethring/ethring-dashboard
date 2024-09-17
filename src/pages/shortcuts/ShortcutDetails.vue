@@ -20,38 +20,41 @@
                 {{ $t('shortcuts.minUsdAmount') }}: ${{ shortcut.minUsdAmount }}
             </p>
 
-            <p v-if="shortcut.id === AvailableShortcuts.MitosisVault && mitosisInfo" class="shortcut-details__points">
-                Linea: {{ Math.round(mitosisInfo?.xp) || 0 }} points
+            <p
+                v-if="metaInfo[shortcut.callShortcutMethod] && shortcut.callShortcutMethod === 'loadMitosisPoints'"
+                class="shortcut-details__points"
+            >
+                Linea: {{ Math.round(metaInfo[shortcut.callShortcutMethod].linea?.xp) || 0 }} points
             </p>
 
             <a-dropdown
-                v-if="shortcut.id === AvailableShortcuts.MantlePendleLP && mantleInfo"
+                v-if="metaInfo[shortcut.callShortcutMethod] && shortcut.callShortcutMethod === 'loadMantlePoints'"
                 :arrow="{ pointAtCenter: true }"
                 placement="bottom"
                 class="shortcut-details__points-block"
             >
-                <p class="shortcut-details__points">Points: {{ Math.round(mantleInfo?.totalPoints) || 0 }}</p>
+                <p class="shortcut-details__points">Points: {{ Math.round(metaInfo[shortcut.callShortcutMethod]?.totalPoints) || 0 }}</p>
                 <template #overlay>
                     <a-menu class="shortcut-details__points-overlay">
-                        <p v-if="mantleInfo?.rank">Rank: {{ mantleInfo?.rank }}</p>
-                        <hr v-if="mantleInfo?.rank" />
-                        <p>L1 points: {{ Math.round(mantleInfo?.l1Points) || 0 }}</p>
-                        <p>L2 points: {{ Math.round(mantleInfo?.l2Points) || 0 }}</p>
+                        <p v-if="metaInfo[shortcut.callShortcutMethod]?.rank">Rank: {{ metaInfo[shortcut.callShortcutMethod]?.rank }}</p>
+                        <hr v-if="metaInfo[shortcut.callShortcutMethod]?.rank" />
+                        <p>L1 points: {{ Math.round(metaInfo[shortcut.callShortcutMethod]?.l1Points) || 0 }}</p>
+                        <p>L2 points: {{ Math.round(metaInfo[shortcut.callShortcutMethod]?.l2Points) || 0 }}</p>
                         <hr />
-                        <p>Token points: {{ Math.round(mantleInfo?.tokenPoints) || 0 }}</p>
-                        <p>Referral points: {{ Math.round(mantleInfo?.referralPoints) || 0 }}</p>
+                        <p>Token points: {{ Math.round(metaInfo[shortcut.callShortcutMethod]?.tokenPoints) || 0 }}</p>
+                        <p>Referral points: {{ Math.round(metaInfo[shortcut.callShortcutMethod]?.referralPoints) || 0 }}</p>
                     </a-menu>
                 </template>
             </a-dropdown>
             <a-dropdown
-                v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points"
+                v-if="metaInfo[shortcut.callShortcutMethod] && shortcut.callShortcutMethod === 'loadDebridgeInfo'"
                 :arrow="{ pointAtCenter: true }"
                 placement="bottom"
                 class="shortcut-details__points-block"
             >
                 <p class="shortcut-details__points">
-                    {{ Math.round(deBridgeInfo.points.s2?.totalPoints) || 0 }} points
-                    <span class="shortcut-details__points-tag">{{ deBridgeInfo.multiplier }}x</span>
+                    {{ Math.round(metaInfo[shortcut.callShortcutMethod].points.s2?.totalPoints) || 0 }} points
+                    <span class="shortcut-details__points-tag">{{ metaInfo[shortcut.callShortcutMethod].multiplier }}x</span>
                 </p>
                 <template #overlay>
                     <a-menu class="shortcut-details__points-overlay">
@@ -62,13 +65,14 @@
                                 <a-radio-button value="s1">Season 1 <span class="ended-tag">Ended</span></a-radio-button>
                             </a-row>
                         </a-radio-group>
-                        <p>Points: {{ Math.round(deBridgeInfo.points[activeOption]?.totalPoints) || 0 }}</p>
-                        <p v-if="deBridgeInfo.points[activeOption]?.userRank">
-                            Rank: {{ Math.round(deBridgeInfo.points[activeOption].userRank) }}
+                        <p>Points: {{ Math.round(metaInfo[shortcut.callShortcutMethod].points[activeOption]?.totalPoints) || 0 }}</p>
+                        <p v-if="metaInfo[shortcut.callShortcutMethod].points[activeOption]?.userRank">
+                            Rank: {{ Math.round(metaInfo[shortcut.callShortcutMethod].points[activeOption].userRank) }}
                         </p>
                         <hr />
                         <p>
-                            Multiplier: <span class="shortcut-details__points-tag">{{ deBridgeInfo.multiplier }}x</span>
+                            Multiplier:
+                            <span class="shortcut-details__points-tag">{{ metaInfo[shortcut.callShortcutMethod].multiplier }}x</span>
                         </p>
                     </a-menu>
                 </template>
@@ -109,7 +113,7 @@
 <script lang="ts">
 import { isEmpty } from 'lodash';
 
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -126,7 +130,6 @@ import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.v
 import useShortcuts from '@/core/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
 
 export default {
     name: 'ShortcutDetails',
@@ -145,7 +148,7 @@ export default {
         const { walletAddress } = useAdapter();
 
         const activeOption = ref('s1');
-        const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](route.params.id));
+        const shortcut = computed(() => store.getters['shortcutsList/selectedShortcut']);
 
         const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus, isShortcutLoading } = useShortcuts(shortcut.value);
 
@@ -160,22 +163,20 @@ export default {
         });
 
         const wallpaper = computed(() => {
-            if (shortcut.value && !shortcut.value.wallpaper)
+            if (shortcut.value && shortcut.value.wallpaper)
                 return {
-                    backgroundImage: `url(${ShortcutPlaceholder})`,
+                    backgroundImage: `url(${shortcut.value.wallpaper})`,
                 };
 
             return {
-                backgroundImage: `url(${shortcut.value.wallpaper})`,
+                backgroundImage: `url(${ShortcutPlaceholder})`,
             };
         });
 
-        const deBridgeInfo = computed(() => store.getters['shortcuts/getDeBridgeInfo'](walletAddress.value));
-        const mitosisInfo = computed(() => store.getters['shortcuts/getMitosisInfo'](walletAddress.value));
-        const mantleInfo = computed(() => store.getters['shortcuts/getMantleInfo'](walletAddress.value));
+        const metaInfo = computed(() => store.getters['shortcuts/getShortcutMetaInfo']);
 
-        onMounted(async () => {
-            if (isEmpty(shortcut.value)) return router.push('/shortcuts');
+        onBeforeMount(() => {
+            store.dispatch('shortcutsList/loadShortcutById', route.params.id);
         });
 
         return {
@@ -192,11 +193,7 @@ export default {
             STATUSES,
             wallpaper,
             LikeIcon,
-            deBridgeInfo,
-            mitosisInfo,
-            mantleInfo,
-
-            AvailableShortcuts,
+            metaInfo,
         };
     },
 };
