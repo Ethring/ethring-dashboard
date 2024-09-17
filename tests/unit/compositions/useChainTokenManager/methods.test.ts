@@ -93,6 +93,41 @@ const generalTests = () => {
                 expect(isNeedDstNetwork.value).toBe(true);
             });
         });
+
+        describe(`${ModuleType.liquidityProvider.toUpperCase()}`, () => {
+            test(`-> for: ${ModuleType.liquidityProvider.toUpperCase()} must set srcNetwork and dstNetwork is null`, async () => {
+                const { defaultChainMangerByModule, isNeedDstNetwork, defaultSrcNetwork } = useChainTokenManager(
+                    ModuleType.liquidityProvider,
+                    {
+                        tmpStore: store,
+                    },
+                );
+
+                defaultChainMangerByModule();
+
+                expect(store.getters['tokenOps/srcNetwork']).toEqual(defaultSrcNetwork.value);
+                expect(store.getters['tokenOps/dstNetwork']).toBeNull();
+                expect(isNeedDstNetwork.value).toBe(false);
+            });
+        });
+
+        describe(`${ModuleType.liquidityProvider.toUpperCase()}`, () => {
+            test(`-> for: ${ModuleType.liquidityProvider.toUpperCase()} must set srcToken and dstToken`, async () => {
+                const { defaultChainMangerByModule, selectedSrcToken, selectedDstToken } = useChainTokenManager(
+                    ModuleType.liquidityProvider,
+                    {
+                        tmpStore: store,
+                    },
+                );
+
+                defaultChainMangerByModule();
+
+                expect(store.getters['tokenOps/srcToken']).toEqual(selectedSrcToken.value);
+                expect(store.getters['tokenOps/dstToken']).toEqual(selectedDstToken.value);
+
+                expect(selectedSrcToken.value).toBe(null);
+            });
+        });
     });
 
     describe('validateChainsByModule', () => {

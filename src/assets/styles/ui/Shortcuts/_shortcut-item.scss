@@ -119,6 +119,7 @@
     }
 
     .amount {
+        font-size: var(--#{$prefix}small-sm-fs);
         color: var(--#{$prefix}mute-text);
 
         span {
@@ -151,19 +152,23 @@
     .benefits {
         color: var(--#{$prefix}mute-text);
 
-        span {
+        &__title {
+            font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 500;
-            margin-right: 8px;
         }
 
-        &__icons {
-            margin-left: 16px;
+        &__description {
+            font-size: var(--#{$prefix}small-sm-fs);
+            margin-left: 4px;
+            margin-right: 12px;
+        }
 
-            img {
-                width: 24px;
-                height: 24px;
-                margin-left: -8px;
-            }
+        img {
+            width: 16px;
+            height: 16px;
+            margin-left: -8px;
+            border-radius: 50%;
+            margin-top: 1px;
         }
     }
 

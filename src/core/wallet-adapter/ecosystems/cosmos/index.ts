@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { Store } from 'vuex';
-import { values, orderBy } from 'lodash';
+import { values, orderBy, isEmpty } from 'lodash';
 
 // * Cosmos SDK
 import { cosmos, cosmwasm } from 'osmojs';
@@ -143,7 +143,7 @@ export class CosmosAdapter implements ICosmosAdapter {
     // ****************************************************
 
     isLocked() {
-        return !this.getConnectedWallet();
+        return isEmpty(this.addressByNetwork);
     }
 
     async init(store?: any) {

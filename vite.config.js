@@ -27,6 +27,9 @@ export default defineConfig({
     define: {
         'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '1.0.0',
     },
+    optimizeDeps: {
+        exclude: [''],
+    },
     test: {
         testTimeout: 30000,
         setupFiles: ['fake-indexeddb/auto'],

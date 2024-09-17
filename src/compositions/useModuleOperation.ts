@@ -1243,7 +1243,10 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
-        if (ecosystemToConnect.value && !getConnectedStatus(ecosystemToConnect.value as Ecosystems)) return false;
+        if (ecosystemToConnect.value && !getConnectedStatus(ecosystemToConnect.value as Ecosystems)) {
+            opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`;
+            return false;
+        }
 
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
