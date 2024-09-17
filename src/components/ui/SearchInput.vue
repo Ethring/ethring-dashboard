@@ -6,7 +6,7 @@
         <div class="search-input__container">
             <input
                 v-model="text"
-                v-debounce:1s="onInput"
+                v-debounce:0.3s="onInput"
                 :placeholder="placeholder || $t('tokenOperations.searchToken')"
                 @focus="isActive = 'active'"
                 @blur="isActive = ''"
