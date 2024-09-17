@@ -31,7 +31,7 @@ export default defineConfig({
         exclude: [''],
     },
     test: {
-        testTimeout: 30000,
+        testTimeout: 24000,
         setupFiles: ['fake-indexeddb/auto'],
         coverage: {
             enabled: true,
