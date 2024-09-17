@@ -10,14 +10,14 @@ const MAIN_DASHBOARD = {
     type: 'layout',
 };
 
-// const SEND = {
-//     icon: 'sendIcon',
-//     title: 'Send',
-//     key: 'send',
-//     to: '/send',
-//     disabled: false,
-//     type: 'layout',
-// };
+const SEND = {
+    icon: 'sendIcon',
+    title: 'Send',
+    key: 'send',
+    to: '/send',
+    disabled: false,
+    type: 'layout',
+};
 
 // const BRIDGE = {
 //     icon: 'bridgeIcon',
@@ -42,6 +42,7 @@ const SUPER_SWAP = {
     title: 'Super Swap',
     key: 'superSwap',
     to: '/super-swap',
+    status: 'BETA',
     disabled: false,
     type: 'layout',
 };
@@ -51,21 +52,21 @@ const SHORTCUT = {
     title: 'Shortcuts',
     key: 'shortcut',
     to: '/shortcuts',
-    status: 'BETA',
+    status: 'NEW',
     disabled: false,
     type: 'layout',
 };
 
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SUPER_SWAP];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SUPER_SWAP];
 
-const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SUPER_SWAP];
+const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SEND, SUPER_SWAP];
 
 const defaultConfig = {
     [Ecosystem.EVM]: {
         sidebar: SIDEBAR_MODULES,
-        // send: {
-        //     component: 'SimpleSend',
-        // },
+        send: {
+            component: 'SimpleSend',
+        },
         superSwap: {
             component: 'SuperSwap',
         },
@@ -78,9 +79,9 @@ const defaultConfig = {
     },
     [Ecosystem.COSMOS]: {
         sidebar: SIDEBAR_MODULES,
-        // send: {
-        //     component: 'SimpleSend',
-        // },
+        send: {
+            component: 'SimpleSend',
+        },
         superSwap: {
             component: 'SuperSwap',
         },
