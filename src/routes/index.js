@@ -45,25 +45,25 @@ export const routes = [
         },
         component: () => import('@/pages/Dashboard.vue'),
     },
-    {
-        path: '/send',
-        name: 'Zomet - Send',
-        meta: {
-            key: ModuleType.send,
-            isAuth: true,
-        },
-        component: () => import('@/layouts/ModulesLayout.vue'),
-        props: {
-            component: 'SimpleSend',
-            tabs: [
-                {
-                    title: 'simpleSend.title',
-                    active: true,
-                    to: '/send',
-                },
-            ],
-        },
-    },
+    // {
+    //     path: '/send',
+    //     name: 'Zomet - Send',
+    //     meta: {
+    //         key: ModuleType.send,
+    //         isAuth: true,
+    //     },
+    //     component: () => import('@/layouts/ModulesLayout.vue'),
+    //     props: {
+    //         component: 'SimpleSend',
+    //         tabs: [
+    //             {
+    //                 title: 'simpleSend.title',
+    //                 active: true,
+    //                 to: '/send',
+    //             },
+    //         ],
+    //     },
+    // },
     // {
     //     path: '/bridge',
     //     name: 'Zomet - Bridge',
