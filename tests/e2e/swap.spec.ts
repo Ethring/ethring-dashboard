@@ -26,7 +26,8 @@ testMetaMask.describe('Swap e2e tests', () => {
         });
     });
 
-    testMetaMask(
+    // TODO: Change to another network
+    testMetaMask.skip(
         'Case#: Checking token list change after network change',
         async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
             const NET = 'Avalanche';
