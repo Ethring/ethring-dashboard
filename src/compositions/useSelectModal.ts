@@ -71,7 +71,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     const includeTokenList = computed(() => {
         const { includeTokens = {} } = CurrentOperation.value || {};
 
-        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
+        if (includeTokens && includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
 
         return [];
     });

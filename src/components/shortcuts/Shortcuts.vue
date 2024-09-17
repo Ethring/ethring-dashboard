@@ -32,17 +32,20 @@
         </div>
     </a-row>
 
-    <a-row v-if="shortcutList.length" :gutter="[16, 16]" class="shortcut-list">
-        <a-col v-for="(item, i) in shortcutList" :key="`shortcut-${i}`" :md="24" :lg="12">
-            <ShortcutItem :item="item" />
-        </a-col>
-    </a-row>
+    <div v-if="shortcuts.length" class="shortcut-list">
+        <a-row :gutter="[16, 16]">
+            <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :md="24" :lg="12"> <ShortcutItem :item="item" /> </a-col
+        ></a-row>
+        <a-spin v-if="isShortcutsLoading" size="medium" class="spin__center mt-16" />
+    </div>
 
-    <a-empty v-else :image="emptyImage" class="shortcuts-empty" />
+    <a-spin v-else-if="isShortcutsLoading" size="large" class="spin__center" />
+
+    <a-empty v-else class="shortcuts-empty" />
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, ref, onBeforeMount, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import ShortcutItem from '@/components/shortcuts/ShortcutItem';
@@ -53,10 +56,6 @@ import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import ClearAllIcon from '@/assets/icons/form-icons/remove.svg';
 
 import { Empty } from 'ant-design-vue';
-
-import { searchByKey } from '@/shared/utils/helpers';
-
-import { filter } from 'lodash';
 
 export default {
     name: 'Shortcuts',
@@ -73,15 +72,23 @@ export default {
 
         const activeTabKey = ref('all');
 
-        const searchInput = ref('');
-
         const emptyImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
         const shortcuts = computed(() => store.getters['shortcutsList/getShortcutsByType'](activeTabKey.value));
 
         const selectedTags = computed(() => store.getters['shortcutsList/selectedTags']);
 
-        const shortcutList = ref(shortcuts.value);
+        const moreShortcutsExists = computed(() => store.getters['shortcutsList/moreShortcutsExists']);
+
+        const isShortcutsLoading = computed({
+            get: () => store.getters['shortcutsList/isShortcutsLoading'],
+            set: (value) => store.dispatch('shortcutsList/setShortcutsLoading', value),
+        });
+
+        const searchInput = computed({
+            get: () => store.getters['shortcutsList/searchInput'],
+            set: (value) => store.dispatch('shortcutsList/setSearchQuery', value),
+        });
 
         const tabs = ref([
             {
@@ -102,18 +109,31 @@ export default {
             store.dispatch('shortcutsList/clearAllTags');
         };
 
-        const handleSearchChange = (value) => {
+        const handleSearchChange = async (value) => {
             searchInput.value = value;
 
-            shortcutList.value = searchShortcut(shortcuts.value, value);
+            if (value.length) return await store.dispatch('shortcutsList/searchShortcuts', searchInput.value);
+
+            store.dispatch('shortcutsList/clearShortcuts');
+            await store.dispatch('shortcutsList/loadShortcutList');
+            window.addEventListener('scroll', handleScroll);
         };
 
-        const searchShortcut = (list = [], value) => {
-            return filter(list, (elem) => searchByKey(elem, value, 'name'));
+        const handleScroll = async () => {
+            if (searchInput.value.length || isShortcutsLoading.value) return;
+            if (!moreShortcutsExists.value) return window.removeEventListener('scroll', handleScroll);
+
+            if (window.scrollY + window.screenTop > window.screen.height * Math.floor(shortcuts.value.length / 10))
+                await store.dispatch('shortcutsList/loadShortcutList');
         };
 
-        watch(shortcuts, (newShortcuts) => {
-            shortcutList.value = searchShortcut(newShortcuts, searchInput.value);
+        onBeforeMount(async () => {
+            window.addEventListener('scroll', handleScroll);
+            await store.dispatch('shortcutsList/loadShortcutList');
+        });
+
+        onUnmounted(async () => {
+            window.removeEventListener('scroll', handleScroll);
         });
 
         return {
@@ -123,7 +143,7 @@ export default {
             activeTabKey,
             emptyImage,
             searchInput,
-            shortcutList,
+            isShortcutsLoading,
 
             handleSearchChange,
             onTabChange: (key) => (activeTabKey.value = key),

@@ -8,3 +8,13 @@ export const ShortcutTypeColors = {
     liquidity: '#EAF4D9',
     claim: '#b5f9da',
 };
+
+export const RemoveLiquidityPoolId = 'SC-remove-liquidity-pool';
+export const MitosisVault = 'SC-mitosis-vault';
+export const Debridge = 'SC-debridge';
+export const MantlePendleLP = 'MantlePendleLP';
+
+const BerachainVault = 'SC-berachain-vault';
+const BerachainStake = 'SC-berachain-stake';
+
+export const TestnetShortcuts = [BerachainStake, BerachainVault] as string[];

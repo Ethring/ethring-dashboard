@@ -109,7 +109,7 @@ describe('usePrepareFields', () => {
 
     describe('performFields', () => {
         test('-> should return false if "params" is empty', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 isUpdateInStore: true,
@@ -123,7 +123,7 @@ describe('usePrepareFields', () => {
 
         test('-> should return false if "isTransactionSigning" is true', async () => {
             await store.dispatch('txManager/setTransactionSigning', true);
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 isUpdateInStore: true,
@@ -137,7 +137,7 @@ describe('usePrepareFields', () => {
 
         test('-> should return true if everything is OK', async () => {
             await store.dispatch('txManager/setTransactionSigning', false);
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
 
             const options = {
                 isUpdateInStore: true,
@@ -152,7 +152,7 @@ describe('usePrepareFields', () => {
 
     describe('prepareValueByField', () => {
         test('-> should return false if operationsFactory is not initialized', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const [parameter] = operation.params || [];
 
             const options = {
@@ -165,7 +165,7 @@ describe('usePrepareFields', () => {
         });
 
         test('-> should return false if "operationId" is not provided', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const [parameter] = operation.params || [];
 
             const options = {
@@ -178,7 +178,7 @@ describe('usePrepareFields', () => {
         });
 
         test('-> should return false if "fieldName" is not provided', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const [parameter] = operation.params || [];
 
             const options = {
@@ -191,7 +191,7 @@ describe('usePrepareFields', () => {
         });
 
         test('-> should return false if "params" is not provided', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const [parameter] = operation.params || [];
 
             const options = {
@@ -205,7 +205,7 @@ describe('usePrepareFields', () => {
 
         test('-> should return true if operationsFactory initialized and everything is OK', async () => {
             await useShortcutsMock.initializations();
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const [parameter] = operation.params || [];
 
             const options = {
@@ -226,7 +226,9 @@ describe('usePrepareFields', () => {
         test('-> should return true without updating field value in Store and in Operation', async () => {
             await useShortcutsMock.initializations();
             await delay(1000);
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
+
             const parameter = {
                 name: 'srcToken',
                 disabled: false,
@@ -378,25 +380,25 @@ describe('usePrepareFields', () => {
 
     describe('performDisabledOrHiddenFields', () => {
         test('-> should return false if "operationId" is not provided', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await usePrepareFieldsMock.performDisabledOrHiddenFields(null, operation.moduleType, operation.params);
             expect(result).toBe(false);
         });
 
         test('-> should return false if "moduleType" is not provided', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await usePrepareFieldsMock.performDisabledOrHiddenFields(operation.id, null, operation.params);
             expect(result).toBe(false);
         });
 
         test('-> should return false if "fields" is not provided', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await usePrepareFieldsMock.performDisabledOrHiddenFields(operation.id, operation.moduleType, []);
             expect(result).toBe(false);
         });
 
         test('-> should return false if operation is not initialized', async () => {
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await usePrepareFieldsMock.performDisabledOrHiddenFields(operation.id, operation.moduleType, operation.params);
             expect(result).toBe(false);
         });
@@ -404,7 +406,7 @@ describe('usePrepareFields', () => {
         test('-> should return false current operation is not equal to operationId', async () => {
             await useShortcutsMock.initializations();
             const { currentOp } = useShortcutsMock;
-            const [, operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [, operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await usePrepareFieldsMock.performDisabledOrHiddenFields(operation.id, operation.moduleType, operation.params);
             expect(result).toBe(false);
             expect(currentOp.value.id).not.toEqual(operation.id);
@@ -412,7 +414,7 @@ describe('usePrepareFields', () => {
 
         test('-> should return true if everything is OK', async () => {
             await useShortcutsMock.initializations();
-            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.operations;
             const result = await usePrepareFieldsMock.performDisabledOrHiddenFields(operation.id, operation.moduleType, operation.params);
             expect(result).toBe(true);
         });

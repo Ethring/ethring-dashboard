@@ -10,4 +10,7 @@ export const DB_TABLES = {
     TOKENS: 'tokens',
 
     BALANCES: 'balances',
+
+    BALANCES_V2: 'balancesV2',
+    CONFIGS_V2: 'configsV2',
 };

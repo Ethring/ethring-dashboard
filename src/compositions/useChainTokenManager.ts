@@ -1,4 +1,4 @@
-import { isEqual, isEmpty, chain } from 'lodash';
+import { isEqual, isEmpty } from 'lodash';
 
 import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { Store, useStore } from 'vuex';
@@ -12,7 +12,7 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType, LIKE_SUPER_SWAP, IS_NEED_DST_NETWORK } from '@/shared/models/enums/modules.enum';
 import { IChainConfig } from '@/shared/models/types/chain-config';
 import { IAsset } from '@/shared/models/fields/module-fields';
-import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
+import { RemoveLiquidityPoolId } from '@/core/shortcuts/core/index';
 import { useRoute } from 'vue-router';
 
 /**
@@ -189,7 +189,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
     const includeTokenList = computed(() => {
         const { includeTokens = {} } = CurrentOperation.value || {};
 
-        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
+        if (includeTokens && includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
 
         return [];
     });
@@ -217,7 +217,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         if (moduleType === ModuleType.shortcut && !CurrentShortcut.value) return;
 
         // return pool token, if shortcut is RemoveLiquidityPool
-        if (CurrentShortcut.value === AvailableShortcuts.RemoveLiquidityPool && isSrc)
+        if (CurrentShortcut.value === RemoveLiquidityPoolId && isSrc)
             return pools.value[srcNet?.net]?.length ? pools.value[srcNet?.net][0] : null;
 
         const getTokensParams = {
@@ -235,7 +235,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         tokensList.value = await getTokensList(getTokensParams);
 
         let filteredTokenList: any[] = [];
-        if (includeTokenList.value.length)
+        if (includeTokenList.value?.length)
             filteredTokenList = tokensList.value.filter((token) => includeTokenList.value.includes(token.id));
 
         if (filteredTokenList?.length) tokensList.value = filteredTokenList;
@@ -290,6 +290,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             case ModuleType.stake:
             case ModuleType.send:
             case ModuleType.nft:
+            case ModuleType.liquidityProvider:
                 selectedDstNetwork.value = null;
                 selectedDstToken.value = null;
                 break;
@@ -332,6 +333,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             case ModuleType.liquidityProvider:
                 // 1. If the source token is changed, then set the source token
                 await updateSrcTokenIfNeed();
+                if (CurrentShortcut.value === RemoveLiquidityPoolId) await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
                 break;
 
             case ModuleType.bridge:
@@ -492,6 +494,9 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         defaultSrcNetwork,
         defaultDstNetwork,
+
+        selectedSrcToken,
+        selectedDstToken,
 
         tokensList,
         isTokensLoadingForSrc,

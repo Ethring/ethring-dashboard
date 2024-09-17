@@ -44,21 +44,22 @@
 
             <div class="description" :title="item.description">{{ item.description }}</div>
 
-            <a-row v-if="item?.benefits" class="benefits">
-                <span>Benefits:</span>{{ item?.benefits?.description }}
-                <a-row class="benefits__icons">
+            <a-row justify="space-between">
+                <div class="amount">
+                    Min amount:
+                    <Amount v-if="item.minUsdAmount" type="usd" :value="item.minUsdAmount" symbol="$" />
+                    <span v-else class="amount">any</span>
+                </div>
+
+                <a-row v-if="item?.benefits" class="benefits">
+                    <span class="benefits__title">Rewards: </span>
+                    <span class="benefits__description">{{ item?.benefits?.description }}</span>
                     <a-tooltip v-for="elem in item?.benefits?.items" :key="elem.tooltip">
                         <template #title>{{ elem.tooltip }} </template>
                         <img :src="elem.image" />
                     </a-tooltip>
                 </a-row>
             </a-row>
-
-            <div class="amount">
-                Min amount:
-                <Amount v-if="item.minUsdAmount" type="usd" :value="item.minUsdAmount" symbol="$" />
-                <span v-else class="amount">any</span>
-            </div>
         </div>
     </a-card>
     <a-row justify="space-between" class="shortcut-item__footer">
@@ -137,11 +138,11 @@ export default {
             const list = [];
             const allNetworks = [...values(chainsInfo.value.evm), ...values(chainsInfo.value.cosmos)];
 
-            fullEcosystems.forEach((ecosystem) => {
+            fullEcosystems?.forEach((ecosystem) => {
                 list.push(...values(chainsInfo.value[ecosystem.toLowerCase()]).filter((elem) => elem.isSupportedChain && !elem.isTestNet));
             });
 
-            additionalNetworks.forEach((net) => {
+            additionalNetworks?.forEach((net) => {
                 const network = allNetworks.find((elem) => net === elem.net);
                 if (network) list.push(network);
             });

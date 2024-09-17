@@ -4,6 +4,7 @@ import { StepProps } from 'ant-design-vue';
 // ********************* Vue/Vuex *********************
 import { computed, onBeforeUnmount, onMounted, onUnmounted, watch } from 'vue';
 import { useStore, Store } from 'vuex';
+import { useRouter, useRoute } from 'vue-router';
 
 // ********************* Compositions *********************
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -25,26 +26,48 @@ import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 // ********************* Balance Provider *********************
 import { loadUsersPoolList } from '@/core/balance-provider';
 
+const getEmptyShortcut = (id: string) => {
+    return {
+        id,
+        name: '',
+        logoURI: '',
+        keywords: [],
+        tags: [],
+        type: '',
+        description: '',
+        website: '',
+        minUsdAmount: 0,
+        wallpaper: '',
+        isComingSoon: false,
+        isActive: true,
+    };
+};
+
 const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
-    if (!Shortcut) {
-        console.error('Shortcut data is required');
-        throw new Error('Shortcut data is required');
-    }
-
-    if (!Shortcut?.id) {
-        console.error('Shortcut id is required');
-        throw new Error('Shortcut id is required');
-    }
-
-    // Create a new instance of the Shortcut class
-    const shortcut = new ShortcutCl(Shortcut);
-
     // ****************************************************************************************************
     // * Main store and router
     // ****************************************************************************************************
 
     const store = tmpStore || useStore();
+    const route = useRoute();
+    const router = useRouter();
 
+    const shortcutFromStore = computed(() => store.getters['shortcutsList/selectedShortcut']);
+
+    const emptyShortcut = getEmptyShortcut(route?.params?.id as string);
+
+    // Create a new instance of the Shortcut class
+    const shortcut = new ShortcutCl(Shortcut || emptyShortcut);
+
+    if (!shortcut) {
+        console.error('Shortcut data is required');
+        throw new Error('Shortcut data is required');
+    }
+
+    if (!shortcut?.id) {
+        console.error('Shortcut id is required');
+        throw new Error('Shortcut id is required');
+    }
     // ****************************************************************************************************
     // * Wallet adapter and tokens list
     // ****************************************************************************************************
@@ -78,10 +101,10 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     // * Shortcut loading state from the store
     const isShortcutLoading = computed({
-        get: () => store.getters['shortcuts/getIsShortcutLoading'](Shortcut.id),
+        get: () => store.getters['shortcuts/getIsShortcutLoading'](shortcut.id),
         set: (value) =>
             store.dispatch('shortcuts/setIsShortcutLoading', {
-                shortcutId: Shortcut.id,
+                shortcutId: shortcut.id,
                 value,
             }),
     });
@@ -191,6 +214,24 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         shortcutIndex.value = 0;
 
+        if (!shortcut.isActive) return router.push('/shortcuts');
+
+        if (shortcut?.isComingSoon) isShortcutLoading.value = false;
+
+        await store.dispatch('shortcuts/setShortcut', {
+            shortcut: shortcut.id,
+            data: shortcut,
+        });
+
+        await store.dispatch('shortcuts/setShortcutStatus', {
+            shortcutId: shortcut.id,
+            status: SHORTCUT_STATUSES.PENDING,
+        });
+
+        await store.dispatch('shortcuts/setCurrentShortcutId', {
+            shortcutId: shortcut.id,
+        });
+
         const [firstOp] = shortcut.operations || [];
 
         if (!firstOp) {
@@ -247,11 +288,12 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             shortcutId: shortcut.id,
         });
 
+        isShortcutLoading.value = false;
         return true;
     };
 
     const initShortcutService = async () => {
-        if (!shortcut.operations.length) {
+        if (!shortcut.operations?.length) {
             console.warn('No operations found');
             return false;
         }
@@ -302,13 +344,17 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         switch (shortcut.callShortcutMethod) {
             case 'loadUsersPoolList':
                 await loadUsersPoolList({
+                    ecosystem: currentChainInfo.value.ecosystem,
                     chain: currentChainInfo.value.chain as string,
                     address: walletAccount.value,
                     isBalanceUpdate,
                 });
                 break;
             default:
-                await store.dispatch(`shortcuts/${shortcut.callShortcutMethod}`, walletAccount.value);
+                await store.dispatch(`shortcuts/${shortcut.callShortcutMethod}`, {
+                    address: walletAccount.value,
+                    ecosystem: currentChainInfo.value.ecosystem,
+                });
         }
 
         return true;
@@ -326,8 +372,6 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         await performShortcut(true, true, 'initializations');
         await initShortcutService();
         await initShortcutMetaInfo();
-        await delay(400);
-        isShortcutLoading.value = false;
     };
 
     // ****************************************************************************************************
@@ -379,7 +423,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
                 from: 'handleChangeWalletAccount',
             });
         }
-
+        store.dispatch('shortcuts/clearShortcutMetaInfo');
         await initShortcutMetaInfo();
 
         return true;
@@ -469,6 +513,20 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     // **************************************************************************************************
     // ************************************** WATCHERS **************************************************
     // **************************************************************************************************
+    watch(shortcutFromStore, async () => {
+        if (!shortcutFromStore.value) return;
+
+        // update shortcut fields
+        shortcut.isActive = shortcutFromStore.value.isActive;
+        shortcut.isComingSoon = shortcutFromStore.value.isComingSoon;
+        shortcut.operations = shortcutFromStore.value.operations;
+        shortcut.name = shortcutFromStore.value.name;
+        shortcut.description = shortcutFromStore.value.description;
+        shortcut.type = shortcutFromStore.value.type;
+        shortcut.minUsdAmount = shortcutFromStore.value.minUsdAmount;
+
+        await initializations();
+    });
 
     // * Watch for changes in the wallet account and update the operation account
 
@@ -500,6 +558,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         // * Unwatch the watchers
         await Promise.all([
             store.dispatch('shortcuts/resetAllShortcuts'),
+            store.dispatch('shortcutsList/setSelectedShortcut', null),
 
             store.dispatch('moduleStates/resetModuleStates', { module: moduleType || ModuleType.shortcut }),
 

@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import { formatInputNumber } from '@/shared/utils/input';
@@ -40,7 +40,9 @@ export default {
             minBalance.value = inputValue.value;
         };
 
-        watch(inputValue, (value) => handleOnChange(value));
+        const unWatch = watch(inputValue, (value) => handleOnChange(value));
+
+        onUnmounted(() => unWatch());
 
         return {
             inputValue,

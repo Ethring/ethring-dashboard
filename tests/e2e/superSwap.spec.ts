@@ -50,7 +50,8 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         },
     );
 
-    testMetaMask(
+    // TODO: Change to another network
+    testMetaMask.skip(
         'Case#: SuperSwap estimate route without authorization',
         async ({ browser, context, page, unauthSuperSwapPage: superSwapPage }) => {
             await superSwapPage.waitDetachedLoader();

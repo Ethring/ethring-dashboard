@@ -20,6 +20,7 @@ import DebridgeApi from '@/modules/debridge/api';
 import BerachainApi from '@/modules/berachain/api';
 import MitosisApi from '@/modules/mitosis/api';
 import MantleApi from '@/modules/mantle/api';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -35,10 +36,8 @@ const TYPES = {
     SET_IS_REQUESTING_NFT: 'SET_IS_REQUESTING_NFT',
     SET_IS_CALL_ESTIMATE: 'SET_IS_CALL_ESTIMATE',
 
-    SET_DEBRIDGE_INFO: 'SET_DEBRIDGE_INFO',
+    SET_SHORTCUT_METAINFO: 'SET_SHORTCUT_METAINFO',
     SET_VAULTS_INFO: 'SET_VAULTS_INFO',
-    SET_MITOSIS_POINTS: 'SET_MITOSIS_POINTS',
-    SET_MANTLE_POINTS: 'SET_MANTLE_POINTS',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -71,16 +70,12 @@ interface IState {
     isCallEstimate: {
         [key: string]: boolean;
     };
-    deBridgeInfo: {
-        [key: string]: string;
+    shortcutMetaInfo: {
+        [key: string]: {
+            [key: string]: string;
+        };
     };
     vaults: {
-        [key: string]: string;
-    };
-    mitosisOnfo: {
-        [key: string]: string;
-    };
-    mantleInfo: {
         [key: string]: string;
     };
     isVaultsLoading: boolean;
@@ -107,11 +102,10 @@ export default {
         isRequestingNfts: {},
         isCallEstimate: {},
 
-        deBridgeInfo: {},
+        shortcutMetaInfo: {},
+
         vaults: {},
-        mitosisOnfo: {},
         isVaultsLoading: false,
-        mantleInfo: {},
     }),
 
     // ================================================================================
@@ -137,11 +131,9 @@ export default {
             return state.shortcut[shortcut];
         },
 
-        getDeBridgeInfo: (state: IState) => (address: string) => state.deBridgeInfo[address],
-        getVaultsInfo: (state: IState) => (address: string) => state.vaults[address],
-        getMitosisInfo: (state: IState) => (address: string) => state.mitosisOnfo[address],
-        getMantleInfo: (state: IState) => (address: string) => state.mantleInfo[address],
+        getShortcutMetaInfo: (state: IState) => state.shortcutMetaInfo,
 
+        getVaultsInfo: (state: IState) => (address: string) => state.vaults[address],
         getIsVaultsLoading: (state: IState) => state.isVaultsLoading,
 
         getShortcutOpInfoById: (state: IState) => (shortcutId: string, operationId: string) => {
@@ -331,17 +323,11 @@ export default {
             !state.isCallEstimate[shortcutId] && (state.isCallEstimate[shortcutId] = false);
             state.isCallEstimate[shortcutId] = value;
         },
-        [TYPES.SET_DEBRIDGE_INFO](state: IState, value: any) {
-            state.deBridgeInfo = value;
+        [TYPES.SET_SHORTCUT_METAINFO](state: IState, value: any) {
+            state.shortcutMetaInfo = value;
         },
         [TYPES.SET_VAULTS_INFO](state: IState, value: any) {
             state.vaults = value;
-        },
-        [TYPES.SET_MITOSIS_POINTS](state: IState, value: any) {
-            state.mitosisOnfo = value;
-        },
-        [TYPES.SET_MANTLE_POINTS](state: IState, value: any) {
-            state.mantleInfo = value;
         },
     },
 
@@ -433,30 +419,8 @@ export default {
         setIsCallEstimate({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             commit(TYPES.SET_IS_CALL_ESTIMATE, { shortcutId, value });
         },
-        async loadDebridgeInfo({ state, commit }: any, address: string) {
-            if (state.deBridgeInfo[address]) return state.deBridgeInfo[address];
-
-            const service = new DebridgeApi();
-
-            const pointsInfoS1 = await service.getDebridgePoints(address, 1);
-            const pointsInfoS2 = await service.getDebridgePoints(address, 2);
-            const multiplierInfo = await service.getMultiplierInfo(address);
-
-            const data = {
-                ...state.deBridgeInfo,
-                [address]: {
-                    points: {
-                        s1: pointsInfoS1,
-                        s2: pointsInfoS2,
-                    },
-                    multiplier: multiplierInfo?.finalMultiplier || 1,
-                },
-            };
-
-            commit(TYPES.SET_DEBRIDGE_INFO, data);
-        },
-        async loadUserVaults({ state, commit }: any, address: string) {
-            if (!address) return;
+        async loadUserVaults({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
             if (!state.vaults.length) state.isVaultsLoading = true;
 
             const service = new BerachainApi();
@@ -471,33 +435,72 @@ export default {
             commit(TYPES.SET_VAULTS_INFO, data);
             state.isVaultsLoading = false;
         },
-        async loadMitosisPoints({ state, commit }: any, address: string) {
-            if (state.mitosisOnfo[address]) return state.mitosisOnfo[address];
+        async loadDebridgeInfo({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
+
+            const name = 'loadDebridgeInfo';
+
+            if (state.shortcutMetaInfo[name]) return state.shortcutMetaInfo[name];
+
+            const service = new DebridgeApi();
+
+            const pointsInfoS1 = await service.getDebridgePoints(address, 1);
+            const pointsInfoS2 = await service.getDebridgePoints(address, 2);
+            const multiplierInfo = await service.getMultiplierInfo(address);
+
+            const data = {
+                ...state.shortcutMetaInfo,
+                [name]: {
+                    points: {
+                        s1: pointsInfoS1,
+                        s2: pointsInfoS2,
+                    },
+                    multiplier: multiplierInfo?.finalMultiplier || 1,
+                },
+            };
+
+            commit(TYPES.SET_SHORTCUT_METAINFO, data);
+        },
+
+        async loadMitosisPoints({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
+
+            const name = 'loadMitosisPoints';
+
+            if (state.shortcutMetaInfo[name]) return state.shortcutMetaInfo[name];
 
             const service = new MitosisApi();
 
             const lineaResponse = await service.getLineaPoints(address);
 
             const data = {
-                ...state.mitosisOnfo,
-                [address]: lineaResponse.length ? lineaResponse[0] : {},
+                ...state.shortcutMetaInfo,
+                [name]: lineaResponse.length ? lineaResponse[0] : {},
             };
 
-            commit(TYPES.SET_MITOSIS_POINTS, data);
+            commit(TYPES.SET_SHORTCUT_METAINFO, data);
         },
-        async loadMantlePoints({ state, commit }: any, address: string) {
-            if (state.mantleInfo[address]) return state.mantleInfo[address];
+
+        async loadMantlePoints({ state, commit }: any, { address, ecosystem }: { address: string; ecosystem: string }) {
+            if (!address || ecosystem !== ECOSYSTEMS.EVM) return;
+
+            const name = 'loadMantlePoints';
+
+            if (state.shortcutMetaInfo[name]) return state.shortcutMetaInfo[name];
 
             const service = new MantleApi();
 
             const response = await service.getPoints(address);
 
             const data = {
-                ...state.mantleInfo,
-                [address]: response,
+                ...state.shortcutMetaInfo,
+                [name]: response,
             };
 
-            commit(TYPES.SET_MANTLE_POINTS, data);
+            commit(TYPES.SET_SHORTCUT_METAINFO, data);
+        },
+        clearShortcutMetaInfo({ commit }: any) {
+            commit(TYPES.SET_SHORTCUT_METAINFO, {});
         },
     },
 };

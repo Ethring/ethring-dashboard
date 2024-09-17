@@ -46,6 +46,7 @@ npm run test:report
 | `IS_ANALYZE`         | The main flag for analyzing the bundle for production build                                          |
 | `PORTAL_FI_API`      | The main API for make POOL operations                                                                |
 | `APPS_API`           | The main API for interacting with the application |
+| `SHORTCUTS_API`      | The main API for shortcuts operations                                                                |
 
 ### Important `DATA_PROVIDER_API`
 

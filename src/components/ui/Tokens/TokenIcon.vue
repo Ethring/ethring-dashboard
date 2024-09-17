@@ -64,9 +64,30 @@ export default {
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
         const shouldShowImage = computed(() => !isShowPlaceholder.value);
 
+        const updateTokenImage = async (image, token) => {
+            if (!token?.id || !token?.chain) return null;
+
+            try {
+                await store.dispatch('tokens/updateTokenImage', {
+                    chain: token.chain,
+                    id: token.id,
+                    image,
+                });
+            } catch (error) {
+                console.error('Error updating token image', error);
+                return null;
+            }
+        };
+
         const getImageByAddress = async (token) => {
             try {
-                return await store.dispatch('configs/getTokenImage', token);
+                const image = await store.dispatch('configs/getTokenImage', token);
+
+                if (!image) return null;
+
+                if (image !== token?.logo) await updateTokenImage(image, token);
+
+                return image;
             } catch (error) {
                 console.error('Error getting token image', error);
                 return null;

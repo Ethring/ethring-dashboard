@@ -1,4 +1,4 @@
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, onUnmounted } from 'vue';
 import { useStore, Store } from 'vuex';
 import { startsWith, debounce } from 'lodash';
 
@@ -13,7 +13,7 @@ import useChainTokenManger from './useChainTokenManager';
 
 import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { useRoute } from 'vue-router';
-import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
+import { RemoveLiquidityPoolId } from '@/core/shortcuts/core/';
 
 export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) {
     const store = tmpStore || useStore();
@@ -330,22 +330,6 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
         return console.warn('Route timer is cleared');
     };
 
-    watch(isNeedApprove, () => {
-        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
-        opTitle.value = DEFAULT_TITLE;
-    });
-
-    watch(isNeedAddLpApprove, () => {
-        if (isNeedAddLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
-        opTitle.value = DEFAULT_TITLE;
-    });
-
-    watch(isNeedRemoveLpApprove, () => {
-        if (CurrentShortcut.value !== AvailableShortcuts.RemoveLiquidityPool) return;
-        if (isNeedRemoveLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
-        opTitle.value = DEFAULT_TITLE;
-    });
-
     onMounted(() => {
         module.value = moduleType;
         isNeedAddLpApprove.value = false;
@@ -354,20 +338,36 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
         opTitle.value = checkSelectedNetwork();
     });
 
-    watch(walletAccount, () => (opTitle.value = checkSelectedNetwork()));
+    const unWatchIsNeedApprove = watch(isNeedApprove, () => {
+        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
 
-    watch(selectedRoute, () => {
+    const unWatchIsNeedAddLp = watch(isNeedAddLpApprove, () => {
+        if (isNeedAddLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
+
+    const unWatchIsNeedRemove = watch(isNeedRemoveLpApprove, () => {
+        if (CurrentShortcut.value !== RemoveLiquidityPoolId) return;
+        if (isNeedRemoveLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
+
+    const unWatchWalletAccount = watch(walletAccount, () => (opTitle.value = checkSelectedNetwork()));
+
+    const unWatchSelectedRoute = watch(selectedRoute, () => {
         if (pathRoute.path.startsWith('/shortcuts')) return;
         if (selectedRoute.value && selectedRoute.value?.toAmount) dstAmount.value = selectedRoute.value.toAmount;
     });
 
-    watch(isQuoteLoading, () => {
+    const unWatchIsQuote = watch(isQuoteLoading, () => {
         if (!isQuoteLoading.value) nextTick(() => inputFocus());
     });
 
-    watch([isConfigsLoading, module], () => callOnMounted());
+    const unWatchIsConfig = watch([isConfigsLoading, module], () => callOnMounted());
 
-    watch(
+    const unWatchRouteTime = watch(
         () => routeTimer.value.seconds,
         async () => {
             if (pathRoute.path.startsWith('/shortcuts')) return;
@@ -379,6 +379,17 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
         // Clear all data
         store.dispatch('tokenOps/resetFields');
         opTitle.value = checkSelectedNetwork();
+    });
+
+    onUnmounted(() => {
+        unWatchIsNeedApprove();
+        unWatchIsNeedAddLp();
+        unWatchIsNeedRemove();
+        unWatchWalletAccount();
+        unWatchSelectedRoute();
+        unWatchIsQuote();
+        unWatchIsConfig();
+        unWatchRouteTime();
     });
 
     return {

@@ -61,7 +61,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
 
             return response.data[0];
         } catch (error) {
-            console.error('LiquidityProvider.performTx', error);
+            console.error('PortalFiAddLiquidity.performTx', error);
             throw error;
         }
     }
@@ -115,8 +115,9 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const response = await this.service.getQuoteAddLiquidity(params);
 
             if (response?.data?.lpTokenAmount) this.setParamByField('outputAmount', response.data.lpTokenAmount);
+            else console.error('PortalFiAddLiquidity.estimateOutput -> empty response', response);
         } catch (error) {
-            console.error('LiquidityProvider.estimateOutput', error);
+            console.error('PortalFiAddLiquidity.estimateOutput', error);
             throw error;
         }
     }

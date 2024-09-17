@@ -1,3 +1,5 @@
+import { Ecosystems } from '../enums/ecosystems.enum';
+
 export interface NetworkData {
     id: string;
     ecosystem: string;
@@ -42,4 +44,6 @@ export interface TokenData {
 
     chain: string;
     chainLogo: string;
+    ecosystem?: Ecosystems;
+    testnet?: boolean;
 }

@@ -106,7 +106,7 @@ export interface IAdapter {
     getConnectedStatus: (ecosystem: Ecosystems) => boolean;
     getAdapterByEcosystem: (ecosystem: Ecosystems) => any;
 
-    callContractMethod: (transaction: any, ecosystem: Ecosystems) => Promise<void>;
+    callContractMethod: (transaction: ITransactionResponse, { ecosystem }: { ecosystem: Ecosystems }) => Promise<any>;
 }
 
 function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore: null }): IAdapter {
@@ -124,6 +124,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
     // ****************************************************
     // * Adapter Initialization
     // ****************************************************
+
     const initAdapter = async () => {
         store.dispatch('configs/setConfigLoading', true);
 
@@ -151,7 +152,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
     const currentChainInfo = computed<IChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
     const chainList = computed<IChainConfig[]>(() =>
-        mainAdapter.value && walletAccount.value ? mainAdapter.value.getChainList() : getAllChainsList(),
+        mainAdapter.value && walletAccount.value ? mainAdapter.value.getChainList({ store }) : getAllChainsList(),
     );
 
     const walletAddress = computed<string | null>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
@@ -218,7 +219,10 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         try {
-            const { isConnected, walletName } = await adapter.connectWallet(walletModule, chainName);
+            const { isConnected, walletName } = await adapter.connectWallet(walletModule, {
+                chain: chainName,
+                store,
+            });
 
             if (adapter?.getAccount()) adaptersDispatch(TYPES.SET_ACCOUNT_BY_ECOSYSTEM, { ecosystem, account: adapter.getAccount() });
 
@@ -471,13 +475,13 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
 
     // * Sign & Send Transaction
     const signSend = async (transaction: ITransactionResponse, { ecosystem = null }: { ecosystem: Ecosystems | null }): Promise<any> => {
-        if (!ecosystem) return await mainAdapter.value.signSend(transaction);
+        if (!ecosystem) return await mainAdapter.value.signSend(transaction, { store });
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         if (!adapter) throw new Error(`Adapter not found for ecosystem: ${ecosystem}`);
 
-        return await adapter.signSend(transaction);
+        return await adapter.signSend(transaction, { store });
     };
 
     // * Get Chain List by Ecosystem
@@ -488,7 +492,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
 
         if (!adapter.getChainList) return [];
 
-        return adapter.getChainList(allChains);
+        return adapter.getChainList({ store, allChains });
     };
 
     // * Get Chain by Chain ID
@@ -499,7 +503,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
             if (!adapter) return null;
 
             try {
-                const chainList = adapter.getChainList(store);
+                const chainList = adapter.getChainList({ store });
 
                 const chain = chainList.find((chain: IChainConfig) => `${chain.chain_id}` === `${chainId}` || chain.net === chainId);
 
@@ -559,7 +563,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        const addresses = await adapter.getAddressesWithChains();
+        const addresses = await adapter.getAddressesWithChains(store);
 
         // * Return Hash of Addresses
         if (hash) {

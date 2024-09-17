@@ -1,7 +1,7 @@
 <template>
     <div class="assets-section">
         <a-collapse
-            v-model:activeKey="collapseActiveKey"
+            v-model:active-key="collapseActiveKey"
             expand-icon-position="end"
             class="assets-block"
             ghost
@@ -11,97 +11,72 @@
             <template #expandIcon>
                 <ArrowDownIcon class="arrow" />
             </template>
-
-            <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
+            <a-collapse-panel v-once key="assets" class="assets-block-panel" data-qa="assets-panel">
                 <template #header>
                     <AssetGroupHeader
                         class="assets-section__group-header"
                         title="Tokens"
                         icon="TokensIcon"
-                        :value="getAssetsShare(totalAssetsBalances)"
-                        :total-balance="totalAssetsBalances || 0"
+                        :total-balance="assetsForAccount.totalBalance || 0"
                     />
                 </template>
 
-                <AssetsTable
-                    type="Asset"
-                    :data="visibleAssets"
-                    :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                    :loading="isLoadingByAccount && visibleAssets.length === 0"
-                />
+                <AssetsTable v-once type="Asset" :data="assetsForAccount.list" :columns="ASSET_COLUMNS" />
 
-                <div v-if="totalAssets > visibleAssets.length" class="assets-block-show-more">
-                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleAssetLoadMore" />
+                <div v-if="assetsForAccount.total > assetsForAccount.list.length" class="assets-block-show-more">
+                    <UiButton :title="$t('tokenOperations.showAll')" @click="handleShowAllAssets" />
                 </div>
             </a-collapse-panel>
 
-            <a-collapse-panel
-                v-for="item in allIntegrationsByPlatforms"
-                v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
-                :key="item.platform"
-                class="assets-block-panel"
-                @vue:mounted="updateCollapsedKey(item)"
-            >
-                <template #header>
-                    <AssetGroupHeader
-                        v-if="item.platform"
-                        class="assets-section__group-header"
-                        :logo-u-r-i="item.logoURI"
-                        :title="item.platform"
-                        :value="getAssetsShare(item.totalGroupBalance)"
-                        :total-balance="item.totalGroupBalance"
-                        :show-rewards="item.totalRewardsBalance > 0"
-                        :reward="item.totalRewardsBalance"
-                        :health-rate="item.healthRate"
+            <template v-if="integrationByPlatforms.list.length > 0">
+                <a-collapse-panel
+                    v-for="item in integrationByPlatforms.list"
+                    :key="item.platform"
+                    class="assets-block-panel"
+                    @vue:mounted="handleOnMountPlatform(item?.platform)"
+                >
+                    <template #header>
+                        <AssetGroupHeader
+                            v-if="item?.platform"
+                            class="assets-section__group-header"
+                            :logo-u-r-i="item.logoURI"
+                            :title="item.platform"
+                            :total-balance="item.totalGroupBalance"
+                            :show-rewards="item.totalRewardsBalance > 0"
+                            :reward="item.totalRewardsBalance"
+                            :health-rate="item.healthRate"
+                        />
+                    </template>
+
+                    <AssetsTable
+                        v-for="(groupItem, n) in item.data"
+                        :key="n"
+                        class="protocols-table"
+                        :data="groupItem.balances"
+                        :columns="[{ ...COMMON_NAME_COLUMN, title: groupItem?.name }, ...COMMON_COLUMNS]"
+                        :type="getFormattedName(groupItem.type)"
+                        :name="groupItem?.validator?.name"
                     />
-                </template>
-
-                <AssetsTable
-                    v-for="(groupItem, n) in item.data"
-                    :key="n"
-                    class="protocols-table"
-                    :data="groupItem.balances"
-                    :columns="[{ ...DEFAULT_NAME_COLUMN, title: groupItem?.name }, ...DEFAULT_COLUMNS]"
-                    :type="getFormattedName(groupItem.type)"
-                    :name="groupItem?.validator?.name"
-                />
-            </a-collapse-panel>
-
-            <a-collapse-panel v-show="isAllTokensLoading || totalNFTs > 0" key="nfts" class="assets-block-panel">
-                <template #header>
-                    <AssetGroupHeader
-                        class="assets-section__group-header"
-                        title="NFT Gallery"
-                        :total-balance="totalNftBalances"
-                        icon="NftsIcon"
-                    />
-                </template>
-
-                <AssetsTable :data="visibleNFTs" type="NFTS" :columns="NFT_COLUMNS" :loading="isLoadingByAccount && totalNFTs <= 0" />
-
-                <div v-if="totalNFTs > visibleNFTs.length" class="assets-block-show-more">
-                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleNFTsLoadMore" />
-                </div>
-            </a-collapse-panel>
+                </a-collapse-panel>
+            </template>
         </a-collapse>
     </div>
 </template>
 <script>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted, shallowRef, onActivated } from 'vue';
 import { useStore } from 'vuex';
-import { message } from 'ant-design-vue';
+import { useRouter } from 'vue-router';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import BigNumber from 'bignumber.js';
+import BalancesDB from '@/services/indexed-db/balances';
 
-import AssetsTable from './assets/AssetsTable';
-import AssetGroupHeader from './assets/AssetGroupHeader';
-
+import AssetsTable from '@/components/app/assets/AssetsTable.vue';
+import AssetGroupHeader from '@/components/app/assets/AssetGroupHeader.vue';
 import UiButton from '@/components/ui/Button.vue';
-
 import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 
 import { getFormattedName } from '@/shared/utils/assets';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'Assets',
@@ -109,251 +84,237 @@ export default {
         AssetGroupHeader,
         AssetsTable,
         UiButton,
-
         ArrowDownIcon,
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
 
-        const collapseActiveKey = ref([]);
-        const keyPressCombination = ref('');
+        const isMounted = ref(false);
 
-        const { walletAccount, currentChainInfo } = useAdapter();
+        const { walletAccount } = useAdapter();
 
-        const collapsedAssets = computed(() => store.getters['app/collapsedAssets']);
+        // *********************************************************************************
+        // * Computed values from Vuex
+        // *********************************************************************************
+
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
+        const minBalance = computed(() => store.getters['tokens/minBalance']);
+        const assetIndex = computed(() => store.getters['tokens/assetIndex']);
+        const loadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
+        const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](targetAccount.value));
 
-        const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](targetAccount.value, currentChainInfo.value?.net));
-        const isLoadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
-        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
+        const collapseActiveKey = ref(['assets']);
 
-        // *********************************************************************************
-        // ****************************** Assets *******************************************
-        // *********************************************************************************
-
-        const getAccountBalanceByType = (type) => {
-            switch (type) {
-                case 'tokens':
-                    return store.getters['tokens/getAccountBalanceByType'](targetAccount.value, 'tokens') || [];
-                case 'integrations':
-                    return store.getters['tokens/getIntegrationsByPlatforms'](targetAccount.value) || [];
-                case 'nfts':
-                    return store.getters['tokens/getNFTsByCollection'](targetAccount.value) || [];
-                default:
-                    return [];
-            }
-        };
-
-        const totalAssets = computed(() => store.getters['tokens/getCountOfBalances'](targetAccount.value, 'tokens'));
-        const totalNFTs = computed(() => store.getters['tokens/getCountOfBalances'](targetAccount.value, 'nfts'));
-
-        const visibleAssets = computed(() => store.getters['tokens/getVisibleAssets'](targetAccount.value));
-        const visibleNFTs = computed(() => store.getters['tokens/getVisibleNFTs'](targetAccount.value));
-
-        const allIntegrationsByPlatforms = computed(() => getAccountBalanceByType('integrations'));
-        const allNFTsByCollection = computed(() => getAccountBalanceByType('nfts'));
-
-        // *********************************************************************************
-        // ****************************** Total Balances ************************************
-        // *********************************************************************************
-
-        const getTotalBalanceByType = (type) => {
-            switch (type) {
-                case 'nftsBalances':
-                    return store.getters['tokens/getTotalBalanceOfNFTs'](targetAccount.value) || 0;
-                default:
-                    return store.getters['tokens/getTotalBalanceByType'](targetAccount.value, type) || 0;
-            }
-        };
-
-        const totalBalances = computed(() => getTotalBalanceByType('totalBalances'));
-        const totalAssetsBalances = computed(() => getTotalBalanceByType('assetsBalances'));
-        const totalNftBalances = computed(() => getTotalBalanceByType('nftsBalances'));
-
-        const isEmpty = computed(
-            () => !totalAssets.value && !allIntegrationsByPlatforms.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value,
-        );
-
-        const allCollapsedActiveKeys = computed(() => {
-            const keys = ['assets', 'nfts'];
-
-            if (allIntegrationsByPlatforms.value.length) allIntegrationsByPlatforms.value.forEach((item) => keys.push(item.platform));
-
-            return keys;
+        const collapsedAssets = computed({
+            get: () => store.getters['app/collapsedAssets'],
+            set: (value) => store.dispatch('app/setCollapsedAssets', value),
         });
 
-        const getAssetsShare = (balance) => {
-            if (!balance || !totalBalances.value) return 0;
-            return BigNumber(balance).dividedBy(totalBalances.value).multipliedBy(100).toNumber();
-        };
+        // *********************************************************************************
+        // * Assets & Protocols from IndexedDB
+        // * ShallowRef is used to avoid reactivity issues
+        // * Data is updated by the watch function
+        // * This is done to avoid reactivity issues with the IndexedDB
+        // *********************************************************************************
 
-        const handleKeyDown = async (e) => {
-            const requiredCombination = 'all';
-            const requiredKeys = ['a', 'l'];
+        const assetsForAccount = shallowRef({
+            list: [],
+            total: 0,
+            totalBalance: 0,
+        });
 
-            if (!requiredKeys.includes(e.key)) return (keyPressCombination.value = '');
+        const integrationByPlatforms = shallowRef({
+            list: [],
+            total: 0,
+            totalBalance: 0,
+        });
 
-            if (requiredKeys.includes(e.key)) keyPressCombination.value += e.key;
+        // *********************************************************************************
+        // * Request to IndexedDB
+        // *********************************************************************************
 
-            if (!keyPressCombination.value.startsWith('a')) return (keyPressCombination.value = '');
-
-            if (keyPressCombination.value === requiredCombination) {
-                const bundleAcc = targetAccount.value === 'all' ? walletAccount.value : 'all';
-
-                await store.dispatch('tokens/setTargetAccount', bundleAcc);
-
-                const isBundled = bundleAcc === 'all';
-
-                message.info(`[DEBUG] Bundling ${isBundled ? 'enabled' : 'disabled'}`);
-
-                return (keyPressCombination.value = '');
+        const getIntegrationByPlatforms = async () => {
+            try {
+                if (!isMounted.value) return console.log('Not mounted, skipping integrationByPlatforms');
+                const response = await BalancesDB.getProtocolsByPlatforms(walletAccount.value, minBalance.value);
+                integrationByPlatforms.value = response;
+            } catch (error) {
+                console.error('Error getting protocols by platforms', error);
             }
         };
 
-        const updateCollapsedAssets = () => {
-            if (!collapsedAssets.value.length) collapseActiveKey.value = allCollapsedActiveKeys.value;
-            collapseActiveKey.value = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+        const getAssetsForAccount = async () => {
+            try {
+                if (!isMounted.value) return console.log('Not mounted, skipping assetsForAccount');
+                const response = await BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                    assetIndex: assetIndex.value,
+                });
+                assetsForAccount.value = response;
+            } catch (error) {
+                console.error('Error getting assets for account', error);
+            }
         };
 
-        const updateCollapsedKey = (item) => {
-            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
+        const makeRequest = async () => {
+            try {
+                await getAssetsForAccount();
+                await delay(300);
+                await getIntegrationByPlatforms();
+            } catch (error) {
+                console.error('Error requesting assets & integrations', error);
+            }
         };
 
-        const handleNFTsLoadMore = async () => await store.dispatch('tokens/loadMoreNFTs');
-        const handleAssetLoadMore = async () => await store.dispatch('tokens/loadMoreAssets');
+        // *********************************************************************************
+        // * Computed values
+        // *********************************************************************************
+
+        const allActiveKeys = computed(() => {
+            const list = integrationByPlatforms.value.list.reduce((acc, item) => {
+                acc.push(item.platform);
+                return acc;
+            }, []);
+
+            return ['assets', ...list];
+        });
+
+        // *********************************************************************************
+        // * Other Methods
+        // *********************************************************************************
+
+        const handleOnMountPlatform = (platform) => {
+            if (!platform) return;
+            if (!collapsedAssets.value.includes(platform)) return collapseActiveKey.value.push(platform);
+        };
+
+        const handleOnUpdateCollapsedAssets = () => {
+            if (!collapsedAssets.value.length) return (collapseActiveKey.value = allActiveKeys.value);
+            collapseActiveKey.value = allActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+        };
+
+        const handleShowAllAssets = () => router.push({ path: `/main/tokens` });
+
+        // *********************************************************************************
+        // * Watcher's functions
+        // *********************************************************************************
 
         const handleOnChangeAccount = async (account, oldAccount) => {
+            if (!account) return;
             if (account === oldAccount) return;
-            if (account) {
-                await store.dispatch('app/setCollapsedAssets', []);
-                await store.dispatch('tokens/resetIndexes');
-            }
+            await store.dispatch('tokens/resetIndexes');
         };
 
-        const handleOnChangeActiveKey = async (keys) => {
-            if (!keys.includes('assets')) await store.dispatch('tokens/resetIndexes', { resetAssets: true, resetNFTs: false });
-            if (!keys.includes('nfts')) await store.dispatch('tokens/resetIndexes', { resetAssets: false, resetNFTs: true });
-
-            await store.dispatch(
-                'app/setCollapsedAssets',
-                allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key)),
-            );
+        const handleOnChangeActiveKey = (keys) => {
+            if (!keys.includes('assets')) store.dispatch('tokens/resetIndexes', { resetAssets: true, resetNFTs: false });
+            if (!keys.includes('nfts')) store.dispatch('tokens/resetIndexes', { resetAssets: false, resetNFTs: true });
+            collapsedAssets.value = allActiveKeys.value.filter((key) => !keys.includes(key));
         };
+
+        const handleOnChangeKeysToRequest = async (
+            [account, minBalance, assetIndex, isNeedToLoadFromIndexedDB],
+            [oldAccount, oldMinBalance, oldAssetIndex, oldIsNeedToLoadFromIndexedDB],
+        ) => {
+            if (isNeedToLoadFromIndexedDB) return await makeRequest();
+
+            return await makeRequest();
+        };
+
+        // *********************************************************************************
+        // * OnActivated
+        // *********************************************************************************
+
+        onActivated(async () => {
+            isMounted.value = true;
+            handleOnUpdateCollapsedAssets();
+            store.dispatch('tokens/resetIndexes');
+        });
+
+        // *********************************************************************************
+        // * OnMounted
+        // *********************************************************************************
 
         onMounted(async () => {
-            window.addEventListener('keydown', handleKeyDown);
-            keyPressCombination.value = '';
-
-            updateCollapsedAssets();
-
-            await store.dispatch('tokens/resetIndexes');
+            isMounted.value = true;
+            handleOnUpdateCollapsedAssets();
+            store.dispatch('tokens/resetIndexes');
+            await makeRequest();
         });
 
-        onBeforeUnmount(async () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            keyPressCombination.value = '';
+        // *********************************************************************************
+        // * Watchers
+        // *********************************************************************************
 
-            updateCollapsedAssets();
-            await store.dispatch('tokens/resetIndexes');
+        const unWatchAccount = watch(walletAccount, async (account, oldAccount) => await handleOnChangeAccount(account, oldAccount));
+
+        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
+
+        // *********************************************************************************
+        // * OnUnmounted
+        // *********************************************************************************
+
+        onUnmounted(() => {
+            isMounted.value = false;
+            store.dispatch('tokens/resetIndexes');
+            handleOnUpdateCollapsedAssets();
+
+            // ! Unwatch the watcher to avoid memory leaks
+            unWatchAccount();
+            unWatchKeysToRequest();
+
+            // ! Clear the data
+            assetsForAccount.value = { list: [], total: 0, totalBalance: 0 };
+            integrationByPlatforms.value = { list: [], total: 0, totalBalance: 0 };
         });
 
-        // watch(collapseActiveKey, async () => {
-        //     console.log('collapseActiveKey', collapseActiveKey.value);
-        //     await store.dispatch(
-        //         'app/setCollapsedAssets',
-        //         allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key)),
-        //     );
-        // });
+        const COMMON_NAME_COLUMN = {
+            title: 'Asset',
+            dataIndex: 'name',
+            key: 'name',
+            width: '55%',
+            align: 'left',
+            name: 'name',
+        };
 
-        watch(walletAccount, async (account, oldAccount) => await handleOnChangeAccount(account, oldAccount));
+        const COMMON_COLUMNS = [
+            {
+                title: 'Balance',
+                dataIndex: 'balance',
+                key: 'balance',
+                width: '20%',
+                align: 'left',
+            },
+            {
+                title: 'Value',
+                dataIndex: 'balanceUsd',
+                key: 'balanceUsd',
+                width: '20%',
+                align: 'right',
+                defaultSortOrder: 'descend',
+                sorter: (a, b) => a.balanceUsd - b.balanceUsd,
+            },
+        ];
+
+        const ASSET_COLUMNS = [COMMON_NAME_COLUMN, ...COMMON_COLUMNS];
 
         return {
-            isLoadingForChain,
-            isLoadingByAccount,
-            isAllTokensLoading,
-
-            isEmpty,
-
-            allIntegrationsByPlatforms,
-            allNFTsByCollection,
-
-            totalAssetsBalances,
-            totalNftBalances,
-
-            // utils for Assets templates
-            getAssetsShare,
-            getFormattedName,
+            // * Assets & Protocols from IndexedDB
+            assetsForAccount,
+            integrationByPlatforms,
 
             collapseActiveKey,
-            updateCollapsedKey,
 
+            getFormattedName,
+
+            handleOnMountPlatform,
             handleOnChangeActiveKey,
 
-            // ===================== Columns =====================
+            handleShowAllAssets,
 
-            DEFAULT_NAME_COLUMN: {
-                title: 'Asset',
-                dataIndex: 'name',
-                key: 'name',
-                width: '55%',
-                align: 'left',
-                name: 'name',
-            },
-
-            DEFAULT_COLUMNS: [
-                {
-                    title: 'Balance',
-                    dataIndex: 'balance',
-                    key: 'balance',
-                    width: '20%',
-                    align: 'left',
-                },
-                {
-                    title: 'Value',
-                    dataIndex: 'balanceUsd',
-                    key: 'balanceUsd',
-                    width: '20%',
-                    align: 'right',
-                    defaultSortOrder: 'descend',
-                    sorter: (a, b) => a.balanceUsd - b.balanceUsd,
-                },
-            ],
-
-            NFT_COLUMNS: [
-                {
-                    title: 'Collection name',
-                    dataIndex: 'name',
-                    key: 'name',
-                    width: '55%',
-                    align: 'left',
-                    name: 'name',
-                },
-                {
-                    title: 'Holdings',
-                    dataIndex: 'totalGroupBalance',
-                    key: 'totalGroupBalance',
-                    width: '20%',
-                    align: 'left',
-                },
-                {
-                    title: 'Floor price (24h)',
-                    dataIndex: 'floorPriceUsd',
-                    key: 'floorPriceUsd',
-                    width: '20%',
-                    align: 'right',
-                    defaultSortOrder: 'descend',
-                    sorter: (a, b) => a.floorPriceUsd - b.floorPriceUsd,
-                },
-            ],
-
-            handleNFTsLoadMore,
-            handleAssetLoadMore,
-
-            visibleNFTs,
-            totalNFTs,
-
-            visibleAssets,
-            totalAssets,
+            // * Columns for the table
+            ASSET_COLUMNS,
+            COMMON_NAME_COLUMN,
+            COMMON_COLUMNS,
         };
     },
 };

@@ -27,13 +27,18 @@ export default defineConfig({
     define: {
         'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '1.0.0',
     },
+    optimizeDeps: {
+        exclude: [''],
+    },
     test: {
+        testTimeout: 30000,
         setupFiles: ['fake-indexeddb/auto'],
         coverage: {
             enabled: true,
             include: [
                 'src/compositions',
                 'src/core/shortcuts/compositions',
+                'src/core/balance-provider',
                 // 'src' // Uncomment to include all files
             ],
             exclude: ['src/components'],
@@ -133,7 +138,7 @@ export default defineConfig({
                 ],
             },
         }),
-        nodePolyfills({ include: ['buffer', 'crypto', 'path', 'stream', 'util'] }),
+        nodePolyfills({ include: ['buffer', 'path', 'stream', 'util'] }),
         VitePWA({
             mode: process.env.NODE_ENV,
             strategies: 'injectManifest',

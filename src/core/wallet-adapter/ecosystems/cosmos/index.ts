@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { Store } from 'vuex';
-import { values, orderBy } from 'lodash';
+import { values, orderBy, isEmpty } from 'lodash';
 
 // * Cosmos SDK
 import { cosmos, cosmwasm } from 'osmojs';
@@ -105,7 +105,6 @@ export class CosmosAdapter implements ICosmosAdapter {
     // ****************************************************
     // * Adapter properties
     // ****************************************************
-    store: any | Store<any>;
     walletManager: WalletManager | undefined;
     addressByNetwork: { [key: string]: IAddressByNetwork } = {};
     initialized: boolean = false;
@@ -130,12 +129,12 @@ export class CosmosAdapter implements ICosmosAdapter {
     unsubscribe: Subject<any> | null = null;
 
     private constructor() {
-        this.store = null;
         this.walletManager = undefined;
     }
 
     public static getInstance(): CosmosAdapter {
         if (!CosmosAdapter.instance) CosmosAdapter.instance = new CosmosAdapter();
+
         return CosmosAdapter.instance;
     }
 
@@ -144,13 +143,11 @@ export class CosmosAdapter implements ICosmosAdapter {
     // ****************************************************
 
     isLocked() {
-        return !this.getConnectedWallet();
+        return isEmpty(this.addressByNetwork);
     }
 
     async init(store?: any) {
         if (this.initialized) return;
-
-        store && (this.store = store);
 
         const lastUpdated = store?.state?.configs?.lastUpdated || null;
 
@@ -167,13 +164,13 @@ export class CosmosAdapter implements ICosmosAdapter {
         const defaultChains = values(activeChains).filter(isDefaultChain);
 
         this.differentSlip44 = defaultChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
-        this.chainsFromStore = this.store.state?.configs?.chains[Ecosystem.COSMOS] || {};
+        this.chainsFromStore = store.state?.configs?.chains[Ecosystem.COSMOS] || {};
 
-        await Promise.all(
-            defaultChains.map(
-                (c) => (this.ibcAssetsByChain[c.chain_name] = getTokensConfigByChain(c.chain_name, Ecosystem.COSMOS, { lastUpdated })),
-            ),
-        );
+        // await Promise.all(
+        //     defaultChains.map(
+        //         (c) => (this.ibcAssetsByChain[c.chain_name] = getTokensConfigByChain(c.chain_name, Ecosystem.COSMOS, { lastUpdated })),
+        //     ),
+        // );
 
         // ========= Init WalletManager =========
 
@@ -211,6 +208,8 @@ export class CosmosAdapter implements ICosmosAdapter {
         this.walletManager.onMounted();
 
         this.initialized = true;
+
+        store = null;
     }
 
     getConnectedWallets() {
@@ -243,7 +242,9 @@ export class CosmosAdapter implements ICosmosAdapter {
             await chainWallet?.value?.connect(false);
             await chainWallet?.value?.update({ connect: false });
 
-            await this.setAddressForChains(chainWallet?.value?.walletName as string);
+            await this.setAddressForChains({
+                walletName: this.walletName as string,
+            });
         }).pipe(takeUntil(this.unsubscribe as any));
     }
 
@@ -314,7 +315,10 @@ export class CosmosAdapter implements ICosmosAdapter {
     // * Wallet Connection & Disconnection
     // ****************************************************
 
-    async connectWallet(walletName: string, chain = this.DEFAULT_CHAIN): Promise<{ isConnected: boolean; walletName: string }> {
+    async connectWallet(
+        walletName: string,
+        { chain = this.DEFAULT_CHAIN, store }: { chain: string; store?: Store<any> },
+    ): Promise<{ isConnected: boolean; walletName: string }> {
         try {
             if (!this.walletManager) await this.init();
         } catch (error) {
@@ -338,7 +342,7 @@ export class CosmosAdapter implements ICosmosAdapter {
         try {
             chainWallet = this.walletManager.getChainWallet(chain, walletName);
         } catch (error) {
-            logger.warn('[COSMOS -> connectWallet -> GET CHAIN WALLET]', error, this.walletManager?.isError);
+            logger.warn('[COSMOS -> connectWallet -> GET CHAIN WALLET]', walletName, chain, error, this.walletManager?.isError);
             return {
                 isConnected: false,
                 walletName: walletName,
@@ -360,7 +364,7 @@ export class CosmosAdapter implements ICosmosAdapter {
             this.walletName = walletName;
             this.currentChain = chain;
 
-            await this.setAddressForChains(walletName);
+            await this.setAddressForChains({ walletName });
             await chainWallet.update({ connect: true });
 
             return {
@@ -368,7 +372,7 @@ export class CosmosAdapter implements ICosmosAdapter {
                 walletName: walletName,
             };
         } catch (error) {
-            logger.error('[COSMOS -> connectWallet -> CONNECT]', error, this.walletManager?.isError);
+            logger.error('[COSMOS -> connectWallet -> CONNECT]', walletName, chain, error, this.walletManager?.isError);
             return {
                 isConnected: false,
                 walletName: walletName,
@@ -383,7 +387,9 @@ export class CosmosAdapter implements ICosmosAdapter {
 
         try {
             if (!walletModule) return false;
-            const { isConnected } = await this.connectWallet(walletModule, `${chainForConnect}`);
+            const { isConnected } = await this.connectWallet(walletModule, {
+                chain: chainForConnect as string,
+            });
             return isConnected;
         } catch (error) {
             logger.error('Error in setChain', error);
@@ -434,9 +440,9 @@ export class CosmosAdapter implements ICosmosAdapter {
         }
     }
 
-    async setAddressForChains(walletName: string | null): Promise<void> {
+    async setAddressForChains({ walletName }: { walletName: string }): Promise<void> {
         if (!this.walletManager) return;
-        if (!walletName) walletName = this.walletName;
+        if (!walletName) walletName = this.walletName as string;
 
         const mainAccount = this.getAccount();
         const cosmosWallet = this.walletManager.getChainWallet(this.DEFAULT_CHAIN, walletName as string);
@@ -557,7 +563,7 @@ export class CosmosAdapter implements ICosmosAdapter {
         };
     }
 
-    getChainList(allChains: boolean = false): IChainInfo[] {
+    getChainList({ allChains = false, store }: { allChains?: boolean; store?: Store<any> }): IChainInfo[] {
         if (!this.walletManager) return [];
         const chainList = this.walletManager?.chainRecords.map((record) => {
             const { chain } = record as IChainRecord;
@@ -1035,7 +1041,7 @@ export class CosmosAdapter implements ICosmosAdapter {
         );
     }
 
-    async signSend(transaction: any) {
+    async signSend(transaction: any, { store }: { store: Store<any> }) {
         const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
@@ -1063,14 +1069,14 @@ export class CosmosAdapter implements ICosmosAdapter {
         const msgs = Array.isArray(msg) ? msg : [msg];
 
         // Check timer
-        const txTimerID = this.store.getters['txManager/txTimerID'];
+        const txTimerID = store.getters['txManager/txTimerID'];
 
         if (!txTimerID)
             return {
                 isCanceled: true,
             };
 
-        this.store.dispatch('txManager/setTxTimerID', null);
+        store.dispatch('txManager/setTxTimerID', null);
 
         // Sign and send transaction
         try {
@@ -1088,6 +1094,8 @@ export class CosmosAdapter implements ICosmosAdapter {
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
             return errorRegister(error);
+        } finally {
+            store = null as any;
         }
     }
 
@@ -1147,7 +1155,7 @@ export class CosmosAdapter implements ICosmosAdapter {
         return `${url}/relayers/${srcChannel}/${dstChain}/${dstChannel}`;
     }
 
-    async getAddressesWithChains(): Promise<IAddressByNetwork | null> {
+    async getAddressesWithChains(store: Store<any>): Promise<IAddressByNetwork | null> {
         const mainAccount = this.getAccount();
         if (!mainAccount) return null;
         if (!this.addressByNetwork) return addressByNetwork();

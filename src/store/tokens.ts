@@ -1,22 +1,20 @@
-import { flatMap, orderBy, values, filter } from 'lodash';
+import { flatMap, orderBy, filter } from 'lodash';
 import { useLocalStorage } from '@vueuse/core';
 
 import BigNumber from 'bignumber.js';
 
-import { IntegrationBalanceType, Type } from '@/core/balance-provider/models/enums';
-import { AssetBalance, IntegrationBalance, NftBalance } from '@/core/balance-provider/models/types';
-import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType, filterSmallBalances } from '@/core/balance-provider/calculation';
+import { Type } from '@/core/balance-provider/models/enums';
+import { getTotalBalance } from '@/core/balance-provider/calculation';
 
-import IndexedDBService from '@/services/indexed-db';
-
+import BalancesDB from '@/services/indexed-db/balances';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
-const balancesDB = new IndexedDBService('balances', 3);
 const minBalanceStorage = useLocalStorage('dashboard:minBalance', 0, { mergeDefaults: true });
 
-const BALANCE_ALLOW_TYPES = ['tokens', 'integrations'];
-
 const BUNDLED_ACCOUNT = 'all';
+
+const MAX_NFTS_PER_PAGE = 10;
+const MAX_ASSETS_PER_PAGE = 10;
 
 const TYPES = {
     SET_DATA_FOR: 'SET_DATA_FOR',
@@ -49,10 +47,11 @@ const TYPES = {
 
     SET_ASSET_INDEX: 'SET_ASSET_INDEX',
     SET_NFT_INDEX: 'SET_NFT_INDEX',
-};
 
-const MAX_NFTS_PER_PAGE = 5;
-const MAX_ASSETS_PER_PAGE = 10;
+    SET_NEW_TOKEN_IMAGE: 'SET_NEW_TOKEN_IMAGE',
+
+    SET_LOAD_FROM_INDEXED_DB: 'SET_LOAD_FROM_INDEXED_DB',
+};
 
 interface IState {
     // Account for which the data is loaded
@@ -81,6 +80,8 @@ interface IState {
     [Type.integrations]: Record<string, Record<string, Record<string, any[]>>>;
     [Type.nfts]: Record<string, Record<string, Record<string, any[]>>>;
     [Type.pools]: Record<string, Record<string, Record<string, any[]>>>;
+
+    isNeedToLoadFromIndexedDB: Record<string, boolean>;
 }
 
 export default {
@@ -113,6 +114,8 @@ export default {
         networksToShow: {},
 
         minBalance: minBalanceStorage.value,
+
+        isNeedToLoadFromIndexedDB: {},
     }),
 
     getters: {
@@ -158,148 +161,6 @@ export default {
 
         getPoolsByAccount: (state: IState) => (account: string) => state.pools[account],
 
-        getAccountBalanceByType:
-            (state: IState) =>
-            (account: string, type: keyof typeof Type, allBalances: boolean = false) => {
-                if (!state[type]) return [];
-
-                if (!state[type][account] && account !== BUNDLED_ACCOUNT) return [];
-
-                if (account === BUNDLED_ACCOUNT) {
-                    const allData = [];
-
-                    for (const acc in state[type]) if (state[type][acc]) allData.push(...flatMap(state[type][acc]));
-
-                    return allData;
-                }
-
-                const allForAccount = flatMap(state[type][account]) || [];
-
-                // FEAT: filter by isShowNetworks
-                // const tokensFilteredByIsShow = allForAccount.filter((elem) => {
-                //     if (!state.networksToShow) return true;
-                //     return state.networksToShow[elem.chain];
-                // });
-
-                if (type === Type.tokens && !allBalances) {
-                    // const allTokens = filter(tokensFilteredByIsShow, (elem) => +elem.balanceUsd >= +state.minBalance);
-                    const allTokens = filter(allForAccount, (elem) => +elem.balanceUsd >= +state.minBalance);
-
-                    const assetsBalance = getTotalBalance(allTokens);
-                    state.assetsBalances[account] = assetsBalance.toNumber() || 0;
-
-                    return allTokens;
-                }
-
-                // return tokensFilteredByIsShow;
-                return allForAccount;
-            },
-
-        getIntegrationsByPlatforms: (state: IState, getters: any) => (account: string) => {
-            const allIntegrations = getters.getAccountBalanceByType(account, 'integrations');
-
-            const platforms = allIntegrations.reduce((grouped: any, integration: IntegrationBalance) => {
-                const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
-
-                const filteredBalances = balances.filter((elem: any) => filterSmallBalances(elem, state.minBalance));
-
-                if (!filteredBalances.length) return grouped;
-
-                if (!grouped[platform])
-                    grouped[platform] = {
-                        data: [],
-                        platform,
-                        healthRate: healthRate || null,
-                        logoURI: logo || null,
-                        totalGroupBalance: 0,
-                        totalRewardsBalance: 0,
-                    };
-
-                const platformData = grouped[platform];
-
-                platformData.data.push({ ...integration, balances: filteredBalances });
-                platformData.healthRate = healthRate || null;
-                platformData.logoURI = logo || null;
-
-                for (const balance of filteredBalances) balance.leverageRate = leverageRate || null;
-
-                platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
-                    .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], type as IntegrationBalanceType))
-                    .toString();
-
-                platformData.totalRewardsBalance = BigNumber(platformData.totalRewardsBalance)
-                    .plus(getTotalBalanceByType(filteredBalances as AssetBalance[], IntegrationBalanceType.PENDING))
-                    .toString();
-
-                return grouped;
-            }, {});
-
-            return orderBy(values(platforms), (integration) => +integration?.totalGroupBalance || 0, ['desc']);
-        },
-
-        getNFTsByCollection: (state: IState, getters: any) => (account: string) => {
-            const allNFTs = getters.getAccountBalanceByType(account, 'nfts');
-
-            const collections = allNFTs.reduce((grouped: any, nft: NftBalance) => {
-                const { collection, token, chainLogo } = nft || {};
-
-                const { address } = collection || {};
-
-                if (!grouped[address])
-                    grouped[address] = {
-                        ...collection,
-                        chainLogo,
-                        token,
-                        nfts: [],
-                        floorPriceUsd: BigNumber(0),
-                        totalGroupBalance: BigNumber(0),
-                    };
-
-                const collectionData = grouped[address];
-
-                collectionData.totalGroupBalance = BigNumber(nft.price || 0)
-                    .multipliedBy(token.price || 0)
-                    .toString();
-
-                collectionData.floorPriceUsd = BigNumber(collection.floorPrice || 0)
-                    .multipliedBy(token.price || 0)
-                    .toString();
-
-                if (+collectionData.floorPriceUsd >= +state.minBalance) collectionData.nfts.push(nft);
-
-                return grouped;
-            }, {});
-
-            return orderBy(
-                values(collections).filter((elem) => elem.nfts.length),
-                (collection) => +collection?.totalGroupBalance || 0,
-                ['desc'],
-            );
-        },
-
-        getVisibleNFTs: (state: IState, getters: any) => (account: string) => {
-            const allNFTs = getters.getNFTsByCollection(account);
-            return orderBy(allNFTs, (nft) => +nft.price || 0, ['desc']).slice(0, state.nftIndex);
-        },
-
-        getVisibleAssets: (state: IState, getters: any) => (account: string) => {
-            const allTokens = getters.getAccountBalanceByType(account, 'tokens') || [];
-            return orderBy(allTokens, (token) => +token.balanceUsd || 0, ['desc']).slice(0, state.assetIndex);
-        },
-
-        getCountOfBalances: (state: IState, getters: any) => (account: string, type: keyof typeof Type) => {
-            switch (type) {
-                case 'nfts':
-                    return getters.getNFTsByCollection(account).length;
-                case 'tokens':
-                    return getters.getAccountBalanceByType(account, type).length;
-                case 'integrations':
-                    return getters.getAccountBalanceByType(account, type).length;
-                default:
-                    return 0;
-            }
-        },
-
         nativeTokens: (state: IState) => state.nativeTokens,
 
         getTokensListForChain:
@@ -336,19 +197,9 @@ export default {
             return state[balanceType][account] || 0;
         },
 
-        getTotalBalanceOfNFTs: (state: IState, getters: any) => (account: string) => {
-            const allNFTsByCollection = getters.getNFTsByCollection(account);
-
-            if (!allNFTsByCollection.length) return 0;
-
-            const totalSum = allNFTsByCollection.reduce((totalBalance: BigNumber, collection: any) => {
-                return totalBalance.plus(collection.totalGroupBalance || 0);
-            }, BigNumber(0));
-
-            return totalSum.toNumber();
-        },
-
         networksToShow: (state: IState) => state.networksToShow || {},
+
+        isNeedToLoadFromIndexedDB: (state: IState) => (account: string) => state.isNeedToLoadFromIndexedDB[account] || false,
     },
 
     mutations: {
@@ -393,27 +244,6 @@ export default {
             state.loadingByChain[account][chain] = value || false;
         },
 
-        [TYPES.CALCULATE_BALANCE_BY_TYPE](state: IState, { value, getters }: { value: any; getters: any }) {
-            const { account, type } = value;
-
-            // calculating balances
-            if (!state.assetsBalances[account]) state.assetsBalances[account] = 0;
-
-            if (!state.totalBalances[account]) state.totalBalances[account] = 0;
-
-            const allTokens = getters.getAccountBalanceByType(account, Type.tokens, type === Type.tokens);
-            const allIntegrations = getters.getAccountBalanceByType(account, Type.integrations);
-
-            if (BALANCE_ALLOW_TYPES.includes(type)) {
-                const assetsBalance = getTotalBalance(allTokens);
-
-                const integrationsBalance = getIntegrationsBalance(allIntegrations);
-
-                const totalBalance = BigNumber(assetsBalance).plus(integrationsBalance).toNumber();
-
-                state.totalBalances[account] = totalBalance;
-            }
-        },
         [TYPES.SET_IS_INIT_CALLED](state: IState, { account, provider, time }: { account: string; provider: string; time: number }) {
             const key = `${account}-${provider}`;
 
@@ -452,23 +282,64 @@ export default {
         [TYPES.SET_NFT_INDEX](state: IState, value: number) {
             state.nftIndex = value;
         },
+
+        [TYPES.SET_NEW_TOKEN_IMAGE](state: IState, { chain, id, image }: { chain: string; id: string; image: string }) {
+            if (!state.tokens) return;
+
+            let accountToUpdate = null;
+
+            for (const account in state.tokens) {
+                if (!state.tokens[account][chain]) continue;
+
+                const tokens = state.tokens[account][chain] as any;
+
+                if (!tokens?.length) continue;
+
+                const tokenIndex = tokens.findIndex((token: any) => token.id === id);
+                if (tokenIndex === -1) continue;
+
+                // eslint-disable-next-line
+                // @ts-ignore
+                state.tokens[account][chain][tokenIndex].logo = image;
+                accountToUpdate = account;
+                break;
+            }
+
+            if (accountToUpdate) BalancesDB.updateTokenImage(accountToUpdate, id, image);
+        },
+
+        [TYPES.SET_LOAD_FROM_INDEXED_DB](state: IState, { account, value }: { account: string; value: boolean }) {
+            state.isNeedToLoadFromIndexedDB[account] = value;
+        },
     },
 
     actions: {
         async loadFromCache(
-            { dispatch }: { dispatch: any },
-            { account, chain, address, type }: { account: string; chain: string; address: string; type: string },
+            { dispatch, state, commit }: { dispatch: any; state: IState; commit: any },
+            { account, type }: { account: string; type: string },
         ) {
-            const balances = await balancesDB.getBalancesByType('balances', { account, chain, address, type });
+            try {
+                const [balances, totalBalances] = await Promise.all([
+                    await BalancesDB.getBalancesByAccountAndTypeWithChains(type, account),
+                    await BalancesDB.getTotalBalance(account),
+                ]);
 
-            if (!balances) return;
+                if (!balances) return;
 
-            dispatch('setDataFor', { type, account, chain, data: balances });
+                for (const chain in balances) {
+                    if (!balances[chain]) continue;
+                    if (![Type.integrations, Type.nfts].includes(type as any))
+                        dispatch('setDataFor', { type, account, chain, data: balances[chain] });
+                }
+
+                commit(TYPES.SET_TOTAL_BALANCE, { account, data: totalBalances.total });
+                commit(TYPES.SET_ASSETS_BALANCE, { account, data: totalBalances.assetsBalance });
+            } catch (error) {
+                console.error('loadFromCache', error);
+            }
         },
         setDataFor({ commit, getters }: { commit: any; getters: any }, value: { type: string; account: string; chain: string; data: any }) {
             commit(TYPES.SET_DATA_FOR, value);
-
-            if (BALANCE_ALLOW_TYPES.includes(value.type)) commit(TYPES.CALCULATE_BALANCE_BY_TYPE, { value, getters });
         },
         setLoader({ commit }: { commit: any }, value: boolean) {
             commit(TYPES.SET_LOADER, value);
@@ -521,6 +392,17 @@ export default {
         ) {
             if (resetAssets) commit(TYPES.SET_ASSET_INDEX, MAX_ASSETS_PER_PAGE);
             if (resetNFTs) commit(TYPES.SET_NFT_INDEX, MAX_NFTS_PER_PAGE);
+        },
+
+        updateTokenImage({ commit }: { commit: any }, value: { chain: string; id: string; image: string }) {
+            commit(TYPES.SET_NEW_TOKEN_IMAGE, value);
+        },
+
+        setTotalBalances({ commit }: { commit: any }, value: { account: string; data: number }) {
+            commit(TYPES.SET_TOTAL_BALANCE, value);
+        },
+        setLoadFromIndexedDB({ commit }: { commit: any }, value: { account: string; value: boolean }) {
+            commit(TYPES.SET_LOAD_FROM_INDEXED_DB, value);
         },
     },
 };

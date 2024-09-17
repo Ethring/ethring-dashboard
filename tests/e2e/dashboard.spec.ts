@@ -2,7 +2,7 @@ import { testKeplr, testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/f
 import { expect } from '@playwright/test';
 import { emptyBalanceMockData } from '../data/mockHelper';
 import { TEST_CONST, getTestVar } from '../envHelper';
-import { TEN_SECONDS } from '../__fixtures__/fixtureHelper';
+import { FIVE_SECONDS, TEN_SECONDS } from '../__fixtures__/fixtureHelper';
 import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 
@@ -21,6 +21,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await Promise.all(EVM_NETWORKS.map((network) => dashboardEmptyWallet.mockBalanceRequest(network, emptyBalanceMockData, address)));
         await dashboardEmptyWallet.waitDetachedSkeleton();
         await sleep(TEN_SECONDS);
+        await sleep(FIVE_SECONDS);
         await dashboardEmptyWallet.setFocusToFirstSpan();
         await expect(dashboardEmptyWallet.page).toHaveScreenshot({ mask: [dashboardEmptyWallet.page.locator('span.version')] });
     });

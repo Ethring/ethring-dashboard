@@ -44,6 +44,7 @@
                             :value="fromAmount"
                             :symbol="operation.getToken('from')?.symbol"
                             type="currency"
+                            :decimals="operation.getToken('from')?.id?.includes('pools') ? operation.getToken('from')?.decimals : 6"
                             :class="{
                                 'editable-amount': shortcutOpInfo?.editableFromAmount,
                                 'editable-amount-disabled': isEditDisabled,
@@ -62,6 +63,7 @@
                     <Amount
                         :value="operation.getToken('to')?.amount || operation.getParamByField('outputAmount') || 0"
                         :symbol="operation.getToken('to')?.symbol"
+                        :decimals="operation.getToken('to')?.id?.includes('pools') ? operation.getToken('to')?.decimals : 6"
                         type="currency"
                     />
                 </div>
@@ -129,7 +131,7 @@ export default {
         const store = useStore();
 
         const factory = computed<IOperationFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
-        const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](props.shortcutId));
+        const shortcut = computed(() => store.getters['shortcutsList/selectedShortcut']);
 
         const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
         const isTransactionSigning = computed(() => store.getters['txManager/isTransactionSigning']);

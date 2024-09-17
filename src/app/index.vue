@@ -178,8 +178,7 @@ export default {
 
             await store.dispatch('configs/setConfigLoading', true);
 
-            await store.dispatch('configs/initConfigs');
-            await store.dispatch('bridgeDexAPI/getServices');
+            await Promise.all([store.dispatch('configs/initConfigs'), store.dispatch('bridgeDexAPI/getServices')]);
 
             await initAdapter();
 
@@ -188,13 +187,12 @@ export default {
 
             await Promise.all([setNativeTokensPrices(EVM_NETS), setNativeTokensPrices(COSMOS_NETS)]);
 
-            const NETWORKS = [...getChainListByEcosystem(Ecosystem.EVM, true), ...getChainListByEcosystem(Ecosystem.COSMOS, true)];
-
-            for (const network of NETWORKS)
-                store.dispatch('tokens/setNetworksToShow', {
-                    network: network.net,
-                    isShow: network.isSupportedChain,
-                });
+            // TODO: Uncomment this code when we need to show all networks
+            // for (const network of [...getChainListByEcosystem(Ecosystem.EVM, true), ...getChainListByEcosystem(Ecosystem.COSMOS, true)])
+            //     store.dispatch('tokens/setNetworksToShow', {
+            //         network: network.net,
+            //         isShow: network.isSupportedChain,
+            //     });
         });
 
         onBeforeUnmount(() => {
