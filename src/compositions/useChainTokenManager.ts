@@ -29,7 +29,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
     // * Store
     // ****************************************************************************************************************
 
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     // ****************************************************************************************************************
     // * Refs

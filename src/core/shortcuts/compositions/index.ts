@@ -48,7 +48,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     // * Main store and router
     // ****************************************************************************************************
 
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
     const route = useRoute();
     const router = useRouter();
 

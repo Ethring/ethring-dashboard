@@ -10,7 +10,7 @@ import { IChainConfig } from '@/shared/models/types/chain-config';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
 export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<any> | null } = {}) {
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     const getAccount = (ecosystem: Ecosystems): string | null => store.getters['adapters/getAccountByEcosystem'](ecosystem);
 

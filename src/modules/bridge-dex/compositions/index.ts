@@ -34,7 +34,7 @@ const useBridgeDexService = (type: ModuleTypes, { tmpStore }: { tmpStore: Store<
     const TARGET_TYPE = ServiceType[typeByModule]; // * Target service type (bridge, dex, bridgedex)
     const bridgeDexService = new BridgeDexService(TARGET_TYPE); // * BridgeDexService instance for the target service type
 
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     // ===========================================================================================
     // * Quote Routes List by ServiceType (bridge, dex, bridgedex)

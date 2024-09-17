@@ -228,7 +228,7 @@ export default {
 
         slippage: (state: IState): number => state[Field.slippage],
 
-        isInput: (state: IState): boolean => state.isInput,
+        isInput: (state: IState): boolean => state.isInput || false,
     },
 
     mutations: {

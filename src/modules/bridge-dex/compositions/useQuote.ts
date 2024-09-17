@@ -45,7 +45,7 @@ const useBridgeDexQuote = (
     bridgeDexService: BridgeDexService<any>,
     { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null },
 ) => {
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     const route = useRoute();
 
