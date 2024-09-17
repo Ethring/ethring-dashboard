@@ -13,7 +13,7 @@ import useChainTokenManger from './useChainTokenManager';
 
 import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { useRoute } from 'vue-router';
-import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
+import { RemoveLiquidityPoolId } from '@/core/shortcuts/core/';
 
 export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) {
     const store = tmpStore || useStore();
@@ -341,7 +341,7 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
     });
 
     watch(isNeedRemoveLpApprove, () => {
-        if (CurrentShortcut.value !== AvailableShortcuts.RemoveLiquidityPool) return;
+        if (CurrentShortcut.value !== RemoveLiquidityPoolId) return;
         if (isNeedRemoveLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
         opTitle.value = DEFAULT_TITLE;
     });
@@ -353,8 +353,6 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
 
         opTitle.value = checkSelectedNetwork();
     });
-
-    watch(walletAccount, () => (opTitle.value = checkSelectedNetwork()));
 
     watch(selectedRoute, () => {
         if (pathRoute.path.startsWith('/shortcuts')) return;

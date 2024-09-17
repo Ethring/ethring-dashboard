@@ -24,7 +24,8 @@
                     </div>
                     <div class="info">
                         <div class="label">{{ $t('shortcuts.profile.created') }}</div>
-                        <div class="value">{{ allShortcutsCount }}</div>
+                        <div v-if="allShortcutsCount" class="value">{{ allShortcutsCount }}</div>
+                        <a-skeleton-input v-else active size="small" />
                     </div>
                 </div>
                 <div class="item">
@@ -53,6 +54,7 @@
                 <div v-else-if="author.avatar" class="avatar">
                     <img :src="author.avatar" :alt="author.name" />
                 </div>
+
                 <img v-else :src="imgMask" class="avatar" />
             </a-upload>
 
@@ -71,10 +73,11 @@
             <ShortcutItem :item="item" />
         </a-col>
     </a-row>
+    <a-spin v-else size="large" class="spin__center" />
 </template>
 
 <script lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onBeforeMount, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import ImgMask from '@/assets/images/placeholder/mask.png';
@@ -107,8 +110,9 @@ export default {
 
         const watchList = computed(() => store.getters['shortcutsList/watchList']);
 
-        const allShortcutsCount = computed(() => store.getters['shortcutsList/getCreatedShortcutsCount'](route.params.author));
-        const shortcuts = computed(() => store.getters['shortcutsList/getShortcutsByAuthor'](route.params.author, activeTabKey.value));
+        const shortcuts = computed(() => store.getters['shortcutsList/getShortcutsByAuthor']);
+
+        const allShortcutsCount = computed(() => shortcuts.value.length);
 
         const author = computed<IAuthor>(() => {
             const [shortcut] = shortcuts.value || [];
@@ -138,6 +142,14 @@ export default {
             const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
             return isJpgOrPng;
         };
+
+        onBeforeMount(() => {
+            store.dispatch('shortcutsList/loadShortcutsByAuthor', route.params.author);
+        });
+
+        onUnmounted(() => {
+            store.dispatch('shortcutsList/clearAuthorsShortcuts');
+        });
 
         return {
             shortcuts,

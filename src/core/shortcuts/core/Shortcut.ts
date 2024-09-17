@@ -86,9 +86,7 @@ export default class Shortcut implements IShortcutData {
 
         this.recipe = shortcut.recipe as any;
 
-        const { operations: recipeOperations } = shortcut.recipe || {};
-
-        for (const op of recipeOperations || [])
+        for (const op of shortcut.operations || [])
             switch (op.type) {
                 case ShortcutType.recipe:
                     this.processRecipe(op as IShortcutRecipe);

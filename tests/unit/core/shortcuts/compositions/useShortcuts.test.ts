@@ -270,7 +270,7 @@ describe('useShortcuts', () => {
             expect(isShortcutLoading.value).toBe(false);
 
             expect(store.getters['shortcuts/getCurrentShortcutId']).toEqual(MOCK_SC_CITADEL_ONE_STAKE.id);
-            const [firstOp] = shortcut.recipe.operations;
+            const [firstOp] = shortcut.operations;
             expect(store.getters['shortcuts/getCurrentStepId']).toEqual(firstOp.id);
             expect(store.getters['shortcuts/getShortcutIndex']).toEqual(0);
         });
@@ -280,7 +280,7 @@ describe('useShortcuts', () => {
                 useShortcuts(null, { tmpStore: store });
             } catch (e) {
                 expect(e).toBeDefined();
-                expect(e.message).toEqual('Shortcut data is required');
+                expect(e.message).toEqual('Shortcut id is required');
             }
         });
 
@@ -298,7 +298,7 @@ describe('useShortcuts', () => {
                 useShortcuts(undefined, { tmpStore: store });
             } catch (e) {
                 expect(e).toBeDefined();
-                expect(e.message).toEqual('Shortcut data is required');
+                expect(e.message).toEqual('Shortcut id is required');
             }
         });
 
@@ -325,7 +325,7 @@ describe('useShortcuts', () => {
             await initShortcutAndLayout();
 
             expect(store.getters['shortcuts/getCurrentShortcutId']).toEqual(MOCK_SC_CITADEL_ONE_STAKE.id);
-            expect(store.getters['shortcuts/getCurrentStepId']).toEqual(MOCK_SC_CITADEL_ONE_STAKE.recipe.operations[0].id);
+            expect(store.getters['shortcuts/getCurrentStepId']).toEqual(MOCK_SC_CITADEL_ONE_STAKE.operations[0].id);
             expect(store.getters['shortcuts/getShortcutIndex']).toEqual(0);
         });
 
@@ -346,7 +346,7 @@ describe('useShortcuts', () => {
             expect(tmpStore.getters['shortcuts/getShortcutIndex']).toBe(0);
             expect(tmpStore.getters['shortcuts/getShortcutStatus'](MOCK_SC_CITADEL_ONE_STAKE.id)).toBe('PENDING');
             expect(tmpStore.getters['shortcuts/getShortcut'](MOCK_SC_CITADEL_ONE_STAKE.id)).toEqual(shortcut);
-            expect(tmpStore.getters['shortcuts/getCurrentLayout']).toBe(MOCK_SC_CITADEL_ONE_STAKE.recipe.operations[0].layoutComponent);
+            expect(tmpStore.getters['shortcuts/getCurrentLayout']).toBe(MOCK_SC_CITADEL_ONE_STAKE.operations[0].layoutComponent);
         });
     });
 

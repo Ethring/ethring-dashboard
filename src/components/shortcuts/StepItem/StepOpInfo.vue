@@ -131,7 +131,7 @@ export default {
         const store = useStore();
 
         const factory = computed<IOperationFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
-        const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](props.shortcutId));
+        const shortcut = computed(() => store.getters['shortcutsList/selectedShortcut']);
 
         const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
         const isTransactionSigning = computed(() => store.getters['txManager/isTransactionSigning']);
