@@ -24,7 +24,7 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import { formatNumber } from '@/shared/utils/numbers';
 
 export default function useTransactions({ tmpStore }) {
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? tmpStore : useStore();
 
     const { showNotification, closeNotification } = useNotification();
 

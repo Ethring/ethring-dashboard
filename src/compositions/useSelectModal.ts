@@ -20,7 +20,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     // * Store
     // *****************************************************************************************************************
 
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     // *****************************************************************************************************************
     // * Constants
@@ -238,7 +238,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
             (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address'),
         );
 
-        return orderBy(filtered, [(tkn) => tkn.logo], ['desc']);
+        return orderBy(filtered, [(tkn: any) => tkn?.logo], ['desc']);
     };
 
     // * Get chains for modules

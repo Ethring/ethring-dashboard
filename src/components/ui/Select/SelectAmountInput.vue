@@ -38,7 +38,7 @@
             <a-input
                 v-else
                 v-model:value="amount"
-                v-debounce:1s="onInput"
+                v-debounce:0.3s="onInput"
                 type="text"
                 data-qa="input-amount"
                 class="base-input input-balance"
@@ -228,7 +228,7 @@ export default {
             amount.value = val;
 
             if (val === '' || !val?.toString()) {
-                isInput.value = false;
+                setTimeout(() => (isInput.value = false), 400);
                 return emit('setAmount', null);
             }
 
@@ -236,7 +236,7 @@ export default {
 
             amount.value = formatInputNumber(val);
 
-            return (isInput.value = false);
+            setTimeout(() => (isInput.value = false), 400);
         });
 
         watch(

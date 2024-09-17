@@ -4,7 +4,7 @@ import { useStore, Store } from 'vuex';
 import { AddressByChainHash } from '../models/types/Address';
 
 const useInputValidation = ({ tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     // ===========================================================================================
     // * Fields

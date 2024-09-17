@@ -22,7 +22,7 @@
             <a-input
                 v-else
                 v-model:value="amount"
-                v-debounce:1s="onInput"
+                v-debounce:0.3s="onInput"
                 type="text"
                 data-qa="input-amount"
                 class="base-input input-balance"
@@ -145,7 +145,7 @@ export default {
 
         const onInput = () => {
             emit('setAmount', amount.value);
-            isInput.value = false;
+            setTimeout(() => (isInput.value = false), 400);
         };
 
         const checkBalanceAllowed = () => {
@@ -181,7 +181,7 @@ export default {
 
                 amount.value = formatInputNumber(val);
 
-                isInput.value = false;
+                setTimeout(() => (isInput.value = false), 400);
 
                 return checkBalanceAllowed();
             }

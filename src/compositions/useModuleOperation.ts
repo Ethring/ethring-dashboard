@@ -45,7 +45,7 @@ import mixpanel from 'mixpanel-browser';
 import { IChainConfig } from '@/shared/models/types/chain-config';
 
 const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
     const route = useRouter();
 
     // ************************************** SHORTCUTS **************************************

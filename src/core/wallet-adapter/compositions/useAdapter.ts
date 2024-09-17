@@ -111,7 +111,7 @@ export interface IAdapter {
 
 function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore: null }): IAdapter {
     // * Store Module
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
     const router = useRouter();
 
     const storeModule = 'adapters';

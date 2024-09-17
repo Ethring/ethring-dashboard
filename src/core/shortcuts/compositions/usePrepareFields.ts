@@ -28,7 +28,7 @@ const usePrepareFields = (
     // * Main store and router
     // ****************************************************************************************************
 
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     // ****************************************************************************************************
     // * Wallet adapter and tokens list

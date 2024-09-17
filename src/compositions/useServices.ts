@@ -16,7 +16,7 @@ import { useRoute } from 'vue-router';
 import { RemoveLiquidityPoolId } from '@/core/shortcuts/core/';
 
 export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) {
-    const store = tmpStore || useStore();
+    const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
     const pathRoute = useRoute();
 
     useChainTokenManger(moduleType, { tmpStore: store });
