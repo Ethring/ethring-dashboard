@@ -51,6 +51,8 @@ const TYPES = {
     SET_NEW_TOKEN_IMAGE: 'SET_NEW_TOKEN_IMAGE',
 
     SET_LOAD_FROM_INDEXED_DB: 'SET_LOAD_FROM_INDEXED_DB',
+
+    SET_ACTIVE_TAB: 'SET_ACTIVE_TAB',
 };
 
 interface IState {
@@ -82,6 +84,7 @@ interface IState {
     [Type.pools]: Record<string, Record<string, Record<string, any[]>>>;
 
     isNeedToLoadFromIndexedDB: Record<string, boolean>;
+    activeTab: string;
 }
 
 export default {
@@ -116,11 +119,15 @@ export default {
         minBalance: minBalanceStorage.value,
 
         isNeedToLoadFromIndexedDB: {},
+
+        activeTab: 'portfolio',
     }),
 
     getters: {
         nftIndex: (state: IState) => state.nftIndex || MAX_NFTS_PER_PAGE,
         assetIndex: (state: IState) => state.assetIndex || MAX_ASSETS_PER_PAGE,
+
+        activeTab: (state: IState) => state.activeTab,
 
         isInitCalled: (state: IState) => (account: string, provider: string) => {
             const key = `${account}-${provider}`;
@@ -311,6 +318,9 @@ export default {
         [TYPES.SET_LOAD_FROM_INDEXED_DB](state: IState, { account, value }: { account: string; value: boolean }) {
             state.isNeedToLoadFromIndexedDB[account] = value;
         },
+        [TYPES.SET_ACTIVE_TAB](state: IState, value: string) {
+            state.activeTab = value;
+        },
     },
 
     actions: {
@@ -403,6 +413,9 @@ export default {
         },
         setLoadFromIndexedDB({ commit }: { commit: any }, value: { account: string; value: boolean }) {
             commit(TYPES.SET_LOAD_FROM_INDEXED_DB, value);
+        },
+        setActiveTab({ commit }: { commit: any }, value: string) {
+            commit(TYPES.SET_ACTIVE_TAB, value);
         },
     },
 };

@@ -4,7 +4,7 @@
             <SocialItem v-for="social in socials" :key="social" v-bind="social" />
         </a-space-compact>
 
-        <AppVersion class="version" :style="`margin-left: ${isCollapsed ? 'auto' : '0'} `" />
+        <!-- <AppVersion class="version" :style="`margin-left: ${isCollapsed ? 'auto' : '0'} `" /> -->
     </div>
 </template>
 <script>
@@ -12,12 +12,11 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import SocialItem from './SocialItem.vue';
-import AppVersion from './AppVersion.vue';
+// import AppVersion from './AppVersion.vue';
 
 export default {
     name: 'SidebarFooter',
     components: {
-        AppVersion,
         SocialItem,
     },
     setup() {

@@ -56,9 +56,6 @@
             </a-typography-text>
 
             <a-divider />
-
-            <a-typography-text> <a-typography-text strong>Release Date:</a-typography-text> April 17 2024 </a-typography-text>
-            <a-typography-text> <a-typography-text strong>Version:</a-typography-text> {{ version }} </a-typography-text>
         </a-space>
     </a-drawer>
 </template>

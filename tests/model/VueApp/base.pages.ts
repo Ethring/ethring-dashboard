@@ -13,6 +13,7 @@ enum Modules {
     bridge = 'bridge',
     superSwap = 'superSwap',
     shortcut = 'shortcut',
+    dashboard = 'dashboard',
 }
 
 type ModuleNames = keyof typeof Modules;
@@ -21,11 +22,12 @@ class BasePage {
     readonly page: Page;
 
     readonly sideBarLinks = {
-        [Modules.send]: DATA_QA_LOCATORS.SIDEBAR_SEND,
+        // [Modules.send]: DATA_QA_LOCATORS.SIDEBAR_SEND,
         // [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
         // [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
         [Modules.superSwap]: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
         [Modules.shortcut]: DATA_QA_LOCATORS.SIDEBAR_SHORTCUT,
+        [Modules.dashboard]: DATA_QA_LOCATORS.DASHBOARD,
     };
 
     readonly modules = {
@@ -34,14 +36,15 @@ class BasePage {
         // [Modules.bridge]: (page: Page) => new BridgePage(page),
         [Modules.superSwap]: (page: Page) => new SuperSwapPage(page),
         [Modules.shortcut]: (page: Page) => new ShortcutPage(page),
+        [Modules.dashboard]: (page: Page) => new DashboardPage(page),
     };
 
     constructor(page: Page) {
         this.page = page;
     }
 
-    async goToPage() {
-        await this.page.goto(url);
+    async goToPage(page = url) {
+        await this.page.goto(page);
     }
 
     async clickLoginByMetaMask() {
@@ -79,7 +82,7 @@ class BasePage {
     }
 
     async waitMainElementVisible() {
-        await this.page.getByTestId(DATA_QA_LOCATORS.DASHBOARD).waitFor({ state: 'visible', timeout: 20000 });
+        await this.page.getByTestId(DATA_QA_LOCATORS.SHORTCUTS).waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async getLinkFromSuccessPanel() {

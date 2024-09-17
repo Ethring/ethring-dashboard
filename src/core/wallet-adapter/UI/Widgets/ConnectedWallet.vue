@@ -47,6 +47,10 @@
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 import { useClipboard } from '@vueuse/core';
+import mixpanel from 'mixpanel-browser';
+import { reset } from '@/app/modules/mixpanel/track';
+import { useStore } from 'vuex';
+import { useRouter, useRoute } from 'vue-router';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
@@ -62,10 +66,7 @@ import { MoreOutlined } from '@ant-design/icons-vue';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { cutAddress } from '@/shared/utils/address';
-
-import mixpanel from 'mixpanel-browser';
-import { reset } from '@/app/modules/mixpanel/track';
-import { useStore } from 'vuex';
+import { ECOSYSTEMS } from '../../config';
 
 export default {
     name: 'ConnectedWallet',
@@ -84,6 +85,9 @@ export default {
     },
     setup(props) {
         const store = useStore();
+
+        const route = useRoute();
+        const router = useRouter();
 
         const selectedChain = ref(props.wallet.chain);
         const { copy, copied } = useClipboard();
@@ -135,6 +139,11 @@ export default {
             try {
                 const status = await connectTo(wallet.ecosystem, wallet.walletModule);
                 status && action('SET_IS_CONNECTING', false);
+
+                if (wallet.ecosystem === ECOSYSTEMS.EVM && route.path === '/main/nfts') {
+                    store.dispatch('tokens/setActiveTab', 'portfolio');
+                    router.push('/main/portfolio');
+                }
             } catch (error) {
                 console.error(error);
                 action('SET_IS_CONNECTING', false);

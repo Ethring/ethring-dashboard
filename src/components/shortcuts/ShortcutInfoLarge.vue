@@ -1,5 +1,5 @@
 <template>
-    <a-row class="shortcut-info-container">
+    <a-row class="shortcut-info-container" data-qa="shortcuts">
         <div class="shortcut-info">
             <div class="label">{{ $t('shortcuts.label') }}</div>
             <div class="description">{{ $t('shortcuts.description') }}</div>
