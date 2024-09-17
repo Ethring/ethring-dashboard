@@ -78,7 +78,8 @@ testKeplr.describe('Keplr dashboard', () => {
     });
 });
 
-testMetaMaskAndKeplr('Case#: Check balance request call', async ({ authPage: testPage }) => {
+// TODO: Change to Socket realization
+testMetaMaskAndKeplr.skip('Case#: Check balance request call', async ({ authPage: testPage }) => {
     /* Case:
     1) Auth by MM and Keplr wallets
     2) Check the balance request calls for all addresses from connected wallets
