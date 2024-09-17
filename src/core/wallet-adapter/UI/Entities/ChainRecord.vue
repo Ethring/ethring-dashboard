@@ -61,6 +61,7 @@ export default {
             copy(address);
             isTooltipOpen.value = true;
         };
+
         return {
             copy,
             copied,

@@ -278,6 +278,8 @@ export interface IEthereumAdapter extends IBaseAdapter {
     // * Wallet Address & Chain Info
     // ****************************************************
 
+    getRealAddress(): Promise<string | undefined>;
+
     /**
      * Sets the address for chains.
      */
@@ -317,6 +319,8 @@ export interface ICosmosAdapter extends IBaseAdapter {
      * @returns A boolean indicating whether the client is available.
      */
     checkClient(walletName: string): boolean;
+
+    getRealAddress?: () => string;
 }
 
 export interface ICosmosFeeTokens {
