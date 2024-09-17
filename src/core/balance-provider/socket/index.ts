@@ -87,8 +87,6 @@ class SocketInstance {
     }
 
     subscribeToAddress(provider: keyof typeof Providers, account: string, addresses: IAddressByNetwork) {
-        console.log('Subscribing to address', account, addresses);
-
         this.provider = provider;
         this.account = account;
         this.addresses = addresses;
@@ -97,7 +95,6 @@ class SocketInstance {
     }
 
     async updateBalance(address: string) {
-        console.log('Subscribing to update balance', address);
         this.socket.emit(SocketEvents.update_balance, address);
 
         try {
@@ -111,7 +108,6 @@ class SocketInstance {
     }
 
     stopUpdateBalance(account: string) {
-        console.log('Unsubscribing from update balance', account);
         this.socket.emit(SocketEvents.stop_update_balance, account);
     }
 }
