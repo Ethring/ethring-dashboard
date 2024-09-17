@@ -82,7 +82,7 @@
     </a-modal>
 </template>
 <script lang="ts">
-import { defineComponent, computed, ref, watch } from 'vue';
+import { defineComponent, computed, ref, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import { Carousel } from 'ant-design-vue';
@@ -159,7 +159,7 @@ export default defineComponent({
 
         const results = ref<any>([]);
 
-        watch(shortcutStatus, async () => {
+        const unWatchStatus = watch(shortcutStatus, async () => {
             if (!operationsFactory.value) return;
             if (shortcutStatus.value !== SHORTCUT_STATUSES.SUCCESS) return;
 
@@ -185,7 +185,7 @@ export default defineComponent({
             isLoading.value = false;
         });
 
-        watch(isRequestingNfts, async (value) => {
+        const unWatchRequests = watch(isRequestingNfts, async (value) => {
             if (!operationsFactory.value) return (isRequestingNfts.value = false);
             if (!currentOp.value) return (isRequestingNfts.value = false);
 
@@ -202,7 +202,7 @@ export default defineComponent({
             }
         });
 
-        watch(isModalOpen, (value) => {
+        const unWatchModal = watch(isModalOpen, (value) => {
             if (!value || !isModalOpen.value) {
                 results.value = [];
                 nftsList.value = [];
@@ -232,6 +232,12 @@ export default defineComponent({
                     stepId: firstOperationId,
                 });
             }
+        });
+
+        onUnmounted(() => {
+            unWatchStatus();
+            unWatchRequests();
+            unWatchModal();
         });
 
         return {

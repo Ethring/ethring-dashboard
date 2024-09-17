@@ -11,11 +11,31 @@ export const routes = [
     },
     {
         path: '/main',
-        name: 'Overview',
+        name: 'Wallet Overview',
         meta: {
             key: 'main',
         },
         component: () => import('@/pages/Dashboard.vue'),
+        children: [
+            {
+                path: '',
+                name: 'Wallet Overview',
+                alias: 'portfolio',
+                component: () => import('@/components/app/Assets.vue'),
+            },
+            {
+                path: 'nfts',
+                name: "Wallet's NFTs",
+                alias: 'nfts',
+                component: () => import('@/components/app/NFTs.vue'),
+            },
+            {
+                path: 'tokens',
+                name: "Wallet's Assets List",
+                alias: 'tokens',
+                component: () => import('@/components/app/TokensList.vue'),
+            },
+        ],
     },
     {
         path: '/connect-wallet',

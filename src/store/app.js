@@ -53,7 +53,7 @@ export default {
             module: null,
         },
         lastVersion: appVersionStorage.value,
-        collapsedAssets: collapsedAssetsStorage.value,
+        collapsedAssets: collapsedAssetsStorage.value || [],
     }),
 
     getters: {
@@ -65,7 +65,7 @@ export default {
         selectModal: (state) => state.selectModal,
         lastVersion: (state) => state.lastVersion || '0.1.0',
         isLoadingTokenList: (state) => state.loadingTokenList || false,
-        collapsedAssets: (state) => state.collapsedAssets,
+        collapsedAssets: (state) => state.collapsedAssets || [],
     },
 
     mutations: {

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { computed, ref, watch, onBeforeMount, onUnmounted } from 'vue';
+import { computed, ref, onBeforeMount, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import ShortcutItem from '@/components/shortcuts/ShortcutItem';
@@ -56,10 +56,6 @@ import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import ClearAllIcon from '@/assets/icons/form-icons/remove.svg';
 
 import { Empty } from 'ant-design-vue';
-
-import { searchByKey } from '@/shared/utils/helpers';
-
-import { filter } from 'lodash';
 
 export default {
     name: 'Shortcuts',

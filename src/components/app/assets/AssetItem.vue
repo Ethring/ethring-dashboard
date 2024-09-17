@@ -8,7 +8,7 @@
                     <div class="name">
                         {{ type === 'NFTS' ? item.name : item.symbol }}
                         <a-tag v-if="item.testnet" class="ibc-tag" :bordered="false"> Testnet </a-tag>
-                        <a-tag v-if="type === 'Asset' && item.name.includes('IBC')" class="ibc-tag" :bordered="false"> IBC </a-tag>
+                        <a-tag v-if="type === 'Asset' && item?.name?.includes('IBC')" class="ibc-tag" :bordered="false"> IBC </a-tag>
                     </div>
                     <div v-if="item.balanceType" class="type">{{ getFormattedName(item.balanceType) }}</div>
                     <div v-if="item.unlockTimestamp" class="unlock">
@@ -19,7 +19,7 @@
                     </div>
                     <div v-if="item.leverageRate" class="apr"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
                     <div v-if="item.nfts" class="count">
-                        <a-badge :count="item.nfts.length" class="asset-nfts-count" />
+                        <a-badge :count="item.nfts" class="asset-nfts-count" />
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@
     </div>
 </template>
 <script>
-import { onMounted, onUpdated, watch } from 'vue';
+import { onMounted, onUnmounted, onUpdated, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -39,7 +39,9 @@ export default {
 
         onUpdated(async () => await redirectToMain());
 
-        watch(isConnecting, async () => await redirectToMain());
+        const unWatch = watch(isConnecting, async () => await redirectToMain());
+
+        onUnmounted(() => unWatch());
     },
 };
 </script>

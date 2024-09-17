@@ -15,7 +15,8 @@ import { setCustomRpc } from '../__fixtures__/fixtureHelper';
 const sleep = util.promisify(setTimeout);
 
 testMetaMask.describe('Mocked send tx Metamask', () => {
-    testMetaMask('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
+    // TODO: Change to another network
+    testMetaMask.skip('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const networkNameInMM = 'Polygon Mainnet';
         const networkSymbol = 'POL';

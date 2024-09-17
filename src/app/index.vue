@@ -15,8 +15,6 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import { pick } from 'lodash';
-
 import Socket from '@/app/modules/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
@@ -36,10 +34,9 @@ import { updateBalanceForAccount } from '@/core/balance-provider';
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
-import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { delay } from '@/shared/utils/helpers';
-import { Providers } from '../core/balance-provider/models/enums';
+import { Providers, Type } from '../core/balance-provider/models/enums';
 
 export default {
     name: 'App',
@@ -98,6 +95,12 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
+
+                // Get balances from cache
+                for (const type in Type) {
+                    if ([Type.nfts, Type.integrations].includes(type)) continue;
+                    await store.dispatch('tokens/loadFromCache', { account, type });
+                }
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
 
@@ -172,8 +175,7 @@ export default {
 
             await store.dispatch('configs/setConfigLoading', true);
 
-            await store.dispatch('configs/initConfigs');
-            await store.dispatch('bridgeDexAPI/getServices');
+            await Promise.all([store.dispatch('configs/initConfigs'), store.dispatch('bridgeDexAPI/getServices')]);
 
             await initAdapter();
 
@@ -182,13 +184,12 @@ export default {
 
             await Promise.all([setNativeTokensPrices(EVM_NETS), setNativeTokensPrices(COSMOS_NETS)]);
 
-            const NETWORKS = [...getChainListByEcosystem(Ecosystem.EVM, true), ...getChainListByEcosystem(Ecosystem.COSMOS, true)];
-
-            for (const network of NETWORKS)
-                store.dispatch('tokens/setNetworksToShow', {
-                    network: network.net,
-                    isShow: network.isSupportedChain,
-                });
+            // TODO: Uncomment this code when we need to show all networks
+            // for (const network of [...getChainListByEcosystem(Ecosystem.EVM, true), ...getChainListByEcosystem(Ecosystem.COSMOS, true)])
+            //     store.dispatch('tokens/setNetworksToShow', {
+            //         network: network.net,
+            //         isShow: network.isSupportedChain,
+            //     });
         });
 
         onBeforeUnmount(() => {

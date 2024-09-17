@@ -7,6 +7,10 @@
         "initLoading": "Please wait we are preparing our application for you"
     },
     "dashboard": {
+        "tabs": {
+            "portfolio": "Portfolio",
+            "nfts": "NFTs"
+        },
         "receive": "RECEIVE",
         "send": "SEND",
         "search": "Search",
@@ -131,6 +135,7 @@
         "pendingTransactions": "Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.",
         "connectWallet": "Connect wallet",
         "showMore": "Show more",
+        "showAll": "Show all",
         "verifiedToken": "This token has a good reputation from the community",
         "poolAsset": "Pool asset",
         "claimTokens": "Claim tokens"

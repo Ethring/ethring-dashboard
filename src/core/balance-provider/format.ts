@@ -14,6 +14,8 @@ export const formatResponse = (
     balances: RecordList,
     opt: RecordOptions = {},
 ): AssetBalance[] | IntegrationBalance[] | NftBalance[] | PoolBalance[] => {
+    if (!balances.length) return [];
+
     switch (type) {
         case Type.tokens:
             return balances.map((balance: any) => formatRecord(type, balance as AssetBalance, opt));
