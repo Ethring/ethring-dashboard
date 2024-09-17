@@ -220,8 +220,6 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         if (!shortcut.value.isActive) return router.push('/shortcuts');
 
-        if (shortcut.value?.isComingSoon) isShortcutLoading.value = false;
-
         await store.dispatch('shortcuts/setShortcut', {
             shortcut: shortcut.value.id,
             data: shortcut,
