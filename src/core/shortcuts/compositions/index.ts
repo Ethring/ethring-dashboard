@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 import { StepProps } from 'ant-design-vue';
 
 // ********************* Vue/Vuex *********************
-import { computed, onBeforeUnmount, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, onUnmounted, watch, ref } from 'vue';
 import { useStore, Store } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -57,14 +57,14 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     const emptyShortcut = getEmptyShortcut(route?.params?.id as string);
 
     // Create a new instance of the Shortcut class
-    const shortcut = new ShortcutCl(Shortcut || emptyShortcut);
+    const shortcut = ref(new ShortcutCl(Shortcut || emptyShortcut));
 
-    if (!shortcut) {
+    if (!shortcut.value) {
         console.error('Shortcut data is required');
         throw new Error('Shortcut data is required');
     }
 
-    if (!shortcut?.id) {
+    if (!shortcut.value?.id) {
         console.error('Shortcut id is required');
         throw new Error('Shortcut id is required');
     }
@@ -87,11 +87,15 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         processShortcutOperation,
         setOperationAccount,
-    } = useShortcutOperations(shortcut.id, { tmpStore: store });
+    } = useShortcutOperations(shortcut.value.id, { tmpStore: store });
 
-    const { callPerformOnWatchOnMounted, performFields, performDisabledOrHiddenFields } = usePrepareFields(shortcut.id, addressesByChain, {
-        tmpStore: store,
-    });
+    const { callPerformOnWatchOnMounted, performFields, performDisabledOrHiddenFields } = usePrepareFields(
+        shortcut.value.id,
+        addressesByChain,
+        {
+            tmpStore: store,
+        },
+    );
 
     // * Quote error message
     const quoteErrorMessage = computed({
@@ -101,10 +105,10 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     // * Shortcut loading state from the store
     const isShortcutLoading = computed({
-        get: () => store.getters['shortcuts/getIsShortcutLoading'](shortcut.id),
+        get: () => store.getters['shortcuts/getIsShortcutLoading'](shortcut.value.id),
         set: (value) =>
             store.dispatch('shortcuts/setIsShortcutLoading', {
-                shortcutId: shortcut.id,
+                shortcutId: shortcut.value.id,
                 value,
             }),
     });
@@ -132,13 +136,13 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
     const currentOp = computed<IShortcutOp>(() => {
-        if (!shortcut.id || !currentStepId.value) return null;
-        return store.getters['shortcuts/getCurrentOperation'](shortcut.id);
+        if (!shortcut.value.id || !currentStepId.value) return null;
+        return store.getters['shortcuts/getCurrentOperation'](shortcut.value.id);
     });
 
     const shortcutLayout = computed(() => store.getters['shortcuts/getCurrentLayout']);
-    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](shortcut.id));
-    const steps = computed<StepProps[]>(() => store.getters['shortcuts/getShortcutSteps'](shortcut.id));
+    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](shortcut.value.id));
+    const steps = computed<StepProps[]>(() => store.getters['shortcuts/getShortcutSteps'](shortcut.value.id));
 
     // ****************************************************************************************************
     // * Perform the shortcut operations
@@ -150,7 +154,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             return false;
         }
 
-        const { operations = [] } = shortcut || {};
+        const { operations = [] } = shortcut.value || {};
 
         // ! if operations already exists in the factory, no need to add them again
         if (operationsFactory.value.getOperationsIds().size >= operations.length) {
@@ -207,32 +211,32 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             return false;
         }
 
-        if (!shortcut.id) {
+        if (!shortcut.value.id) {
             console.warn('Shortcut Id not found');
             return false;
         }
 
         shortcutIndex.value = 0;
 
-        if (!shortcut.isActive) return router.push('/shortcuts');
+        if (!shortcut.value.isActive) return router.push('/shortcuts');
 
-        if (shortcut?.isComingSoon) isShortcutLoading.value = false;
+        if (shortcut.value?.isComingSoon) isShortcutLoading.value = false;
 
         await store.dispatch('shortcuts/setShortcut', {
-            shortcut: shortcut.id,
+            shortcut: shortcut.value.id,
             data: shortcut,
         });
 
         await store.dispatch('shortcuts/setShortcutStatus', {
-            shortcutId: shortcut.id,
+            shortcutId: shortcut.value.id,
             status: SHORTCUT_STATUSES.PENDING,
         });
 
         await store.dispatch('shortcuts/setCurrentShortcutId', {
-            shortcutId: shortcut.id,
+            shortcutId: shortcut.value.id,
         });
 
-        const [firstOp] = shortcut.operations || [];
+        const [firstOp] = shortcut.value.operations || [];
 
         if (!firstOp) {
             console.warn('No operations found');
@@ -247,34 +251,34 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             });
 
         await store.dispatch('shortcuts/setShortcut', {
-            shortcut: shortcut.id,
+            shortcut: shortcut.value.id,
             data: shortcut,
         });
 
         await store.dispatch('shortcuts/setShortcutStatus', {
-            shortcutId: shortcut.id,
+            shortcutId: shortcut.value.id,
             status: SHORTCUT_STATUSES.PENDING,
         });
 
         await store.dispatch('shortcuts/setCurrentShortcutId', {
-            shortcutId: shortcut.id,
+            shortcutId: shortcut.value.id,
         });
 
         return true;
     };
 
     const initShortcutSteps = async () => {
-        if (!shortcut) {
+        if (!shortcut.value) {
             console.warn('Shortcut not found');
             return false;
         }
 
-        if (!shortcut.id) {
+        if (!shortcut.value.id) {
             console.warn('Shortcut Id not found');
             return false;
         }
 
-        const { operations = [] } = shortcut || {};
+        const { operations = [] } = shortcut.value || {};
 
         if (!operations || !operations.length) {
             console.warn('No operations found for the shortcut');
@@ -285,7 +289,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         await store.dispatch('shortcuts/setCurrentStepId', {
             stepId: firstOp.id,
-            shortcutId: shortcut.id,
+            shortcutId: shortcut.value.id,
         });
 
         isShortcutLoading.value = false;
@@ -293,7 +297,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     };
 
     const initShortcutService = async () => {
-        if (!shortcut.operations?.length) {
+        if (!shortcut.value.operations?.length) {
             console.warn('No operations found');
             return false;
         }
@@ -339,9 +343,9 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     };
 
     const initShortcutMetaInfo = async (isBalanceUpdate = false) => {
-        if (!walletAccount.value || !currentChainInfo.value?.chain || !shortcut.callShortcutMethod) return false;
+        if (!walletAccount.value || !currentChainInfo.value?.chain || !shortcut.value.callShortcutMethod) return false;
 
-        switch (shortcut.callShortcutMethod) {
+        switch (shortcut.value.callShortcutMethod) {
             case 'loadUsersPoolList':
                 await loadUsersPoolList({
                     ecosystem: currentChainInfo.value.ecosystem,
@@ -351,7 +355,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
                 });
                 break;
             default:
-                await store.dispatch(`shortcuts/${shortcut.callShortcutMethod}`, {
+                await store.dispatch(`shortcuts/${shortcut.value.callShortcutMethod}`, {
                     address: walletAccount.value,
                     ecosystem: currentChainInfo.value.ecosystem,
                 });
@@ -380,11 +384,11 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     const handleOnChangeTokensList = async (tokenList: IAsset[], oldTokenList: IAsset[]) => {
         if (!operationsFactory.value) return false;
-        if (!shortcut || !shortcut.operations) return false;
+        if (!shortcut.value || !shortcut.value.operations) return false;
         if (isEqual(tokenList, oldTokenList)) return false;
 
         // * Set the token list for the operations
-        for (const operation of shortcut.operations)
+        for (const operation of shortcut.value.operations)
             await performFields(operation.moduleType, operation.params, {
                 isUpdateInStore: false,
                 id: operation.id,
@@ -415,7 +419,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         operationList.forEach((id) => setOperationAccount(id, { force: true }));
 
-        for (const operation of shortcut.operations) {
+        for (const operation of shortcut.value.operations) {
             const { moduleType, params } = operation;
             await performFields(moduleType, params, {
                 isUpdateInStore: false,
@@ -507,23 +511,17 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     onMounted(async () => {
         if (isConfigLoading.value) return console.warn('Config is loading');
+        if (!shortcut.value.id) return console.warn('Shortcut Id not found');
         await initializations();
     });
 
     // **************************************************************************************************
     // ************************************** WATCHERS **************************************************
     // **************************************************************************************************
-    watch(shortcutFromStore, async () => {
+    const unWatchShortcutFromStore = watch(shortcutFromStore, async () => {
         if (!shortcutFromStore.value) return;
 
-        // update shortcut fields
-        shortcut.isActive = shortcutFromStore.value.isActive;
-        shortcut.isComingSoon = shortcutFromStore.value.isComingSoon;
-        shortcut.operations = shortcutFromStore.value.operations;
-        shortcut.name = shortcutFromStore.value.name;
-        shortcut.description = shortcutFromStore.value.description;
-        shortcut.type = shortcutFromStore.value.type;
-        shortcut.minUsdAmount = shortcutFromStore.value.minUsdAmount;
+        shortcut.value = new ShortcutCl(shortcutFromStore.value);
 
         await initializations();
     });
@@ -539,7 +537,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     // * Store watchers
     const unWatchCurrentOp = store.watch(
-        (state, getters) => getters['shortcuts/getCurrentOperation'](shortcut.id, currentStepId.value),
+        (state, getters) => getters['shortcuts/getCurrentOperation'](shortcut.value.id, currentStepId.value),
         callPerformOnWatchOnMounted,
     );
 
@@ -571,6 +569,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     onUnmounted(() => {
         quoteErrorMessage.value = '';
+        unWatchShortcutFromStore();
         unWatchIsQuoteLoading();
         unWatchIsConnecting();
         unWatchConfigLoading();
@@ -583,7 +582,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     return {
         shortcut,
-        shortcutId: shortcut.id,
+        shortcutId: shortcut.value.id,
         isShortcutLoading,
         shortcutIndex,
         shortcutLayout,

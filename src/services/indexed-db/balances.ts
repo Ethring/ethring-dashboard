@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import BigNumber from 'bignumber.js';
-import { orderBy } from 'lodash';
+import { difference, orderBy } from 'lodash';
 
 import { IntegrationBalance, AssetBalance, NftBalance, BalanceType } from '@/core/balance-provider/models/types';
 import { IntegrationBalanceType, Type } from '@/core/balance-provider/models/enums';
@@ -75,8 +75,16 @@ class BalancesDB extends Dexie {
                 item.provider = provider;
             });
 
+        const balances = await this.balances.where({ account: accountLower, chain, dataType }).toArray();
+
+        const diff = difference(
+            balances.map((item) => item.uniqueId),
+            data.map((item: any) => item.uniqueId),
+        );
+
         try {
             await this.transaction('rw', this.balances, async () => {
+                if (diff.length) await this.balances.bulkDelete(diff);
                 await this.balances.bulkPut(data);
             });
         } catch (error) {

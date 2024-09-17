@@ -1,8 +1,9 @@
 import { Socket, io } from 'socket.io-client';
+import { values } from 'lodash';
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 
-import { BaseType, Providers } from '../models/enums';
+import { BaseType, DP_SDK_PROD_CHAINS_EVM, Providers } from '../models/enums';
 import { storeBalanceForAccount } from '../utils';
 import { BalanceType, BalanceResponse } from '../models/types';
 import { IAddressByNetwork } from '@/core/wallet-adapter/models/ecosystem-adapter';
@@ -54,6 +55,9 @@ class SocketInstance {
         // * Receive balance update, store it in Vuex and IndexedDB
         this.socket.on(SocketEvents.update_balance, async (data: BalanceResponse) => {
             if (!this.store) return logger.warn('[Socket-data-provider] Store is not initialized');
+            // ! Skip if chain is not in DP_SDK_PROD_CHAINS_EVM
+            if (!values(DP_SDK_PROD_CHAINS_EVM).includes(data.net as any)) return;
+
             try {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
