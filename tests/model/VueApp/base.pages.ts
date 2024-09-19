@@ -13,7 +13,7 @@ enum Modules {
     bridge = 'bridge',
     superSwap = 'superSwap',
     shortcut = 'shortcut',
-    dashboard = 'dashboard',
+    dashboard = 'main',
 }
 
 type ModuleNames = keyof typeof Modules;

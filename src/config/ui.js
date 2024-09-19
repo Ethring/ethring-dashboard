@@ -4,7 +4,7 @@ import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 const MAIN_DASHBOARD = {
     icon: 'overviewIcon',
     title: 'Overview',
-    key: 'dashboard',
+    key: 'main',
     to: '/main',
     disabled: false,
     type: 'layout',

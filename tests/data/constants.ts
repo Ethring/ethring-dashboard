@@ -317,7 +317,7 @@ export enum DATA_QA_LOCATORS {
     SIDEBAR_SUPER_SWAP = 'sidebar-item-superSwap',
     SIDEBAR_SHORTCUT = 'sidebar-item-shortcut',
     SIDEBAR_DASHBOARD = 'sidebar-item-dashboard',
-    DASHBOARD = 'dashboard',
+    DASHBOARD = 'main',
     SHORTCUTS = 'shortcuts',
     CONTENT = 'content',
     RECORD_MODAL = 'select-record-modal',
