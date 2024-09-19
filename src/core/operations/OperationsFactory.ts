@@ -305,7 +305,8 @@ export default class OperationFactory implements IOperationFactory {
         for (const param of operationParams) {
             const { dependencyParamKey, paramKey, usePercentage = 0 } = param || {};
 
-            const depValue = dependOperation.getParamByField(dependencyParamKey);
+            const depValue =
+                opId === operationId ? store.getters['tokenOps/srcAmount'] : dependOperation.getParamByField(dependencyParamKey);
 
             if (!isAmountCorrect(depValue)) return;
 

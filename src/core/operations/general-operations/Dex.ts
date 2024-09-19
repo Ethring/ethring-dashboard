@@ -79,6 +79,7 @@ export default class DexOperation extends BaseOperation {
         }
 
         const serviceId = this.getParamByField('serviceId');
+        serviceId && this.service.setServiceId(serviceId);
 
         if (this.tokens.to?.address) this.params.toToken = this.tokens.to?.address;
 
