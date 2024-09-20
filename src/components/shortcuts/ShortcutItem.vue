@@ -51,12 +51,13 @@
                     <span v-else class="amount">any</span>
                 </div>
 
-                <a-row v-if="item?.benefits" class="benefits">
-                    <span class="benefits__title">Rewards: </span>
-                    <span class="benefits__description">{{ item?.benefits?.description }}</span>
-                    <a-tooltip v-for="elem in item?.benefits?.items" :key="elem.tooltip">
+                <a-row v-if="item?.rewards.length" class="rewards">
+                    <span class="rewards__title">Rewards: </span>
+                    <span class="rewards__description">{{ item?.rewardsDescription }}</span>
+                    <a-tooltip v-for="elem in item.rewards" :key="elem.tooltip">
                         <template #title>{{ elem.tooltip }} </template>
-                        <img :src="elem.image" />
+                        <div v-if="elem.tooltip === 'APR'" class="rewards__apr">APR%</div>
+                        <img v-else :src="elem.image" />
                     </a-tooltip>
                 </a-row>
             </a-row>
