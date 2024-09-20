@@ -238,7 +238,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
             (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address'),
         );
 
-        return orderBy(filtered, [(tkn: any) => tkn?.logo], ['desc']);
+        return orderBy(filtered, ['balanceUsd', 'verified', 'logo'], ['desc', 'asc', 'desc']);
     };
 
     // * Get chains for modules

@@ -26,18 +26,31 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
     };
 
     const getVerifiedTokensMap = async ({ chain, tokens }: { chain?: string; tokens?: IAsset[] }): Promise<Map<string, boolean>> => {
-        if (!chain && tokens && tokens.length > 0)
-            return new Map(tokens.map((token: IAsset) => [token.address ? token.address.toLowerCase() : NATIVE_CONTRACT, true]));
+        const tokensMap = new Map<string, boolean>();
+        tokensMap.set(NATIVE_CONTRACT, true);
 
-        if (chain && !tokens) {
+        // * if chain is provided, get verified tokens from config
+        if (chain) {
             const verifiedTokens = await getVerifiedTokensFromConfig(chain);
-            return new Map(verifiedTokens.map((token: IAsset) => [token.address ? token.address.toLowerCase() : NATIVE_CONTRACT, true]));
+
+            verifiedTokens.forEach((token: IAsset) => {
+                if (token.address) tokensMap.set(token.address.toLowerCase(), true);
+            });
+
+            return tokensMap;
         }
 
-        if (chain && tokens && tokens.length > 0)
-            return new Map(tokens.map((token: IAsset) => [token.address ? token.address.toLowerCase() : NATIVE_CONTRACT, true]));
+        // * if chain is not provided, get verified tokens from tokens list
+        if (!chain && tokens && tokens.length > 0) {
+            tokens.forEach((token: IAsset) => {
+                // get only verified tokens
+                if (token.address && token.verified) tokensMap.set(token.address.toLowerCase(), true);
+            });
 
-        return new Map();
+            return tokensMap;
+        }
+
+        return tokensMap;
     };
 
     const getTokensWithBalance = (chain: string, ecosystem: Ecosystems, account?: string): IAsset[] => {
