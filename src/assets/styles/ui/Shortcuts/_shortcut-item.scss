@@ -149,7 +149,7 @@
         text-overflow: ellipsis;
     }
 
-    .benefits {
+    .rewards {
         color: var(--#{$prefix}mute-text);
 
         &__title {
@@ -160,15 +160,26 @@
         &__description {
             font-size: var(--#{$prefix}small-sm-fs);
             margin-left: 4px;
-            margin-right: 12px;
+            margin-right: 8px;
         }
 
         img {
-            width: 16px;
-            height: 16px;
-            margin-left: -8px;
+            width: 18px;
+            height: 18px;
+            margin-left: -4px;
             border-radius: 50%;
             margin-top: 1px;
+        }
+
+        &__apr {
+            font-size: var(--#{$prefix}small-xs-fs);
+            color: var(--#{$prefix}mute-apr-text);
+            padding: 0 2px;
+            height: 16px;
+            border-radius: 6px;
+            margin: 2px 5px 0px -4px;
+            font-weight: 500;
+            border: 1px solid var(--#{$prefix}sidebar-active-color);
         }
     }
 
