@@ -620,7 +620,9 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             operation?.setParamByField('fromNet', srcNet.net);
             operation?.setParamByField('amount', 0);
             operation?.setAccount(addressesByChain.value[srcNet.net]);
-            setTokenParams(operation, 'from', srcToken);
+
+            if (srcToken?.net === srcNet?.net) setTokenParams(operation, 'from', srcToken);
+
             store.dispatch('tokenOps/setSrcAmount', 0);
         }
 
@@ -642,8 +644,12 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
                 oldSrcToken?.balance !== srcToken?.balance) &&
             !srcTokenField?.value &&
             currentShortcut.value.networksConfig?.additionalNetworks?.includes(srcToken?.chain)
-        )
+        ) {
             setTokenParams(operation, 'from', srcToken);
+        } else {
+            const fromToken = operation?.getToken('from');
+            if (!fromToken || !srcToken) setTokenParams(operation, 'from', srcToken);
+        }
 
         // Update dependent srcToken for other operations
         const srcTokenDependent = dependencies?.operationParams?.find((param: any) => param?.paramKey === 'srcToken');

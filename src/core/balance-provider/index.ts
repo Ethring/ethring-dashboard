@@ -101,10 +101,11 @@ export const loadUsersPoolList = async (params: { address: string; ecosystem: st
 
     for (const net of chains) {
         const response = await poolService.getUserBalancePoolList({ net, address });
-
-        const pools = formatResponse(Type.pools, response, { chain: net });
-
-        store.dispatch('tokens/setDataFor', { type: Type.pools, account: address, chain: net, data: pools });
+        await storeBalanceForAccount(Type.pools, address, net, address, response, {
+            store,
+            chain: net,
+            provider: 'Portal',
+        });
     }
 };
 
