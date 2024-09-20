@@ -13,46 +13,31 @@
         <a-space direction="vertical" class="release-info">
             <a-typography-title :level="5"> Welcome to Zomet.App! 🚀 </a-typography-title>
 
+            <a-typography-text> We’re here to make your experience in the world of crypto easier and more convenient. </a-typography-text>
+
+            <a-typography-text> 🚀 We're working hard to bring a new experience to using decentralized systems. </a-typography-text>
+
             <a-typography-text>
-                All our features are currently in
-                <a-typography-text strong underline> Beta-testing </a-typography-text> phase. We're working hard to bring a new experience
-                to using decentralized systems.
+                We’re currently in <a-typography-text strong underline>open beta</a-typography-text>, and we’d love to hear your thoughts
+                and ideas. Your feedback will help us improve! 💡
             </a-typography-text>
 
             <a-typography-text>
-                Using <a-typography-text strong>EVM</a-typography-text> and <a-typography-text strong>Cosmos</a-typography-text> ecosystems,
-                you can now enjoy token swapping via
                 <a-typography-text strong underline>
-                    <router-link to="/super-swap" class="route-link"> SuperSwap </router-link>
+                    <router-link to="/main" class="route-link"> 🔗 Zomet Shortcuts </router-link>
                 </a-typography-text>
-                . Simply select the tokens you want to exchange and the system will find you the best route.
+                lets you effortlessly combine different services and protocols into convenient shortcuts. Try it out — it’s super simple! 😊
             </a-typography-text>
 
-            <a-typography-text>
-                You can view all available tokens and protocols on our
-                <a-typography-text strong underline>
-                    <router-link to="/main" class="route-link"> dashboard </router-link> </a-typography-text
-                >.
-            </a-typography-text>
+            <a-typography-text> ⚠️ Some features may be limited for now, but we’re constantly working on improvements. </a-typography-text>
 
             <a-typography-text>
-                Currently, the selection of
-                <a-typography-text strong underline>networks is limited</a-typography-text>, but a wider range will be available soon, so
-                stay tuned for updates!
-            </a-typography-text>
-
-            <a-typography-text>
-                You can also try out the
-                <a-typography-text strong underline>
-                    <router-link to="/shortcuts" class="route-link"> Shortcut </router-link>
-                </a-typography-text>
-                - automated actions that simplify interaction with various services. Just follow a few simple steps, and the system will
-                handle the rest.
-            </a-typography-text>
-
-            <a-typography-text>
-                For any questions or suggestions, feel free to contact us on
-                <a-typography-text underline disabled> Discord </a-typography-text>.
+                Stay tuned for updates on our
+                <a-typography-link underline strong href="https://x.com/zometapp" target="_blank"> [Twitter] </a-typography-link> and
+                <a-typography-link underline strong href="https://discord.com/invite/fneF9WCG7u" target="_blank">
+                    [Discord]
+                </a-typography-link>
+                — exciting things are coming! 🎉
             </a-typography-text>
 
             <a-divider />
