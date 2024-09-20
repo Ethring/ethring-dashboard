@@ -680,12 +680,6 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             return operations.getOperationByKey(key as string);
         };
 
-        const getApproveOperation = () => {
-            const approveLpExist = operationsFlow.find((op) => op.type === TRANSACTION_TYPES.APPROVE);
-            if (!approveLpExist) return null;
-            return operations.getOperationByKey(approveLpExist.moduleIndex);
-        };
-
         const setApproveOperationParams = (approveOperation: any) => {
             const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
 
@@ -707,8 +701,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
         };
 
-        const approveOperation = opInGroup.isNeedApprove ? getApproveOperation() : createApproveOperation();
-        if (!approveOperation) return;
+        const approveOperation = createApproveOperation();
 
         setApproveOperationParams(approveOperation);
     };

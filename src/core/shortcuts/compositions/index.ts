@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash';
+import { isEqual, toLower } from 'lodash';
 import { StepProps } from 'ant-design-vue';
 
 // ********************* Vue/Vuex *********************
@@ -127,6 +127,16 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
     // * Config loading state from the store
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
+
+    const srcToken = computed({
+        get: () => store.getters['tokenOps/srcToken'],
+        set: (value) => store.dispatch('tokenOps/setSrcToken', value),
+    });
+
+    const dstToken = computed({
+        get: () => store.getters['tokenOps/dstToken'],
+        set: (value) => store.dispatch('tokenOps/setDstToken', value),
+    });
 
     // ****************************************************************************************************
     // * Current shortcut properties
@@ -384,6 +394,22 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         if (!operationsFactory.value) return false;
         if (!shortcut.value || !shortcut.value.operations) return false;
         if (isEqual(tokenList, oldTokenList)) return false;
+
+        if (srcToken.value && tokenList.length) {
+            const srcTokenData = tokenList.find(
+                ({ id = '', address = '' }) =>
+                    id === srcToken.value?.id || toLower(address || '') === toLower(srcToken.value?.address || ''),
+            );
+            if (srcTokenData) srcToken.value.balance = srcTokenData.balance;
+        }
+
+        if (dstToken.value && tokenList.length) {
+            const dstTokenData = tokenList.find(
+                ({ id = '', address = '' }) =>
+                    id === dstToken.value?.id || toLower(address || '') === toLower(dstToken.value?.address || ''),
+            );
+            if (dstTokenData) dstToken.value.balance = dstTokenData.balance;
+        }
 
         // * Set the token list for the operations
         for (const operation of shortcut.value.operations)
