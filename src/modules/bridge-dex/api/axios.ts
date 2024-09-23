@@ -1,6 +1,7 @@
-import ApiClient from '@/shared/axios';
+// ============== API Client Settings End ==============
 
-import { AxiosError, AxiosResponse } from 'axios';
+import ApiClient from '@/shared/axios';
+import { AxiosResponse, AxiosError } from 'axios';
 
 import { BaseResponse, Response } from '@/shared/models/types/BaseResponse';
 
@@ -13,13 +14,7 @@ const apiClient = new ApiClient({
 const axiosInstance = apiClient.getInstance();
 
 axiosInstance.interceptors.response.use(
-    (response: BaseResponse) => {
-        const { ok, data, error }: Response = response.data || {};
-
-        if (!ok) return Promise.reject({ data, error });
-
-        return Promise.resolve(data);
-    },
+    (response) => response,
     (error: AxiosResponse | AxiosError) => {
         const { code, response } = error as AxiosError;
 

@@ -183,7 +183,8 @@ const usePrepareFields = (
 
                 // * Set the chain id and ecosystem if not set
                 if (!operation.getChainId()) operation.setChainId(srcChainId as string);
-                if (!operation.getEcosystem()) operation.setEcosystem(srcNetwork.ecosystem as any);
+                if (!operation.getEcosystem() || operation.getEcosystem() !== srcNetwork.ecosystem)
+                    operation.setEcosystem(srcNetwork.ecosystem as any);
                 if (!operation.getParamByField(ShortcutFieldOpAssociated[field]))
                     operation.setParamByField(ShortcutFieldOpAssociated[field], srcNetwork?.net);
                 if (!operation.getAccount()) operation.setAccount(addressesByChain.value[srcNetwork.net]);

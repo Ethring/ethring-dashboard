@@ -13,6 +13,7 @@ import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { Store } from 'vuex';
 
 interface IDependencyParams {
     dependencyParamKey: string;
@@ -240,9 +241,11 @@ export default class OperationFactory implements IOperationFactory {
         if (!this.operationOrder.length) return '';
         return this.operationOrder[0];
     }
+
     getFirstOperation(): IBaseOperation {
-        return this.operationsMap.values().next().value;
+        return this.operationsMap.values().next().value as IBaseOperation;
     }
+
     getLastOperation(): IBaseOperation {
         const lastKey = this.operationOrder[this.operationOrder.length - 1];
         return this.operationsMap.get(lastKey) || ({} as IBaseOperation);
@@ -287,7 +290,7 @@ export default class OperationFactory implements IOperationFactory {
         return { operationId, operationParams };
     }
 
-    processDependencyParams(opId: string, { isSetParam = false }: { isSetParam: boolean }, store: Storage): void {
+    processDependencyParams(opId: string, { isSetParam = false, isEstimate = false }: { isSetParam: boolean; isEstimate?: boolean }): void {
         const operation = this.getOperationById(opId);
         if (!operation) return;
 
@@ -308,15 +311,34 @@ export default class OperationFactory implements IOperationFactory {
             const depValue =
                 opId === operationId ? store.getters['tokenOps/srcAmount'] : dependOperation.getParamByField(dependencyParamKey);
 
-            if (!isAmountCorrect(depValue)) return;
+            // Skip "amount" field if isEstimate is true (we don't need to calculate it);
+            if (dependencyParamKey === 'amount' && isEstimate) continue;
+
+            if (!isAmountCorrect(depValue)) {
+                operation.setParamByField(paramKey, null);
+                continue;
+            }
 
             if (usePercentage) {
                 const value = this.calculatePercentage(depValue, usePercentage);
-
                 isSetParam && operation.setParamByField(paramKey, value);
             } else {
                 isSetParam && operation.setParamByField(paramKey, depValue);
             }
+        }
+    }
+
+    calculateParams(): void {
+        const operations = Array.from(this.operationsMap.keys());
+
+        for (const operation of operations) {
+            const opId = this.operationsIndex.get(operation) || '';
+
+            const currentOperation = this.operationsMap.get(operation);
+
+            if (!currentOperation) continue;
+
+            this.processDependencyParams(opId, { isSetParam: true });
         }
     }
 
@@ -348,13 +370,15 @@ export default class OperationFactory implements IOperationFactory {
                 continue;
             }
 
-            this.processDependencyParams(opId, { isSetParam: true }, store);
+            this.processDependencyParams(opId, { isSetParam: true, isEstimate: true });
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus as STATUSES);
 
             if (isSuccessOrFail || !isAmountCorrect(currentOperation.getParamByField('amount'))) restoreStatus();
 
-            if (!currentOperation.getParamByField('amount')) {
+            const amount = BigNumber(currentOperation.getParamByField('amount'));
+
+            if (amount.isNaN() || amount.isLessThanOrEqualTo(0)) {
                 console.warn(`Amount is required for operation ${opId}`);
                 restoreStatus();
                 continue;
@@ -386,6 +410,7 @@ export default class OperationFactory implements IOperationFactory {
         console.log('ESTIMATE OUTPUT');
         console.table(table);
     }
+
     removeOperationById(id: string): void {
         const key = this.operationsIds.get(id) || '';
 
@@ -565,8 +590,15 @@ export default class OperationFactory implements IOperationFactory {
     }
 
     private calculatePercentage(amount: string, percentage: number): string {
+        // TODO: Decimal places for amounts
         if (!isAmountCorrect(amount)) return '0';
-        return BigNumber(amount).multipliedBy(percentage).dividedBy(100).toFixed(6);
+
+        const calculated = BigNumber(amount).multipliedBy(percentage).dividedBy(100);
+        // const decimalPlaces = calculated.decimalPlaces();
+
+        if (calculated.isNaN()) return '0';
+
+        return calculated.toFixed(6);
     }
 
     getPercentageOfSuccessOperations(excludeOpTypes: TX_TYPES[] = [TRANSACTION_TYPES.APPROVE]): number {
@@ -679,5 +711,18 @@ export default class OperationFactory implements IOperationFactory {
         }
 
         return count;
+    }
+
+    cancelAllRequests(): void {
+        const ops = Array.from(this.operationsMap.keys());
+
+        for (const op of ops) {
+            if (!this.operationsMap.has(op)) continue;
+            const operation = this.operationsMap.get(op);
+
+            if (!operation) continue;
+
+            if (operation.cancelRequest) operation.cancelRequest();
+        }
     }
 }

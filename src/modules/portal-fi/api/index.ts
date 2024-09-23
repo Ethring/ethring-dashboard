@@ -1,4 +1,4 @@
-import { PortalApiInstance, DpApiInstance } from '@/modules/portal-fi/api/axios';
+import { portalApiClient, PortalApiInstance, DpApiInstance } from '@/modules/portal-fi/api/axios';
 import {
     IGetQuoteAddLiquidityRequest,
     IGetQuoteAddLiquidityResponse,
@@ -9,11 +9,12 @@ import {
     IGetPoolListRequest,
     IGetUsersPoolListResponse,
 } from '@/modules/portal-fi/models/request';
+
 import { errorRegister } from '@/shared/utils/errors';
 
 export interface IPortalFiApi {
-    getQuoteAddLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any>;
-    getQuoteRemoveLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any>;
+    getQuoteAddLiquidity(params: IGetQuoteAddLiquidityRequest, controller: AbortController): Promise<any>;
+    getQuoteRemoveLiquidity(params: IGetQuoteAddLiquidityRequest, controller: AbortController): Promise<any>;
     getAllowance(params: IGetAllowanceRequest): Promise<any>;
     getApproveTx(params: IGetAllowanceRequest): Promise<any>;
     getAddLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any>;
@@ -34,8 +35,7 @@ class PortalFiApi implements IPortalFiApi {
             return getAllowanceResponse;
         } catch (error) {
             console.error('PortalFiApi.getAllowance', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
@@ -49,38 +49,41 @@ class PortalFiApi implements IPortalFiApi {
             return getApproveResponse;
         } catch (error) {
             console.error('PortalFiApi.getApproveTx', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
     // add liquidity for pool estimate
-    async getQuoteAddLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any> {
+    async getQuoteAddLiquidity(params: IGetQuoteAddLiquidityRequest, controller: AbortController): Promise<any> {
         try {
-            const response = await PortalApiInstance.get(`/getQuoteAddLiquidity`, { params });
+            const response = await PortalApiInstance.get(`/getQuoteAddLiquidity`, { params, signal: controller.signal });
 
-            const addLiquidityResponse = response.data as IGetQuoteAddLiquidityResponse;
+            if (!response?.data) {
+                console.warn('PortalFiApi.getQuoteAddLiquidity', 'No data');
+                return;
+            }
 
-            return addLiquidityResponse;
+            return response.data as IGetQuoteAddLiquidityResponse;
         } catch (error) {
             console.error('PortalFiApi.getQuoteAddLiquidity', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
     // remove liquidity for pool estimate
-    async getQuoteRemoveLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any> {
+    async getQuoteRemoveLiquidity(params: IGetQuoteAddLiquidityRequest, controller: AbortController): Promise<any> {
         try {
-            const response = await PortalApiInstance.get(`/getQuoteRemoveLiquidity`, { params });
+            const response = await PortalApiInstance.get(`/getQuoteRemoveLiquidity`, { params, signal: controller.signal });
 
-            const removeLiquidityResponse = response.data as IGetQuoteRemoveLiquidityResponse;
+            if (!response?.data) {
+                console.warn('PortalFiApi.getQuoteRemoveLiquidity', 'No data');
+                return;
+            }
 
-            return removeLiquidityResponse;
+            return response.data as IGetQuoteRemoveLiquidityResponse;
         } catch (error) {
             console.error('PortalFiApi.getQuoteRemoveLiquidity', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
@@ -88,12 +91,10 @@ class PortalFiApi implements IPortalFiApi {
     async getAddLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any> {
         try {
             const response = await PortalApiInstance.get(`/getAddLiquidityTx`, { params });
-
             return response.data;
         } catch (error) {
             console.error('PortalFiApi.getAddLiquidityTx', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
@@ -105,8 +106,7 @@ class PortalFiApi implements IPortalFiApi {
             return response.data;
         } catch (error) {
             console.error('PortalFiApi.getRemoveLiquidityTx', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
@@ -120,8 +120,7 @@ class PortalFiApi implements IPortalFiApi {
             return response.data?.data?.integrations as IGetUsersPoolListResponse[];
         } catch (error) {
             console.error('PortalFiApi.getUserBalancePoolList', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 
@@ -133,8 +132,7 @@ class PortalFiApi implements IPortalFiApi {
             return response.data;
         } catch (error) {
             console.error('PortalFiApi.getPoolList', error);
-
-            throw Error(errorRegister(error).error);
+            portalApiClient.handleRequestError(error);
         }
     }
 }

@@ -45,10 +45,12 @@ export class BaseOperation implements IBaseOperation {
 
     flow: TxOperationFlow[] = [];
     isNeedApprove: boolean = false;
+    abortController: AbortController;
 
     constructor() {
         this.service = null;
         this.setTxType(DEFAULT_TX_TYPE_BY_MODULE[this.module]);
+        this.abortController = new AbortController();
     }
 
     onSuccess?: (store: any) => Promise<void>;
@@ -287,6 +289,11 @@ export class BaseOperation implements IBaseOperation {
 
     setNeedApprove(flag: boolean): void {
         this.isNeedApprove = flag;
+    }
+
+    cancelRequest(): void {
+        this.abortController.abort();
+        this.abortController = new AbortController();
     }
 
     static async estimateOutput(): Promise<void> {

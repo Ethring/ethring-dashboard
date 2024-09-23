@@ -7,6 +7,7 @@ import { GetAllowanceParams, GetApproveTxParams, QuoteParams, SwapTxParams } fro
 import { IBridgeDexTransaction, IQuoteRoutes, ResponseBridgeDex } from '@/modules/bridge-dex/models/Response.interface';
 
 import logger from '@/shared/logger';
+import { BaseResponse } from '@/shared/models/types/BaseResponse';
 
 // ============= API Requests Start =============
 class BridgeDexApi<T extends ServiceType> {
@@ -20,10 +21,24 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap)
-                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getAllowance`, params)) as string;
+            let query = '';
 
-            return (await ApiClient.post(`/services/${type}/getAllowance`, params)) as string;
+            switch (type) {
+                case ServiceType.superswap:
+                    query = `/services/${ServiceType.bridgedex}/getAllowance`;
+                    break;
+                default:
+                    query = `/services/${type}/getAllowance`;
+                    break;
+            }
+
+            const response = await ApiClient.post(query, params);
+
+            const { data: responseData } = response || {};
+
+            const { ok, data, error } = responseData || {};
+
+            return data as string;
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching allowance', error);
             throw error;
@@ -40,10 +55,22 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap)
-                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getApproveTx`, params)) as string;
+            let query = '';
+            switch (type) {
+                case ServiceType.superswap:
+                    query = `/services/${ServiceType.bridgedex}/getApproveTx`;
+                    break;
+                default:
+                    query = `/services/${type}/getApproveTx`;
+                    break;
+            }
 
-            return (await ApiClient.post(`/services/${type}/getApproveTx`, params)) as IBridgeDexTransaction[];
+            const response = await ApiClient.post(query, params);
+
+            const { data: responseData } = response || {};
+            const { ok, data, error } = responseData || {};
+
+            return data as IBridgeDexTransaction[];
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching approve tx', error);
             throw error;
@@ -60,10 +87,24 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap)
-                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getSwapTx`, params)) as IBridgeDexTransaction[];
+            let query = '';
 
-            return (await ApiClient.post(`/services/${type}/getSwapTx`, params)) as IBridgeDexTransaction[];
+            switch (type) {
+                case ServiceType.superswap:
+                    query = `/services/${ServiceType.bridgedex}/getSwapTx`;
+                    break;
+                default:
+                    query = `/services/${type}/getSwapTx`;
+                    break;
+            }
+
+            const response = (await ApiClient.post(query, params)) as BaseResponse;
+
+            const { data: responseData } = response || {};
+
+            const { ok, data, error } = responseData || {};
+
+            return data as IBridgeDexTransaction[];
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching Swap tx', error);
             throw error;
@@ -82,20 +123,28 @@ class BridgeDexApi<T extends ServiceType> {
 
             if (params.routeId) delete params.routeId;
 
-            if (type === ServiceType.superswap)
-                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params, {
-                    signal: controller.signal,
-                })) as IQuoteRoutes;
+            let query = '';
 
-            if (!type) {
-                logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote: No service type provided');
-                return {} as IQuoteRoutes;
+            switch (type) {
+                case ServiceType.superswap:
+                    query = `/services/${ServiceType.bridgedex}/getQuote`;
+                    break;
+                default:
+                    query = `/services/${type}/getQuote`;
+                    break;
             }
 
-            params.routeId && delete params.routeId;
+            const response = await ApiClient.post(query, params, {
+                signal: controller.signal,
+            });
 
-            return (await ApiClient.post(`/services/${type}/getQuote`, params)) as IQuoteRoutes;
-        } catch (error) {
+            const { data: responseData } = (response as BaseResponse) || {};
+
+            const { ok, data, error } = responseData || {};
+
+            return data as IQuoteRoutes;
+        } catch (error: any) {
+            if (error?.code === 'ERR_CANCELLED') return {} as IQuoteRoutes;
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote', error);
             throw error;
         }
@@ -110,7 +159,13 @@ class BridgeDexApi<T extends ServiceType> {
  */
 export const getAllServices = async (): Promise<IService[]> => {
     try {
-        return (await ApiClient.get('/services')) as IService[];
+        const response = await ApiClient.get('/services');
+
+        const { data: responseData } = (response as BaseResponse) || {};
+
+        const { ok, data, error } = responseData || {};
+
+        return data as IService[];
     } catch (error) {
         logger.error('(API) -> [BRIDGE_DEX_API] Error fetching services', error);
         return [];

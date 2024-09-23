@@ -50,16 +50,17 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         },
     );
 
-    // TODO: Change to another network
-    testMetaMask.skip(
-        'Case#: SuperSwap estimate route without authorization',
+    testMetaMask(
+        'Case#: SuperSwap estimate route without authorization', // TODO add route to bridge transaction!
         async ({ browser, context, page, unauthSuperSwapPage: superSwapPage }) => {
             await superSwapPage.waitDetachedLoader();
+            const regexEstimation = /\/getQuote/;
 
             await superSwapPage.goToModule('superSwap');
 
-            const TO_NET = 'Polygon';
-            const TO_TOKEN = 'POL';
+            const TO_NET = 'BNB Smart Chain';
+            const FROM_NET = TO_NET;
+            const TO_TOKEN = 'USDT';
             const AMOUNT = '2';
 
             await sleep(FIVE_SECONDS);
@@ -68,8 +69,23 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
                 mask: await superSwapPage.page.locator('div.token-icon').all(),
             });
 
+            await superSwapPage.openNetworkFromListAndClickNet(FROM_NET);
             await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
+            superSwapPage.page.on('request', (data) => {
+                const param = data.postData();
+                console.log('>>>', param);
+                console.log(data.url());
+                if (!regexEstimation.test(data.url())) return;
 
+                expect(JSON.parse(param)).toEqual({
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                    toToken: '0xa9251ca9de909cb71783723713b21e4233fbf1b1',
+                    amount: '2',
+                    ownerAddresses: {},
+                    fromNet: 'bsc',
+                    toNet: 'bsc',
+                }); // TODO uncorrect token sort in front. After fix https://paradigmcitadel.atlassian.net/browse/ZMT-1575 must be 0x55d398326f99059ff775485246999027b3197955 use
+            });
             await superSwapPage.mockEstimateBridgeRequest(estimateMockDataByUnAuthUser, 200);
 
             await superSwapPage.setAmount(AMOUNT);

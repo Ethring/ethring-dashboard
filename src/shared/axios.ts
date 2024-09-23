@@ -3,6 +3,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 import { captureSentryException } from '@/app/modules/sentry';
+import { errorRegister } from './utils/errors';
 
 interface ApiConfig {
     baseURL: string;
@@ -54,7 +55,17 @@ class ApiClient {
 
         if (error.response && error.response.status === 400) captureSentryException(error);
 
+        // ! Ignore if request was cancelled
+        if (axios.isCancel(error)) return;
+
         return Promise.reject(error);
+    }
+
+    public handleRequestError(error: any) {
+        if (axios.isCancel(error)) return;
+
+        console.error('API request error', error);
+        throw Error(errorRegister(error).error);
     }
 
     public getInstance(): AxiosInstance {

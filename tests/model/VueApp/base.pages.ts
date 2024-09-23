@@ -396,7 +396,7 @@ class SuperSwapPage extends BasePage {
         super(page);
     }
 
-    async setNetworkFrom(netName: string) {
+    async openNetworkFromListAndClickNet(netName: string) {
         await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(0).click();
         await sleep(4000);
@@ -423,7 +423,7 @@ class SuperSwapPage extends BasePage {
     }
 
     async setFromNetAndAmount(net: string, amount: string) {
-        await this.setNetworkFrom(net);
+        await this.openNetworkFromListAndClickNet(net);
         await this.setAmount(amount);
     }
 

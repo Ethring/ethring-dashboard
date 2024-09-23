@@ -1274,44 +1274,59 @@ const estimateSwapMockData = {
 const estimateMockDataByUnAuthUser = {
     ok: true,
     data: {
-        best: 'squid',
+        best: 'odos',
         priority: 'bestReturn',
         routes: [
             {
-                fromAmount: 2,
-                toAmount: '8826.590812322721754362',
-                gasEstimated: 587000,
+                fromAmount: '1',
+                toAmount: '593.331374887283720192',
+                gasEstimated: 248016,
                 fee: [
                     {
                         currency: 'USD',
-                        amount: '10.775',
+                        amount: '0.2942814933340895',
                     },
                 ],
-                serviceId: 'squid',
+                serviceId: 'odos',
                 bestFee: false,
                 bestReturn: true,
             },
             {
-                fromAmount: 2,
-                toAmount: '8799.055875619975516211',
-                gasEstimated: null,
+                fromAmount: '1.0',
+                toAmount: '593.192732059322685404',
+                gasEstimated: 198300,
                 fee: [
                     {
                         currency: 'USD',
-                        amount: '4.39662926715736607966',
+                        amount: '0.129382',
                     },
                 ],
-                serviceId: 'debridge',
+                serviceId: 'paraswap',
                 bestFee: true,
                 bestReturn: false,
             },
+            {
+                fromAmount: '1',
+                toAmount: '592.311840852214591197',
+                gasEstimated: 284296,
+                fee: [
+                    {
+                        currency: 'USD',
+                        amount: '0.16868134568',
+                    },
+                ],
+                serviceId: 'zerox',
+                bestFee: false,
+                bestReturn: false,
+            },
         ],
+        routeId: 'b3d1bc83-8e20-4ca9-a6c9-24879bba9add',
     },
     error: '',
     errorData: [
         {
             error: 'Insufficient liquidity',
-            serviceId: 'skip',
+            serviceId: 'synapse',
         },
     ],
 };

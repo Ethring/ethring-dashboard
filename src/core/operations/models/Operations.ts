@@ -92,6 +92,7 @@ export interface IBaseOperation {
     quoteRoute?: IQuoteRoute;
 
     isNeedApprove: boolean;
+    abortController: AbortController;
 
     // Wait Time for Transaction to be processed
     waitTime: number;
@@ -171,6 +172,8 @@ export interface IBaseOperation {
     getNotificationInfo: (make: string) => { title: string; description?: string };
 
     setNeedApprove: (flag: boolean) => void;
+
+    cancelRequest: () => void;
 }
 
 export interface IRegisterOperation {
@@ -198,7 +201,7 @@ export interface IOperationFactory {
 
     getFullOperationFlow(): TxOperationFlow[];
     getOperationAdditionalTooltipById(id: string): any;
-    getOperationsStatusById(id: string): STATUSES;
+    getOperationsStatusById(id: string): STATUSES | null;
     getOperationsStatusByKey(key: string): STATUSES;
 
     getFirstOperation(): IBaseOperation;
@@ -209,6 +212,8 @@ export interface IOperationFactory {
     removeOperationByKey(key: string): void;
     removeOperationById(id: string): void;
     getOperationIdByKey(key: string): string | null;
+
+    cancelAllRequests(): void;
 
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }
