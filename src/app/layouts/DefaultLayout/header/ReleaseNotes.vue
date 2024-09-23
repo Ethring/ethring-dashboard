@@ -86,7 +86,9 @@ export default {
 
         return {
             releaseNotes,
-            version: process.env.APP_VERSION,
+            // TODO: Uncomment when the version is ready
+            // version: process.env.APP_VERSION,
+            version: '',
 
             EVM,
             COSMOS,
