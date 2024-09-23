@@ -20,13 +20,14 @@ export interface IBridgeDexService {
     getAllowance(params: GetAllowanceParams): Promise<string>;
     getApproveTx(params: GetApproveTxParams): Promise<IBridgeDexTransaction[]>;
     getSwapTx(params: GetSwapTxParams): Promise<IBridgeDexTransaction[]>;
-    getQuote(params: AllQuoteParams, options?: { withServiceId: boolean }): Promise<IQuoteRoutes>;
+    getQuote(params: AllQuoteParams, options?: { withServiceId: boolean; controller: AbortController }): Promise<IQuoteRoutes>;
     getQuoteSuperSwap(params: QuoteParams<ServiceType>): Promise<IQuoteRoutes>;
 }
 
 class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
     private serviceId: string = '';
     private api: BridgeDexApi<T>;
+    private abortController: AbortController;
 
     constructor(
         private type: T,
@@ -34,6 +35,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
     ) {
         serviceId && (this.serviceId = serviceId);
         this.api = new BridgeDexApi<T>();
+        this.abortController = new AbortController();
     }
 
     setServiceId(serviceId: string): void {
@@ -76,7 +78,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
         }
     }
 
-    async getQuote(params: AllQuoteParams, { withServiceId = false, controller = new AbortController() } = {}) {
+    async getQuote(params: AllQuoteParams, { withServiceId = false } = {}) {
         const requestParams = pick(params, QuoteParamsKeys[this.type]) as QuoteParams<T>;
 
         requestParams.type = this.type;
@@ -87,7 +89,15 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
         withServiceId && this.serviceId && (requestParams.serviceId = this.serviceId);
 
         try {
-            const routes = (await this.api.getQuote(requestParams, controller)) as IQuoteRoutes;
+            const routes = (await this.api.getQuote(requestParams, this.abortController)) as IQuoteRoutes;
+
+            if (!routes?.routes?.length)
+                return {
+                    routes: [],
+                    routeId: '',
+                    best: '',
+                    priority: '',
+                };
 
             routes.routes = routes.routes.map((route) => {
                 route.routeId = routes.routeId;
@@ -125,6 +135,11 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
             logger.error('(MODULE) -> [BRIDGE_DEX_SERVICE] Error calling method', error);
             throw error as ErrorResponse;
         }
+    }
+
+    cancelRequest(): void {
+        this.abortController.abort();
+        this.abortController = new AbortController();
     }
 }
 

@@ -118,7 +118,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
                 tokenAddress: this.tokenAddress,
             };
 
-            const response = await this.service.getQuoteRemoveLiquidity(params);
+            const response = await this.service.getQuoteRemoveLiquidity(params, this.abortController);
 
             if (response?.data?.outputAmount) this.setParamByField('outputAmount', response.data.outputAmount);
             else console.error('PortalFiRemoveLiquidity.estimateOutput -> empty response', response);

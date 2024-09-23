@@ -18,7 +18,7 @@ import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calc
 import { AddressByChainHash } from '@/shared/models/types/Address';
 
 import logger from '@/shared/logger';
-import { isEqual } from 'lodash';
+import { isEqual, debounce } from 'lodash';
 import useInputValidation from '@/shared/form-validations';
 import { useRoute } from 'vue-router';
 
@@ -45,6 +45,8 @@ const useBridgeDexQuote = (
     bridgeDexService: BridgeDexService<any>,
     { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null },
 ) => {
+    const DEBOUNCE_TIME = 1000;
+
     const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
     const route = useRoute();
@@ -52,9 +54,6 @@ const useBridgeDexQuote = (
     const serviceType = ServiceType[targetType];
 
     const modules: string[] = ModulesByService[targetType] || [];
-
-    let controller = new AbortController();
-    const isCanceledRequest = ref(false);
 
     const {
         isSrcAmountSet,
@@ -143,8 +142,7 @@ const useBridgeDexQuote = (
     const resetQuoteRoutes = () => {
         if (!targetType) return;
 
-        controller.abort();
-        controller = new AbortController();
+        bridgeDexService.cancelRequest();
 
         isQuoteLoading.value = false;
 
@@ -160,6 +158,11 @@ const useBridgeDexQuote = (
 
         store.dispatch('tokenOps/setDstAmount', '');
     };
+
+    const debouncedMakeQuoteRoutes = debounce(async (params: AllQuoteParams) => {
+        await makeQuoteRoutes(params);
+        isReloadRoutes.value && (isReloadRoutes.value = false);
+    }, DEBOUNCE_TIME);
 
     // ===========================================================================================
     // !Validation
@@ -215,15 +218,12 @@ const useBridgeDexQuote = (
 
         // !If the request is not allowed, return
         if (!isAllowToMakeRequest()) {
-            quoteErrorMessage.value = 'Please select the correct source and destination tokens';
+            quoteErrorMessage.value = 'Please select the correct source and destination tokens, and fill amount';
             return (isQuoteLoading.value = false);
         }
 
-        // !If the quote is loading, abort previos request call
-        if (isQuoteLoading.value) {
-            controller.abort();
-            controller = new AbortController();
-        }
+        // !If the quote is loading, abort previous request call
+        if (isQuoteLoading.value) bridgeDexService.cancelRequest();
 
         const isDex = serviceType === ServiceType.dex;
         const isSameToken = requestParams.fromToken === requestParams.toToken;
@@ -256,10 +256,11 @@ const useBridgeDexQuote = (
             if (selectedRoute.value && selectedRoute.value.routeId)
                 store.dispatch('bridgeDexAPI/clearRouteTimer', { routeId: selectedRoute.value.routeId });
 
-            const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId, controller });
+            const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
             let routeFromAPI = routes.find(({ serviceId }) => serviceId === best) as IQuoteRoute;
-            isCanceledRequest.value = false;
+
+            if (!routeFromAPI) return resetQuoteRoutes();
 
             if (+routeFromAPI.toAmount <= 0) throw new Error('Failed to get route, try again');
 
@@ -280,27 +281,20 @@ const useBridgeDexQuote = (
                 value: routes,
             });
 
-            if (selectedRoute.value && selectedRoute.value.toAmount) store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
-
             return {
                 best,
                 routes,
             };
         } catch (error: any) {
-            if (error.code === 'ERR_CANCELED') {
-                isCanceledRequest.value = true;
-                return;
-            }
+            if (error.code === 'ERR_CANCELED') return;
 
             console.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             quoteErrorMessage.value = error?.message || 'An error occurred while making a quote request';
-            isCanceledRequest.value = false;
 
             throw error as ErrorResponse;
         } finally {
-            isQuoteLoading.value = isCanceledRequest.value;
-
-            if (selectedRoute.value && selectedRoute.value.toAmount) store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
+            if (selectedRoute.value && selectedRoute.value?.toAmount) store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
+            isQuoteLoading.value = false;
         }
     };
 
@@ -445,8 +439,10 @@ const useBridgeDexQuote = (
                 return;
 
             try {
-                await makeQuoteRoutes(params);
-                isReloadRoutes.value && (isReloadRoutes.value = false);
+                resetQuoteRoutes();
+                isQuoteLoading.value = true;
+                debouncedMakeQuoteRoutes.cancel();
+                debouncedMakeQuoteRoutes(params);
             } catch (error) {
                 logger.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             }

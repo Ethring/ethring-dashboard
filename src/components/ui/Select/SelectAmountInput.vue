@@ -76,6 +76,7 @@
 import { ref, watch, computed, onUpdated, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
+import { debounce } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon';
@@ -155,6 +156,9 @@ export default {
     setup(props, { emit }) {
         const store = useStore();
 
+        const DEBOUNCE_TIME = 1200;
+        const debounced = debounce(() => (isInput.value = false), DEBOUNCE_TIME);
+
         const isInput = computed({
             get: () => store.getters['tokenOps/isInput'],
             set: (value) => store.dispatch('tokenOps/setIsInput', value),
@@ -223,12 +227,14 @@ export default {
         // =================================================================================================================
 
         const unWatchAmount = watch(amount, (val) => {
+            debounced.cancel();
+
             isInput.value = true;
 
             amount.value = val;
 
             if (val === '' || !val?.toString()) {
-                setTimeout(() => (isInput.value = false), 400);
+                debounced();
                 return emit('setAmount', null);
             }
 
@@ -236,7 +242,7 @@ export default {
 
             amount.value = formatInputNumber(val);
 
-            setTimeout(() => (isInput.value = false), 400);
+            debounced();
         });
 
         watch(

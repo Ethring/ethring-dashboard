@@ -112,11 +112,11 @@ export default class PortalFiAddLiquidity extends BaseOperation {
                 tokenAddress: tokenIn,
             };
 
-            const response = await this.service.getQuoteAddLiquidity(params);
+            const response = await this.service.getQuoteAddLiquidity(params, this.abortController);
 
             if (response?.data?.lpTokenAmount) this.setParamByField('outputAmount', response.data.lpTokenAmount);
             else console.error('PortalFiAddLiquidity.estimateOutput -> empty response', response);
-        } catch (error) {
+        } catch (error: any) {
             console.error('PortalFiAddLiquidity.estimateOutput', error);
             throw error;
         }

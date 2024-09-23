@@ -1,4 +1,4 @@
-import { isEqual, isFinite, isNaN, isNumber } from 'lodash';
+import { debounce, isEqual, isFinite, isNaN, isNumber } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 // ********************* Vue/Vuex *********************
@@ -48,6 +48,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // ****************************************************************************************************
     // * Store
     // ****************************************************************************************************
+
+    const DEBOUNCE_TIME = 1000;
 
     const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
 
@@ -132,6 +134,11 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     const slippage = computed({
         get: () => store.getters['tokenOps/slippage'],
         set: (value) => store.dispatch('tokenOps/setSlippage', value),
+    });
+
+    const isInput = computed({
+        get: () => store.getters['tokenOps/isInput'],
+        set: (value) => store.dispatch('tokenOps/setIsInput', value),
     });
 
     // ****************************************************************************************************
@@ -423,6 +430,11 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
     const handleOnCallEstimateOutput = async () => {
         if (!operationsFactory.value) return false;
+
+        if (isQuoteLoading.value) {
+            operationsFactory.value.cancelAllRequests();
+            isQuoteLoading.value = false;
+        }
 
         if (isQuoteLoading.value || isTransactionSigning.value || isConfigLoading.value || isShortcutLoading.value) return false;
 
@@ -719,15 +731,30 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
         const isCorrectAmount = isFinite(+amount) && isNumber(+amount) && amount !== null && amount >= 0;
 
+        if (isEstimate) {
+            store.dispatch('tokenOps/setDstAmount', 0);
+            operationsFactory.value.cancelAllRequests();
+            operationsFactory.value.resetEstimatedOutputs();
+        }
+
         // Update amount if necessary
         if (!isEqual(amount, oldAmount) && isCorrectAmount) {
             operation?.setParamByField(targetAmount, amount);
-            isEstimate && (await handleOnCallEstimateOutput());
+
+            // Call the calculate params if the amount is correct and isEstimate is true
+            if (isEstimate) operationsFactory.value.calculateParams();
+
             return true;
         }
 
         operation?.setParamByField(targetAmount, 0);
-        isEstimate && (await handleOnCallEstimateOutput());
+
+        // Reset the estimated outputs if the amount is not correct
+        if (isEstimate) {
+            store.dispatch('tokenOps/setDstAmount', 0);
+            operationsFactory.value.cancelAllRequests();
+            operationsFactory.value.resetEstimatedOutputs();
+        }
 
         return false;
     };
@@ -780,10 +807,14 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         },
     );
 
+    const debouncedCallHandleOnCallEstimateOutput = debounce(async () => await handleOnCallEstimateOutput(), DEBOUNCE_TIME);
+
     const unWatchSrcAmount = store.watch(
         (state, getters) => getters['tokenOps/srcAmount'],
         async (srcAmount, oldSrcAmount) => {
+            debouncedCallHandleOnCallEstimateOutput.cancel();
             await updateAmountAndEstimate(srcAmount, oldSrcAmount, true);
+            debouncedCallHandleOnCallEstimateOutput();
         },
     );
 

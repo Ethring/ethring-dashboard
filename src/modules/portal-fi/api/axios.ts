@@ -15,6 +15,6 @@ const PortalApiInstance = portalApiClient.getInstance();
 
 const DpApiInstance = dpApiClient.getInstance();
 
-export { PortalApiInstance, DpApiInstance };
+export { portalApiClient, PortalApiInstance, DpApiInstance };
 
 // ============== API Client Settings End ==============
