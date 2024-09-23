@@ -83,8 +83,13 @@ class BalancesDB extends Dexie {
         );
 
         try {
+            // ! If balances are different, delete old balances before saving new ones
+            if (diff.length)
+                await this.transaction('rw', this.balances, async () => {
+                    await this.balances.bulkDelete(diff);
+                });
+
             await this.transaction('rw', this.balances, async () => {
-                if (diff.length) await this.balances.bulkDelete(diff);
                 await this.balances.bulkPut(data);
             });
         } catch (error) {
