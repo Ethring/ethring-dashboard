@@ -132,6 +132,10 @@ export type BalanceResponse = {
     fromCache: boolean;
     provider: keyof typeof Providers;
     timestamp: number;
+
+    // Response from socket
+    address?: string;
+    proxyCache?: boolean;
 };
 
 export type RequestOptions = {

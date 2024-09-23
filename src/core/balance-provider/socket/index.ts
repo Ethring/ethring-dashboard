@@ -63,10 +63,12 @@ class SocketInstance {
                 // @ts-ignore
                 this.store.dispatch('tokens/setLoadingByChain', { chain: data.net, account: this.account, value: true });
 
+                const account = data.address || this.account;
+
                 for (const type in BaseType) {
                     const chainInfo = this.addresses[data.net] || {};
 
-                    await storeBalanceForAccount(type as BalanceType, this.account, data.net, this.account, data[type as BaseType], {
+                    await storeBalanceForAccount(type as BalanceType, account, data.net, account, data[type as BaseType], {
                         store: this.store,
                         ...chainInfo,
                     });
