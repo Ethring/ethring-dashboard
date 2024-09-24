@@ -9,7 +9,7 @@ import { computed } from 'vue';
 
 const list = [...chainListMockEvm, ...chainListMockCosmos];
 
-describe.only('useSelectModal', () => {
+describe('useSelectModal', () => {
     let store: any;
 
     beforeEach(() => {
