@@ -692,8 +692,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     };
 
     const handleOnUpdateOperationParamsAndEstimate = async (
-        [srcNet, srcToken, dstNet, dstToken]: any,
-        [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]: any,
+        [srcNet, srcToken, dstToken]: any,
+        [oldSrcNet, oldSrcToken, oldDstToken]: any,
     ) => {
         if (!operationsFactory.value) return false;
 
@@ -704,13 +704,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         if (!currentOp.value?.id) return false;
 
         // !  no srcNet, srcToken, dstNet, dstToken are equal to the oldSrcNet, oldSrcToken, oldDstNet, oldDstToken
-        if (
-            isEqual(
-                [srcNet?.net, srcToken?.id, dstNet?.net, dstToken?.id],
-                [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
-            )
-        )
-            return false;
+        if (isEqual([srcNet?.net, srcToken?.id, dstToken?.id], [oldSrcNet?.net, oldSrcToken?.id, oldDstToken?.id])) return false;
 
         // * Call the estimate output if the srcNet, srcToken
         if (srcNet?.net && srcToken?.id) {
@@ -802,10 +796,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         ],
         async ([srcNet, srcToken, dstNet, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
             await handleOnUpdateOperationParams([srcNet, srcToken, dstNet, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]);
-            await handleOnUpdateOperationParamsAndEstimate(
-                [srcNet, srcToken, dstNet, dstToken],
-                [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken],
-            );
+            await handleOnUpdateOperationParamsAndEstimate([srcNet, srcToken, dstToken], [oldSrcNet, oldSrcToken, oldDstToken]);
         },
     );
 

@@ -586,7 +586,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
             store.dispatch('tokenOps/setServiceId', {
                 value: null,
-                module: moduleType || ModuleType.shortcut,
+                module: ModuleType.shortcut,
             }),
         ]);
     });
