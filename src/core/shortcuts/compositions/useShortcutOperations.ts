@@ -401,6 +401,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // ****************************************************************************************************
 
     const operationPrepareAfterEstimate = () => {
+        if (!operationsFactory.value) return;
+
         const flow = operationsFactory.value.getFullOperationFlow();
 
         const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);

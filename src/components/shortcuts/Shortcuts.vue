@@ -18,7 +18,7 @@
         <div class="shortcut-tags__title">Results for:</div>
 
         <div v-if="!selectedTags.length" class="shortcut-tags__item type-all">
-            <span>All</span>
+            <span>All: {{ shortcuts.length }}</span>
         </div>
 
         <div v-for="tag in selectedTags" :key="tag" class="shortcut-tags__item">
