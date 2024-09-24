@@ -70,8 +70,7 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
             });
 
             // Mocking price for token
-
-            const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
+            const COINGECKO_ROUTE = '**/token-price/coingecko/**';
 
             const priceUsdt = {
                 ok: true,
