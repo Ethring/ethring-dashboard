@@ -72,10 +72,9 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
             await superSwapPage.openNetworkFromListAndClickNet(FROM_NET);
             await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
             superSwapPage.page.on('request', (data) => {
-                const param = data.postData();
-                console.log('>>>', param);
-                console.log(data.url());
                 if (!regexEstimation.test(data.url())) return;
+
+                const param = data.postData();
 
                 expect(JSON.parse(param)).toEqual({
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',

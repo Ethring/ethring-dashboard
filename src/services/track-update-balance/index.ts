@@ -80,14 +80,14 @@ export const trackingBalanceUpdate = (store: any) => {
                     logo: chainLogo,
                     nativeTokenLogo,
                     provider: Providers.Pulsar,
-                    fetchTokens: false,
+                    fetchTokens: true,
                     fetchIntegrations: true,
-                    fetchNfts: true,
+                    fetchNfts: false,
                 });
 
                 break;
             case Ecosystem.EVM:
-                await SocketDataProvider.updateBalance(address);
+                await SocketDataProvider.updateBalance(address, config.net);
             default:
                 break;
         }
@@ -103,7 +103,7 @@ export const trackingBalanceUpdate = (store: any) => {
         if (isSrcLpToken && pools && !pools[config.net]?.length) srcToken.value = null;
         if (isDstLpToken && pools && !pools[config.net]?.length) dstToken.value = null;
 
-        if (srcToken.value && config.net === srcToken.value.net) {
+        if (srcToken.value && config.net === srcToken.value.chain) {
             const list = isSrcLpToken ? pools[config.net] : tokens;
             const srcTokenData = list.find(
                 ({ id = '', address = '' }) => id === srcToken.value?.id || toLower(address) === toLower(srcToken.value?.address || ''),
@@ -112,7 +112,7 @@ export const trackingBalanceUpdate = (store: any) => {
             else if (isSrcLpToken) srcToken.value = list[0];
         }
 
-        if (dstToken.value && config.net === dstToken.value.net) {
+        if (dstToken.value && config.net === dstToken.value.chain) {
             const list = isDstLpToken ? pools[config.net] : tokens;
             const dstTokenData = list.find(
                 ({ id = '', address = '' }) => id === dstToken.value?.id || toLower(address) === toLower(dstToken.value?.address || ''),

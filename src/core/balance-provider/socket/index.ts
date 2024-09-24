@@ -100,8 +100,10 @@ class SocketInstance {
         this.socket.emit(SocketEvents.address_subscribe, account);
     }
 
-    async updateBalance(address: string) {
+    async updateBalance(address: string, chain?: string) {
         this.socket.emit(SocketEvents.update_balance, address);
+
+        if (chain !== 'berachain') return;
 
         try {
             await loadBalancesFromContract('berachain', this.account, {
