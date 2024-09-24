@@ -69,12 +69,34 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
                 mask: await superSwapPage.page.locator('div.token-icon').all(),
             });
 
+            // Mocking price for token
+
+            const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
+
+            const priceUsdt = {
+                ok: true,
+                data: {
+                    '0x55d398326f99059ff775485246999027b3197955': {
+                        usd: 1,
+                        btc: 0.00001574,
+                    },
+                },
+            };
+
+            context.route(COINGECKO_ROUTE, (route) => {
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json; charset=utf-8',
+                    body: JSON.stringify(priceUsdt),
+                });
+            });
+
             await superSwapPage.openNetworkFromListAndClickNet(FROM_NET);
             await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
+
             superSwapPage.page.on('request', (data) => {
                 const param = data.postData();
-                console.log('>>>', param);
-                console.log(data.url());
+
                 if (!regexEstimation.test(data.url())) return;
 
                 expect(JSON.parse(param as string)).toEqual({
