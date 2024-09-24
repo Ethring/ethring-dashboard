@@ -1390,6 +1390,34 @@ const estimateRemoveLpMockData = {
     error: '',
 };
 
+const estimateAddLpMockData = {
+    ok: true,
+    data: {
+        inputAmount: '0.05',
+        inputAmountUsd: '132.6665',
+        inputToken: '0x0000000000000000000000000000000000000000',
+        lpTokenAmount: '0.001976713589256294',
+        lpTokenAmountUsd: '132.66650000000004',
+        poolId: '0xbdf4e730ed5152a7ac646bb7b514ed624e1147c4',
+        slippage: 5,
+    },
+    error: '',
+};
+
+const estimateAddLpMockData2 = {
+    ok: true,
+    data: {
+        inputAmount: '0.05',
+        inputAmountUsd: '132.8835',
+        inputToken: '0x0000000000000000000000000000000000000000',
+        lpTokenAmount: '0.002075725305877808',
+        lpTokenAmountUsd: '132.88350000000003',
+        poolId: '0x7ed37e03d64e6d1c7e315f1faf295f1e3a4b29df',
+        slippage: 5,
+    },
+    error: '',
+};
+
 export {
     mockBalanceData,
     marketCapMockData,
@@ -1404,4 +1432,6 @@ export {
     estimateMockDataByUnAuthUser,
     mockPoolBalanceDataArbitrum,
     estimateRemoveLpMockData,
+    estimateAddLpMockData,
+    estimateAddLpMockData2,
 };

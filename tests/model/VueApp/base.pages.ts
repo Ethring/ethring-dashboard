@@ -128,6 +128,11 @@ class BasePage {
         await this.mockRoute(URL_MOCK_PATTERNS.MOCK_REMOVE_LP, mockData, statusCode);
     }
 
+    async mockEstimateAddLpRequest(net: string, poolID: string, mockData: object, statusCode = 200) {
+        const URL = `**${URL_MOCK_PATTERNS.MOCK_ADD_LP}?net=${net}&poolID=${poolID}**`;
+        await this.mockRoute(URL, mockData, statusCode);
+    }
+
     async mockTokensList(net: string, tokensList: object) {
         const URL = `**/networks/${net}/tokens`;
         this.mockRoute(URL, tokensList, 200);

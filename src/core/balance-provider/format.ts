@@ -132,7 +132,7 @@ const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions =
     if (chain && DP_COSMOS[chain]) record.ecosystem = Ecosystem.COSMOS;
     else record.ecosystem = Ecosystem.EVM;
 
-    if (record.images.length) record.logo = record.images[0];
+    if (record.images?.length) record.logo = record.images[0];
 
     return record;
 };

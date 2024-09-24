@@ -4,7 +4,7 @@
             {{ label }}
         </div>
         <div class="content">
-            <div class="token-info">
+            <div class="token-info" data-qa="from-token">
                 <AssetWithChain type="asset" :asset="operation.getToken('from') || {}" :chain="assetChain.from" :width="24" :height="24" />
 
                 <template v-if="operation.getModule() === ModuleType.nft">
@@ -57,7 +57,7 @@
             <template v-if="operation.getToken('to') && operation.getToken('to')?.id !== operation.getToken('from')?.id">
                 <div class="space-between">to</div>
 
-                <div class="token-info">
+                <div class="token-info" data-qa="to-token">
                     <AssetWithChain type="asset" :asset="operation.getToken('to') || {}" :chain="assetChain.to" :width="24" :height="24" />
 
                     <Amount
