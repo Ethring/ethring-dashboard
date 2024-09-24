@@ -68,7 +68,7 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
     const validateVerifiedTokens = (tokensWithBalance: IAsset[], verifiedTokensMap: Map<string, boolean>): IAsset[] => {
         return tokensWithBalance.map((token: IAsset) => ({
             ...token,
-            verified: verifiedTokensMap.has(token?.address?.toLowerCase() || NATIVE_CONTRACT),
+            verified: verifiedTokensMap.has(token?.address?.toLowerCase() || NATIVE_CONTRACT) || false,
         }));
     };
 
@@ -94,7 +94,7 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
 
         const NATIVE_TOKEN_ID = `${network.net}:tokens__native:${info.symbol}`;
 
-        const nativeToken: IAsset = {
+        const nativeToken: any = {
             ...info,
             chain: network.net,
             balance: 0,
@@ -209,6 +209,9 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
                 // Set Verified for Native Token
                 if (tkn.id === nativeTokenId) tkn.verified = true;
 
+                // Set Verified for other tokens
+                if (tkn.address) tkn.verified = verifiedTokenMap.has(tkn?.address?.toLowerCase() || NATIVE_CONTRACT) || false;
+
                 // Set selected tokens
                 tkn.selected = fromToken?.id === tkn.id || toToken?.id === tkn.id;
             }
@@ -234,7 +237,7 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
                 (tkn) => tkn.verified,
 
                 // Sorting by whether the symbol starts with a letter (true) or not (false)
-                (tkn) => /^[a-zA-Z]/.test(tkn.symbol),
+                (tkn) => /^[a-zA-Z]/.test(tkn.symbol as string),
 
                 // Sorting by token symbol alphabetically
                 (tkn) => tkn.symbol?.toLowerCase(),

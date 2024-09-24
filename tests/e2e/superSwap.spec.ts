@@ -69,8 +69,30 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
                 mask: await superSwapPage.page.locator('div.token-icon').all(),
             });
 
+            // Mocking price for token
+            const COINGECKO_ROUTE = '**/token-price/coingecko/**';
+
+            const priceUsdt = {
+                ok: true,
+                data: {
+                    '0x55d398326f99059ff775485246999027b3197955': {
+                        usd: 1,
+                        btc: 0.00001574,
+                    },
+                },
+            };
+
+            context.route(COINGECKO_ROUTE, (route) => {
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json; charset=utf-8',
+                    body: JSON.stringify(priceUsdt),
+                });
+            });
+
             await superSwapPage.openNetworkFromListAndClickNet(FROM_NET);
             await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
+
             superSwapPage.page.on('request', (data) => {
                 if (!regexEstimation.test(data.url())) return;
 
@@ -78,12 +100,12 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
                 expect(JSON.parse(param)).toEqual({
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-                    toToken: '0xa9251ca9de909cb71783723713b21e4233fbf1b1',
+                    toToken: '0x55d398326f99059ff775485246999027b3197955',
                     amount: '2',
                     ownerAddresses: {},
                     fromNet: 'bsc',
                     toNet: 'bsc',
-                }); // TODO uncorrect token sort in front. After fix https://paradigmcitadel.atlassian.net/browse/ZMT-1575 must be 0x55d398326f99059ff775485246999027b3197955 use
+                });
             });
             await superSwapPage.mockEstimateBridgeRequest(estimateMockDataByUnAuthUser, 200);
 

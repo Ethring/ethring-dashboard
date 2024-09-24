@@ -69,6 +69,7 @@ export interface IGetUsersPoolListResponse {
     logo?: string;
     chain?: string;
     chainLogo?: string;
+    ecosystem?: string;
     name: string;
     decimals: number;
     symbol: string;

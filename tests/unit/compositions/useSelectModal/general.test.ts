@@ -15,6 +15,14 @@ describe('useSelectModal', () => {
     beforeEach(() => {
         store = createTestStore();
         vi.resetAllMocks();
+
+        vi.mock('../../../../src/shared/utils/prices.js', () => {
+            return {
+                assignPriceInfo: () => {
+                    return 1;
+                },
+            };
+        });
     });
 
     test('-> MAX_OPTIONS_PER_PAGE must be 20', () => {
@@ -73,7 +81,7 @@ describe('useSelectModal', () => {
 
             handleOnSelectNetwork(list[0]);
 
-            expect(store.getters['tokenOps/dstNetwork']).toBeUndefined();
+            expect(store.getters['tokenOps/dstNetwork']).toBeNull();
         });
 
         test('-> for: BRIDGE DIFF NETS must set srcNetwork & dstNetwork', async () => {
@@ -118,7 +126,7 @@ describe('useSelectModal', () => {
     });
 
     describe('handleOnSelectToken', () => {
-        test('-> for: SEND, must return undefined if pass null', async () => {
+        test('-> for: SEND, must return null if pass null', async () => {
             const type = computed(() => 'token');
 
             await store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
@@ -128,7 +136,7 @@ describe('useSelectModal', () => {
 
             handleOnSelectToken(null);
 
-            expect(store.getters['tokenOps/srcToken']).toBeUndefined();
+            expect(store.getters['tokenOps/srcToken']).toBeNull();
         });
 
         test('-> for: SEND, must set srcToken', async () => {
@@ -159,7 +167,7 @@ describe('useSelectModal', () => {
 
             handleOnSelectToken(token);
 
-            expect(store.getters['tokenOps/dstToken']).toBeUndefined();
+            expect(store.getters['tokenOps/dstToken']).toBeNull();
         });
 
         test('-> for: SWAP, must set src & dst tokens', async () => {
@@ -247,6 +255,54 @@ describe('useSelectModal', () => {
             const { CHAIN_LIST } = useSelectModal(type, { tmpStore: store });
 
             expect(CHAIN_LIST.value).toEqual(chainListMockEvm);
+        });
+    });
+
+    describe('Token list', () => {
+        test('-> must return tokens list with sorted order for "et" searchValue', async () => {
+            const type = computed(() => 'token');
+
+            await store.dispatch('app/toggleSelectModal', { type: type.value, module: ModuleType.superSwap });
+
+            await store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
+
+            await store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
+
+            await store.dispatch('tokenOps/setSrcNetwork', chainListMockEvm[0]);
+
+            const { MAX_OPTIONS_PER_PAGE, searchValue, options, getList, handleOnTokenSelect } = useSelectModal(type, { tmpStore: store });
+
+            searchValue.value = 'et';
+
+            await handleOnTokenSelect();
+
+            expect(MAX_OPTIONS_PER_PAGE).toBe(20);
+            expect(options.value[0]).contains({ verified: true });
+            expect(options.value[0].logo).not.toBeNull();
+            expect(options.value[0].logo).not.toBeUndefined();
+        });
+
+        test('-> must return tokens list with sorted order for "us" searchValue', async () => {
+            const type = computed(() => 'token');
+
+            await store.dispatch('app/toggleSelectModal', { type: type.value, module: ModuleType.superSwap });
+
+            await store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
+
+            await store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
+
+            await store.dispatch('tokenOps/setSrcNetwork', chainListMockEvm[0]);
+
+            const { MAX_OPTIONS_PER_PAGE, searchValue, options, getList, handleOnTokenSelect } = useSelectModal(type, { tmpStore: store });
+
+            searchValue.value = 'us';
+
+            await handleOnTokenSelect();
+
+            expect(MAX_OPTIONS_PER_PAGE).toBe(20);
+            expect(options.value[0]).contains({ verified: true });
+            expect(options.value[0].logo).not.toBeNull();
+            expect(options.value[0].logo).not.toBeUndefined();
         });
     });
 });
