@@ -79,7 +79,7 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
                 expect(JSON.parse(param as string)).toEqual({
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-                    toToken: '0xa9251ca9de909cb71783723713b21e4233fbf1b1',
+                    toToken: '0x55d398326f99059ff775485246999027b3197955',
                     amount: '2',
                     ownerAddresses: {},
                     fromNet: 'bsc',
