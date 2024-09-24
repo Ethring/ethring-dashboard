@@ -512,24 +512,18 @@ describe('useOperations', () => {
         });
 
         test('-> should return false params are equal to oldParams and operationsFactory is initialized', async () => {
-            const oldParams = [srcNetwork, srcToken, dstNetwork, dstToken];
+            const oldParams = [srcNetwork, srcToken, dstToken];
 
             await useShortcutsMock.initializations();
 
-            const result = await useOperationsMock.handleOnUpdateOperationParamsAndEstimate(
-                [srcNetwork, srcToken, dstNetwork, dstToken],
-                oldParams,
-            );
+            const result = await useOperationsMock.handleOnUpdateOperationParamsAndEstimate([srcNetwork, srcToken, dstToken], oldParams);
 
             expect(result).toBe(false);
         });
 
         test('-> should call "handleOnCallEstimateOutput" if src network and token are changed and operationsFactory is initialized', async () => {
             await useShortcutsMock.initializations();
-            const result = await useOperationsMock.handleOnUpdateOperationParamsAndEstimate(
-                [srcNetwork, srcToken, dstNetwork, dstToken],
-                [],
-            );
+            const result = await useOperationsMock.handleOnUpdateOperationParamsAndEstimate([srcNetwork, srcToken, dstToken], []);
 
             expect(result).toBe(true);
         });

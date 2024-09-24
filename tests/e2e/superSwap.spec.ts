@@ -66,7 +66,7 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
             await sleep(FIVE_SECONDS);
 
             await expect(superSwapPage.getBaseContentElement()).toHaveScreenshot({
-                mask: await superSwapPage.page.locator('div.token-icon').all(),
+                mask: [superSwapPage.page.locator('div.token-icon'), superSwapPage.page.locator('div.reload-btn')],
             });
 
             // Mocking price for token
@@ -117,7 +117,7 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
             await superSwapPage.waitDetachedSkeleton();
 
             await expect(superSwapPage.getBaseContentElement()).toHaveScreenshot({
-                mask: await superSwapPage.page.locator('div.token-icon').all(),
+                mask: [superSwapPage.page.locator('div.token-icon'), superSwapPage.page.locator('div.reload-btn')],
             });
         },
     );

@@ -403,7 +403,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
                 await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
         }
 
-        if (!isEmpty(newDst) && newDst?.net !== oldDst?.net && !route?.path?.includes('/shortcuts/'))
+        if (!isEmpty(newDst) && newDst?.net !== oldDst?.net && [ModuleType.superSwap].includes(moduleType))
             selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
 
         defaultChainMangerByModule();

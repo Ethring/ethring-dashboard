@@ -81,6 +81,11 @@ export default class DexOperation extends BaseOperation {
         const serviceId = this.getParamByField('serviceId');
         serviceId && this.service.setServiceId(serviceId);
 
+        if (serviceId === 'debridge' && this.params.fromNet === this.params.toNet) {
+            this.setParamByField('outputAmount', null);
+            throw Error('No route found');
+        }
+
         if (this.tokens.to?.address) this.params.toToken = this.tokens.to?.address;
 
         const { best = null, routeId, routes } = (await this.service.callMethod('getQuote', this.params)) as IQuoteRoutes;
