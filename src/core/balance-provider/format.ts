@@ -100,6 +100,8 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
 
     if (record.symbol && record.symbol.startsWith('IBC.')) record.symbol = record.symbol.replace('IBC.', '') || record.symbol;
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (chain && DP_COSMOS[chain] && !record.balanceType) record = cosmosChainTokens(record, opt);
 
     if (type === Type.tokens && !record.balanceType && !record.id && record.address)
@@ -124,6 +126,11 @@ const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions =
     record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol}`;
     record.balanceUsd = record.balanceUSD;
     record.net = record.network;
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (chain && DP_COSMOS[chain]) record.ecosystem = Ecosystem.COSMOS;
+    else record.ecosystem = Ecosystem.EVM;
 
     if (record.images.length) record.logo = record.images[0];
 
