@@ -77,14 +77,14 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
                 console.log(data.url());
                 if (!regexEstimation.test(data.url())) return;
 
-                expect(JSON.parse(param)).toEqual({
+                expect(JSON.parse(param as string)).toEqual({
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     toToken: '0xa9251ca9de909cb71783723713b21e4233fbf1b1',
                     amount: '2',
                     ownerAddresses: {},
                     fromNet: 'bsc',
                     toNet: 'bsc',
-                }); // TODO uncorrect token sort in front. After fix https://paradigmcitadel.atlassian.net/browse/ZMT-1575 must be 0x55d398326f99059ff775485246999027b3197955 use
+                });
             });
             await superSwapPage.mockEstimateBridgeRequest(estimateMockDataByUnAuthUser, 200);
 
