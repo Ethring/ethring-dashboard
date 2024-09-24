@@ -616,6 +616,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
         registeredOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
         registeredOperation.setAccount(ownerAddress as string);
         registeredOperation.setMake(type);
+        registeredOperation.setWaitTime(5);
         operation.tokens.from && registeredOperation.setToken('from', operation.tokens.from);
 
         return registeredOperation;
@@ -697,7 +698,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
             approveOperation.setAccount(account as string);
             approveOperation.setMake(TRANSACTION_TYPES.APPROVE);
-
+            approveOperation.setWaitTime(5);
             opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
         };
 

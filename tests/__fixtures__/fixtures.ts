@@ -68,6 +68,7 @@ export const testMetaMask = base.extend<{
     superSwapPageBalanceMock: SuperSwapPage;
     unauthSuperSwapPage: SuperSwapPage;
     shortcutPage: ShortcutPage;
+    unauthShortcutPage: ShortcutPage;
 }>({
     context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
@@ -177,6 +178,22 @@ export const testMetaMask = base.extend<{
         const zometPage = await authByMm(context, SEED_PHRASE_BY_TX);
         const superSwapPage = await zometPage.goToModule('shortcut');
         await use(superSwapPage as ShortcutPage);
+    },
+    unauthShortcutPage: async ({ context }, use) => {
+        await addWalletToMm(context, SEED_EMPTY_WALLET);
+        const zometPage = new ShortcutPage(await context.newPage());
+
+        const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
+        context.route(COINGECKO_ROUTE, (route) => {
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json; charset=utf-8',
+                body: JSON.stringify(marketCapNativeEvmTokens),
+            });
+        });
+
+        await zometPage.goToPage();
+        await use(zometPage as ShortcutPage);
     },
 });
 

@@ -357,7 +357,8 @@ export enum IGNORED_LOCATORS {
 export enum URL_MOCK_PATTERNS {
     MOCK_SWAP = '**/services/dex/getQuote**',
     MOCK_BRIDGE = '**/services/bridgedex/getQuote**',
-    MOCK_REMOVE_LP = '**/srv-portal-fi-add-portal-fi/api/getQuoteRemoveLiquidity**',
+    MOCK_REMOVE_LP = '**/srv-portal-fi/api/getQuoteRemoveLiquidity**',
+    MOCK_ADD_LP = '/srv-portal-fi/api/getQuoteAddLiquidity',
 }
 
 export const MEMO_BY_KEPLR_TEST = '105371789';

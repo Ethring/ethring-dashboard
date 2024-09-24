@@ -16,7 +16,6 @@ import PortalFiApi from '@/modules/portal-fi/api';
 import { BASE_ABI } from '@/core/wallet-adapter/config';
 import { TokenData } from '@/shared/models/types/TokenData';
 import { getContract } from '@/shared/utils/contract';
-import { formatResponse } from '@/core/balance-provider/format';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 const DEFAULT_PROVIDER = 'Pulsar';
@@ -69,8 +68,6 @@ export const updateBalanceByChain = async (account: string, address: string, cha
 
     try {
         await store.dispatch('tokens/setLoadingByChain', { chain, account, value: true });
-
-        if (chain === 'berachain') return await loadBalancesFromContract(chain, account, { ...opt, store });
 
         const balanceForChain: BalanceResponse | null = await getBalancesByAddress(chain, address, providerOptions);
 
@@ -136,6 +133,10 @@ const getBerachainTokenPrice = async (token: TokenData, nativeToken: TokenData) 
         if (tokenInformation?.beraValue) nativeToken.price = tokenInformation.usdValue;
 
         token.price = tokenInformation?.usdValue || 0;
+
+        token.balanceUsd = BigNumber(token.balance)
+            .multipliedBy(token.price || 0)
+            .toString();
     } catch (error) {
         console.error('Error getting berachain token price', error);
     }
@@ -208,7 +209,7 @@ export const loadBalancesFromContract = async (chain: string, account: string, o
         }
 
         // * Calculate balance in USD for native token
-        nativeToken.balanceUsd = BigNumber(nativeToken.balance).multipliedBy(nativeToken.price).toFixed(6);
+        nativeToken.balanceUsd = BigNumber(nativeToken.balance).multipliedBy(nativeToken.price).toString();
 
         // * Store balances for account
         await storeBalanceForAccount(Type.tokens, account, chain, account, [...berachainTokens, nativeToken], options);

@@ -13,7 +13,7 @@ import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { Store } from 'vuex';
+import store from '@/app/providers/store.provider';
 
 interface IDependencyParams {
     dependencyParamKey: string;
