@@ -14,9 +14,9 @@
                 <BuyCryptoIcon />
             </HelpItem>
 
-            <HelpItem :tooltip-text="tooltipText" :disabled="isLoading" @click="loadBalances">
+            <!-- <HelpItem :tooltip-text="tooltipText" :disabled="isLoading" @click="loadBalances">
                 <SyncOutlined :spin="isLoading" />
-            </HelpItem>
+            </HelpItem> -->
         </template>
     </div>
 </template>
@@ -28,7 +28,7 @@ import { pick } from 'lodash';
 
 import SocketDataProvider from '@/core/balance-provider/socket';
 
-import { SyncOutlined } from '@ant-design/icons-vue';
+// import { SyncOutlined } from '@ant-design/icons-vue';
 
 import ReleaseNoteIcon from '@/assets/icons/platform-icons/note.svg';
 import BuyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
@@ -47,7 +47,6 @@ export default {
         HelpItem,
         ThemeSwitcher,
         BuyCryptoIcon,
-        SyncOutlined,
         ReleaseNoteIcon,
     },
     setup() {
