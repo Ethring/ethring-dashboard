@@ -21,6 +21,9 @@ import adapters from '@/core/wallet-adapter/store';
 // Bridge-dex
 import bridgeDexAPI from '@/modules/bridge-dex/store';
 
+// Portal-fi
+import portalFi from '@/modules/portal-fi/store';
+
 // Update balance for account
 import updateBalance from '@/store/update-balance';
 import moduleStates from '@/store/moduleStates';
@@ -45,5 +48,6 @@ export default createStore({
         moduleStates,
         shortcuts,
         shortcutsList,
+        portalFi,
     },
 });

@@ -21,7 +21,6 @@ import { IConnectedWallet } from '@/shared/models/types/Account';
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { delay } from '@/shared/utils/helpers';
 import { IAsset } from '@/shared/models/fields/module-fields';
-import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 // ********************* Balance Provider *********************
 import { loadUsersPoolList } from '@/core/balance-provider';

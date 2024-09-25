@@ -52,9 +52,8 @@ export default class ApproveLpOperation extends BaseOperation {
 
     onSuccess = async (store: Storage): Promise<void> => {
         console.log('Approve success', 'Update allowance');
-        this.allowance = {};
 
-        this.checkAllowance(store);
+        this.checkAllowance(store, true);
     };
 
     getOperationFlow(): TxOperationFlow[] {
@@ -69,26 +68,26 @@ export default class ApproveLpOperation extends BaseOperation {
         return this.flow;
     }
 
-    checkAllowance = async (store: Storage): Promise<void> => {
+    checkAllowance = async (store: Storage, isUpdate = false): Promise<void> => {
         try {
-            const amount = this.getParamByField('amount');
+            const amount = store.getters['tokenOps/srcAmount'];
 
-            const allowance = await this.getAllowance();
+            const allowance = await this.getAllowance(store, isUpdate);
 
             this.isNeedApprove = +allowance < +amount;
 
             const { typeLp } = this.params as any;
 
             if (typeLp === TRANSACTION_TYPES.REMOVE_LIQUIDITY)
-                return store.dispatch('moduleStates/setIsNeedRemoveLPApprove', this.isNeedApprove);
+                return store.dispatch('portalFi/setIsNeedRemoveLPApprove', this.isNeedApprove);
 
-            store.dispatch('moduleStates/setIsNeedApproveLP', this.isNeedApprove);
+            store.dispatch('portalFi/setIsNeedApproveLP', this.isNeedApprove);
         } catch (error) {
             console.error('ApproveOperation onSuccess error', error);
         }
     };
 
-    async getAllowance(): Promise<void | number> {
+    async getAllowance(store: Storage, isUpdate = false): Promise<void | number> {
         console.log('ApproveOperation getAllowance, update allowance');
 
         const { net, ownerAddress } = this.params as any;
@@ -100,21 +99,27 @@ export default class ApproveLpOperation extends BaseOperation {
         }
 
         const { address } = from || {};
-        const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
-        if (tokenIn === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') return Number.MAX_SAFE_INTEGER;
-        if (this.allowance[tokenIn]) return this.allowance[tokenIn];
+        if (!address) return Number.MAX_SAFE_INTEGER;
+
+        const allowance = store.getters['portalFi/getAllowance'](ownerAddress, address);
+
+        if (allowance && !isUpdate) return allowance;
 
         const params: IGetAllowanceRequest = {
             net,
-            tokenAddress: tokenIn,
+            tokenAddress: address,
             ownerAddress,
         };
 
         try {
             const allowance = await this.service.getAllowance(params);
 
-            this.allowance[tokenIn] = allowance.data;
+            store.dispatch('portalFi/setAllowance', {
+                owner: ownerAddress,
+                token: address,
+                value: allowance.data,
+            });
 
             return allowance?.data || 0;
         } catch (error) {

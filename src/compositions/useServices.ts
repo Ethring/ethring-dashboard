@@ -188,13 +188,13 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
     const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
 
     const isNeedAddLpApprove = computed({
-        get: () => store.getters['moduleStates/isNeedApproveLP'],
-        set: (value) => store.dispatch('moduleStates/setIsNeedApproveLP', value),
+        get: () => store.getters['portalFi/isNeedApproveLP'],
+        set: (value) => store.dispatch('portalFi/setIsNeedApproveLP', value),
     });
 
     const isNeedRemoveLpApprove = computed({
-        get: () => store.getters['moduleStates/isNeedRemoveLpApprove'],
-        set: (value) => store.dispatch('moduleStates/setIsNeedRemoveLPApprove', value),
+        get: () => store.getters['portalFi/isNeedRemoveLpApprove'],
+        set: (value) => store.dispatch('portalFi/setIsNeedRemoveLPApprove', value),
     });
     // =================================================================================================================
 
