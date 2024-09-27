@@ -29,6 +29,13 @@ import RemoveLiquidityLayout from '@/pages/dynamic-modules/RemoveLiquidityLayout
 import ClaimBera from '@/pages/dynamic-modules/ClaimBera.vue';
 import ClaimBGTRewards from '@/pages/dynamic-modules/ClaimBGTRewards.vue';
 
+// Social Network Icons
+import X from '@/assets/icons/socials/x.svg';
+import Telegram from '@/assets/icons/socials/telegram.svg';
+import Discord from '@/assets/icons/socials/discord.svg';
+import Hey from '@/assets/icons/socials/hey.svg';
+import Warpcast from '@/assets/icons/socials/warpcast.svg';
+
 // Service worker
 import '@/registerServiceWorker';
 
@@ -87,5 +94,12 @@ app.component('AddLiquidityLayout', AddLiquidityLayout);
 app.component('RemoveLiquidityLayout', RemoveLiquidityLayout);
 app.component('ClaimBera', ClaimBera);
 app.component('ClaimBGTRewards', ClaimBGTRewards);
+
+// * Social network icons
+app.component('X', X);
+app.component('Hey', Hey);
+app.component('Warpcast', Warpcast);
+app.component('Telegram', Telegram);
+app.component('Discord', Discord);
 
 export default app;
