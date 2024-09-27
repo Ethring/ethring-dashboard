@@ -11,6 +11,7 @@ import moduleStatesStore from '../../../../src/store/moduleStates';
 import txManagerStore from '../../../../src/core/transaction-manager/store';
 import adapterStore from '../../../../src/core/wallet-adapter/store/index';
 import shortcutStore from '../../../../src/core/shortcuts/store';
+import shortcutListStore from '../../../../src/store/shortcut-list';
 import bridgeDexAPIStore from '../../../../src/modules/bridge-dex/store';
 
 export function createTestStore(isWalletConnected = true) {
@@ -87,6 +88,7 @@ export function createTestStore(isWalletConnected = true) {
             shortcuts: shortcutStore,
             moduleStates: moduleStatesStore,
             txManager: txManagerStore,
+            shortcutsList: shortcutListStore,
         },
     });
 }

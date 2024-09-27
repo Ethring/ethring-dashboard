@@ -76,7 +76,10 @@ const usePrepareFields = (
         return store.getters['shortcuts/getCurrentOperation'](currentShortcutID);
     });
 
-    const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcut.value.id));
+    const operationsFactory = computed<OperationsFactory>(() => {
+        if (!currentShortcut.value?.id) return {} as OperationsFactory;
+        return store.getters['shortcuts/getShortcutOpsFactory'](currentShortcut.value.id);
+    });
 
     const validateShortcutIndexAndStepId = (index: number): boolean => {
         if (!operationsFactory.value) return false;
@@ -86,7 +89,11 @@ const usePrepareFields = (
         if (!currentOp.value) return false;
 
         const operationId = currentOp.value?.id;
+
+        if (!operationsFactory.value?.getOperationById) return false;
+
         const operation = operationsFactory.value.getOperationById(operationId);
+
         if (!operation) return false;
 
         const uniqueId = operation.getUniqueId();
@@ -141,6 +148,9 @@ const usePrepareFields = (
         if (!operationId) return false;
         if (!field || !params) return false;
         if (!operationsFactory.value) return false;
+
+        if (!operationsFactory.value?.getOperationById) return false;
+        if (!operationsFactory.value?.getOperationByKey) return false;
 
         const operationById = operationsFactory.value.getOperationById(operationId);
         const operationByKey = operationsFactory.value.getOperationByKey(operationId);

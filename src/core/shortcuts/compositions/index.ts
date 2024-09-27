@@ -172,10 +172,22 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             return false;
         }
 
+        if (!operations || !operations.length) {
+            console.warn('No operations found');
+            return false;
+        }
+
+        if (!operationsFactory.value.setDependencies) {
+            console.warn('No setDependencies method found');
+            return false;
+        }
+
         // * Process the operations
         for (const shortcutOperation of operations) {
             const { id: opId, dependencies: opDeps = null } = shortcutOperation as any;
-            opDeps && operationsFactory.value.setDependencies(opId, opDeps);
+
+            if (opDeps && typeof operationsFactory.value?.setDependencies === 'function')
+                operationsFactory.value.setDependencies(opId, opDeps);
 
             if (!addToFactory) continue;
 
@@ -183,6 +195,10 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         }
 
         const getFirstOpId = () => {
+            if (!firstOperation.value) return null;
+
+            if (!firstOperation.value?.getUniqueId) return null;
+
             const uniqueId = firstOperation.value?.getUniqueId();
             if (!uniqueId) return null;
 
@@ -430,10 +446,8 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     };
 
     const handleOnChangeWalletAccount = async (account: string | null, oldAccount: string | null) => {
-        if (account === oldAccount) return false;
+        if (isEqual(account, oldAccount)) return false;
         if (!operationsFactory.value) return false;
-
-        await delay(100);
 
         if (!operationsFactory.value?.getOperationOrder) return false;
 
