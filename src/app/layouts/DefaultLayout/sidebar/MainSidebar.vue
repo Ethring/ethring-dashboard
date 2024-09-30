@@ -25,7 +25,13 @@
 
         <div>
             <a-menu mode="inline" class="sidebar__menu">
-                <SidebarItem key="menu-settings" :title="$t(`sidebar.settings`)" icon="SettingsIcon" disabled />
+                <SidebarItem
+                    menu-key="menu-link"
+                    :title="$t(`sidebar.feedback`)"
+                    icon="feedbackIcon"
+                    type="link"
+                    link="https://forms.gle/AvMY8vdChmvHM45RA"
+                />
             </a-menu>
 
             <SidebarFooter />
