@@ -110,7 +110,7 @@
     }
 }
 
-.sidebar-item.ant-menu-item.ant-menu-item-selected:not(.link)  {
+.sidebar-item.ant-menu-item.ant-menu-item-selected:not(.link) {
     background: none !important;
 
     .sidebar-item__title {
@@ -123,11 +123,11 @@
     }
 }
 
-.sidebar-item.ant-menu-item.ant-menu-item-selected  {
+.sidebar-item.ant-menu-item.ant-menu-item-selected {
     background: none !important;
 }
 
-.sidebar-item.ant-menu-item.ant-menu-item-disabled{
+.sidebar-item.ant-menu-item.ant-menu-item-disabled {
     .sidebar-item__title {
         color: var(--#{$prefix}icon-disabled);
     }

@@ -196,5 +196,6 @@
         "warningMoreThan2": "Your transaction may be frontrun and result in an unfavorable trade"
     },
     "pageNotFound": "Page not found",
-    "beraAlertMessage": "You need at least <b>0.001 ETH</b> in your wallet on Ethereum Mainnet to use the faucet. You can claim 1 testnet BERA token every 8 hours."
+    "beraAlertMessage": "You need at least <b>0.001 ETH</b> in your wallet on Ethereum Mainnet to use the faucet. You can claim 1 testnet BERA token every 8 hours.",
+    "getHelp": "Get help?"
 }

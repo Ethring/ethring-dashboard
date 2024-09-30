@@ -12,6 +12,9 @@
                 </router-view>
             </a-layout-content>
         </a-layout>
+        <div class="get-help">
+            <a href="https://discord.com/invite/fneF9WCG7u" target="_blank">{{ $t('getHelp') }}</a>
+        </div>
     </a-layout>
 </template>
 <script>
