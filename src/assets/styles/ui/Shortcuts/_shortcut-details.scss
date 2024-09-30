@@ -5,10 +5,12 @@
         max-width: inherit;
         width: 100%;
         height: 140px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
+        border: 1px solid var(--#{$prefix}assets-border-color);
+        border-radius: 8px;
     }
 
     > div > .title {
@@ -64,9 +66,6 @@
         min-height: 30px;
         height: 30px;
         border-radius: 4px;
-
-        color: var(--#{$prefix}mute-text);
-        background-color: var(--#{$prefix}base-btn-bg-color);
 
         span {
             text-transform: capitalize;

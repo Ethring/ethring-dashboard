@@ -114,6 +114,8 @@ declare module 'vue' {
     ShortcutLoading: typeof import('./src/components/shortcuts/Loading/ShortcutLoading.vue')['default']
     Shortcuts: typeof import('./src/components/shortcuts/Shortcuts.vue')['default']
     Slippage: typeof import('./src/components/ui/Slippage.vue')['default']
+    SocialShare: typeof import('./src/components/ui/SocialShare/SocialShare.vue')['default']
+    SocialShareItem: typeof import('./src/components/ui/SocialShare/SocialShareItem.vue')['default']
     Spinner: typeof import('./src/components/app/Spinner.vue')['default']
     StepAdditionalInfo: typeof import('./src/components/shortcuts/StepItem/StepAdditionalInfo.vue')['default']
     StepOp: typeof import('./src/components/shortcuts/StepItem/StepOp.vue')['default']

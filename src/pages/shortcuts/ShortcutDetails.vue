@@ -11,6 +11,7 @@
             <div class="title" :title="shortcut?.name || ''">{{ shortcut?.name || '' }}</div>
 
             <UiButton title="Details" class="shortcut-details-btn" disabled />
+            <UiButton :title="$t('shortcuts.share')" class="shortcut-details-btn" @click="openShareModal" />
         </a-row>
 
         <div v-if="shortcut && (shortcut.description || shortcut.minUsdAmount)" class="description">
@@ -108,6 +109,7 @@
         </div>
     </div>
     <SuccessShortcutModal />
+    <SocialShare />
 </template>
 
 <script lang="ts">
@@ -130,6 +132,8 @@ import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.v
 import useShortcuts from '@/core/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { ShareAltOutlined } from '@ant-design/icons-vue';
+import SocialShare from '@/components/ui/SocialShare/SocialShare.vue';
 
 export default {
     name: 'ShortcutDetails',
@@ -139,6 +143,8 @@ export default {
         UiButton,
         ShortcutLoading,
         SuccessShortcutModal,
+        SocialShare,
+        ShareAltOutlined,
     },
     setup() {
         const store = useStore();
@@ -179,6 +185,10 @@ export default {
             store.dispatch('shortcutsList/loadShortcutById', route.params.id);
         });
 
+        const openShareModal = () => {
+            store.dispatch('app/toggleModal', 'socialShare');
+        };
+
         return {
             activeOption,
             isShowLoading,
@@ -194,6 +204,7 @@ export default {
             wallpaper,
             LikeIcon,
             metaInfo,
+            openShareModal,
         };
     },
 };
