@@ -1,5 +1,5 @@
 <template>
-    <a-menu-item :key="menuKey" class="sidebar-item" :disabled="disabled" :role="role">
+    <a-menu-item :key="menuKey" class="sidebar-item" :class="{ [type]: type }" :disabled="disabled" :role="role">
         <template #icon>
             <div class="sidebar-item__icon" :class="{ [type]: type }">
                 <component :is="icon" />
@@ -7,7 +7,8 @@
         </template>
         <a-space>
             <span class="sidebar-item__title">
-                {{ title }}
+                <a v-if="type === 'link'" :href="link" target="_blank">{{ title }}</a>
+                <span v-else>{{ title }}</span>
                 <a-tag v-if="status" color="#14ec8a" :bordered="false" class="sidebar-item__tag"> {{ status }}</a-tag>
             </span>
         </a-space>
@@ -22,7 +23,8 @@ import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/super-swap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
 import shortcutIcon from '@/assets/icons/sidebar/shortcut.svg';
-import SettingsIcon from '@/assets/icons/sidebar/settings.svg';
+
+import feedbackIcon from '@/assets/icons/sidebar/feedback';
 
 export default {
     name: 'SidebarItem',
@@ -34,8 +36,7 @@ export default {
         superSwapIcon,
         buyCryptoIcon,
         shortcutIcon,
-
-        SettingsIcon,
+        feedbackIcon,
     },
     props: {
         collapsed: {
@@ -71,6 +72,10 @@ export default {
             default: false,
         },
         status: {
+            type: String,
+            default: '',
+        },
+        link: {
             type: String,
             default: '',
         },
