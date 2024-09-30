@@ -104,24 +104,6 @@ body {
     color: var(--#{$prefix}select-placeholder-text) !important;
 }
 
-@keyframes arrowMovement {
-    0% {
-        transform: translateX(0);
-        /* Начальное положение */
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0;
-    }
-
-    100% {
-        transform: translateX(80%);
-        /* Сдвиг на 50% ширины элемента */
-        opacity: 0;
-    }
-}
-
 .adapter__dropdown .ant-menu-item-group-title {
     display: none !important;
 }
@@ -225,20 +207,6 @@ li.ecosystem-item {
     }
 }
 
-@keyframes bounce {
-    0% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-35%);
-    }
-
-    100% {
-        transform: translateY(0);
-    }
-}
-
 .mt-8 {
     margin-top: 8px;
 }
@@ -274,5 +242,51 @@ li.ecosystem-item {
 
     .ant-tabs-ink-bar {
         background: var(--#{$prefix}assets-arrow-hover-color) !important;
+    }
+}
+
+.get-help {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+
+    a {
+        color: var(--#{$prefix}base-text);
+        font-size: var(--#{$prefix}default-fs-fs);
+
+        &:hover {
+            color: var(--#{$prefix}sidebar-active-color);
+        }
+    }
+}
+
+// Keyframes
+@keyframes arrowMovement {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(80%);
+        opacity: 0;
+    }
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-35%);
+    }
+
+    100% {
+        transform: translateY(0);
     }
 }
