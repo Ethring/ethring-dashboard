@@ -1228,6 +1228,8 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             isTransactionSigning.value = false;
             claimedItem.value = null;
             isForceCallConfirm.value = false;
+            isNeedRemoveLpApprove.value = false;
+            isNeedAddLpApprove.value = false;
             // * if selected route exist, refresh it
             if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING, null].includes(shortcutStatus.value)) await getEstimateInfo(true);
         }
