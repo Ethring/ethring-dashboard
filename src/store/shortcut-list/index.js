@@ -105,15 +105,11 @@ export default {
             commit(TYPES.SET_SEARCH_QUERY, value);
         },
         async loadShortcutList({ state, commit }) {
-            if (!state.moreShortcutsExists) return;
-
             commit(TYPES.SET_SHORTCUTS_LOADING, true);
 
-            const shortcuts = await getShortcuts({ limit: 30, offset: state.shortcuts.length });
+            const shortcuts = await getShortcuts({ limit: 30, offset: 0 });
 
-            if (!shortcuts.length) state.moreShortcutsExists = false;
-            else commit(TYPES.SET_ALL_SHORTCUTS, [...state.shortcuts, ...shortcuts]);
-
+            commit(TYPES.SET_ALL_SHORTCUTS, shortcuts);
             commit(TYPES.SET_SHORTCUTS_LOADING, false);
         },
         async loadShortcutById({ commit }, id) {
@@ -134,7 +130,7 @@ export default {
             commit(TYPES.SET_ALL_SHORTCUTS, []);
         },
         async searchShortcuts({ commit }, searchString) {
-            const shortcuts = await getShortcuts({ limit: 10, offset: 0, searchString });
+            const shortcuts = await getShortcuts({ limit: 30, offset: 0, searchString });
 
             commit(TYPES.SET_ALL_SHORTCUTS, shortcuts);
         },
