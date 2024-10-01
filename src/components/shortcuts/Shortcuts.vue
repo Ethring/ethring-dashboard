@@ -12,7 +12,13 @@
         </div>
     </a-row>
 
-    <SearchInput placeholder="Search shortcut" class="mt-16" :value="searchInput" @on-change="handleSearchChange" />
+    <SearchInput
+        placeholder="Search shortcut"
+        class="mt-16"
+        :value="searchInput"
+        @on-change="handleSearchChange"
+        @on-clear="handleSearchClear"
+    />
 
     <a-row align="middle" class="shortcut-tags">
         <div class="shortcut-tags__title">Results for:</div>
@@ -110,30 +116,24 @@ export default {
         };
 
         const handleSearchChange = async (value) => {
-            searchInput.value = value;
+            searchInput.value = value.trim();
 
-            if (value.length) return await store.dispatch('shortcutsList/searchShortcuts', searchInput.value);
+            await store.dispatch('shortcutsList/searchShortcuts', searchInput.value);
+        };
 
-            store.dispatch('shortcutsList/clearShortcuts');
+        const handleSearchClear = async () => {
             await store.dispatch('shortcutsList/loadShortcutList');
-            window.addEventListener('scroll', handleScroll);
         };
 
         const handleScroll = async () => {
             if (searchInput.value.length || isShortcutsLoading.value) return;
-            if (!moreShortcutsExists.value) return window.removeEventListener('scroll', handleScroll);
 
             if (window.scrollY + window.screenTop > window.screen.height * Math.floor(shortcuts.value.length / 10))
                 await store.dispatch('shortcutsList/loadShortcutList');
         };
 
         onBeforeMount(async () => {
-            window.addEventListener('scroll', handleScroll);
             await store.dispatch('shortcutsList/loadShortcutList');
-        });
-
-        onUnmounted(async () => {
-            window.removeEventListener('scroll', handleScroll);
         });
 
         return {
@@ -146,6 +146,7 @@ export default {
             isShortcutsLoading,
 
             handleSearchChange,
+            handleSearchClear,
             onTabChange: (key) => (activeTabKey.value = key),
             removeTag,
             clearAllTags,

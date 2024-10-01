@@ -6,7 +6,6 @@
         <div class="search-input__container">
             <input
                 v-model="text"
-                v-debounce:0.3s="onInput"
                 :placeholder="placeholder || $t('tokenOperations.searchToken')"
                 @focus="isActive = 'active'"
                 @blur="isActive = ''"
@@ -40,7 +39,7 @@ export default {
             default: '',
         },
     },
-    emits: ['onChange'],
+    emits: ['onChange', 'onClear'],
     setup(props, { emit }) {
         const text = ref(props.value || '');
         const isActive = ref('');
@@ -48,12 +47,15 @@ export default {
         const clearValue = () => {
             text.value = '';
 
-            emit('onChange', text.value);
+            emit('onClear', text.value);
         };
 
-        const onInput = () => {
-            emit('onChange', text.value);
-        };
+        watch(
+            () => text.value,
+            () => {
+                emit('onChange', text.value);
+            },
+        );
 
         watch(
             () => props.value,
@@ -66,8 +68,6 @@ export default {
             text,
             isActive,
             clearValue,
-
-            onInput,
         };
     },
 };
