@@ -542,7 +542,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             ecosystem: firstInGroup.getEcosystem(),
             chainId: firstInGroup.getChainId(),
             account: firstInGroup.getAccount(),
-            module: firstInGroup.getModule(),
+            module: currentShortcutId.value || firstInGroup.getModule(),
         };
 
         const txManager = new TransactionList(socket.getSocket(), store);
