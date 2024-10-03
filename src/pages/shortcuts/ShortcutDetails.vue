@@ -1,5 +1,12 @@
 <template>
-    <div class="shortcut-details">
+    <div v-if="shortcut?.error">
+        <a-empty class="shortcut-not-found">
+            <template #description>
+                <span>{{ shortcut.error }}</span>
+            </template>
+        </a-empty>
+    </div>
+    <div v-else class="shortcut-details">
         <div class="wallpaper" :style="{ ...wallpaper }" />
 
         <a-row align="middle" justify="space-between" :wrap="false">

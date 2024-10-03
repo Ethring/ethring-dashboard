@@ -556,7 +556,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     // ************************************** WATCHERS **************************************************
     // **************************************************************************************************
     const unWatchShortcutFromStore = watch(shortcutFromStore, async () => {
-        if (!shortcutFromStore.value) return;
+        if (shortcutFromStore.value?.error) return (isShortcutLoading.value = false);
 
         shortcut.value = new ShortcutCl(shortcutFromStore.value);
 

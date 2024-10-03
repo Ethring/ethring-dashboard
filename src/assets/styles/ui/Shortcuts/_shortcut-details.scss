@@ -215,3 +215,11 @@
         }
     }
 }
+
+.shortcut-not-found {
+    margin-top: 25%;
+
+    span {
+        color: var(--#{$prefix}primary-text) !important;
+    }
+}
