@@ -22,7 +22,7 @@ const getShortcutById = async (id: string) => {
     } catch (error) {
         console.error(`getShortcutById ${id}`, error);
 
-        throw [];
+        return { error: 'Shortcut not found' };
     }
 };
 
