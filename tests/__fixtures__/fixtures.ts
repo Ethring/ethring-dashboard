@@ -236,6 +236,7 @@ export const testKeplr = base.extend<{
     dashboardProtocol: DashboardPage;
     sendPage: SendPage;
     swapPage: SwapPage;
+    superSwapPage: SuperSwapPage;
 }>({
     context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
@@ -280,6 +281,11 @@ export const testKeplr = base.extend<{
         const zometPage = await authByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
         const swapPage = await zometPage.goToModule('swap');
         await use(swapPage as SwapPage);
+    },
+    superSwapPage: async ({ context }, use) => {
+        const zometPage = await authByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
+        const superSwapPage = await zometPage.goToModule('superSwap');
+        await use(superSwapPage as SuperSwapPage);
     },
 });
 

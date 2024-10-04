@@ -885,6 +885,17 @@ const mockBalanceCosmosWallet = {
                     balanceUsd: '0.8610404649428982',
                     balance: '0.494324',
                 },
+                {
+                    name: 'Cosmos Hub',
+                    symbol: 'ATOM',
+                    address: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+                    decimals: 6,
+                    logo: 'https://assets.coingecko.com/coins/images/1481/large/cosmos_hub.png?1696502525',
+                    price: '10.171953987386415',
+                    priceChange: '-0.021108131807682895',
+                    balanceUsd: '0.9845637703471058',
+                    balance: '0.096792',
+                },
             ],
             nfts: [],
             integrations: [

@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 import { computed, onMounted } from 'vue';
-import { useStore, Store } from 'vuex';
+import { useStore } from 'vuex';
 
 import {
     addTransactionToExistingQueue,
@@ -50,20 +50,6 @@ export default function useTransactions({ tmpStore }) {
         return createdTransactions;
     };
 
-    // * Update transaction by id
-    const updateTransactionById = async (id, transaction) => {
-        return await updateTransaction(id, transaction);
-
-        // if (updatedTransaction) {
-        //     const { requestID } = updatedTransaction;
-
-        //     const txs = await getTransactionsByRequestID(requestID);
-
-        //     store.dispatch('txManager/setCurrentRequestID', requestID);
-        //     store.dispatch('txManager/setTransactionsForRequestID', { requestID, transactions: txs });
-        // }
-    };
-
     // * Add transaction to existing queue
     const addTransactionToRequestID = async (requestID, transaction) => {
         const transactions = await getTransactionsByRequestID(requestID);
@@ -103,8 +89,8 @@ export default function useTransactions({ tmpStore }) {
      *
      * @returns {object}
      */
-    const handleTransactionErrorResponse = async (id, response, error, { module, tx = {} }) => {
-        closeNotification(`tx-${id}`);
+    const handleTransactionErrorResponse = async (id, error, { module, tx = {} }) => {
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
         const ignoreErrors = ['rejected', 'denied'];
         const ignoreRegex = new RegExp(ignoreErrors.join('|'), 'i');
@@ -117,15 +103,6 @@ export default function useTransactions({ tmpStore }) {
 
         const strError = typeof error === 'string' ? error : JSON.stringify(error);
 
-        showNotification({
-            key: 'error-tx',
-            type: 'error',
-            title: 'Transaction error',
-            description: strError,
-            duration: 6,
-            progress: true,
-        });
-
         if (!ignoreRegex.test(strError))
             store.dispatch('tokenOps/setOperationResult', {
                 module,
@@ -137,9 +114,9 @@ export default function useTransactions({ tmpStore }) {
                 },
             });
 
-        await updateTransactionById(id, { status: STATUSES.REJECTED });
+        await updateTransaction(id, { status: STATUSES.REJECTED });
 
-        return response;
+        throw new Error(error);
     };
 
     /**
@@ -152,13 +129,11 @@ export default function useTransactions({ tmpStore }) {
      * @returns {object}
      */
     const handleSuccessfulSign = async (id, response, { metaData = {}, module = null } = {}) => {
-        closeNotification(`tx-${id}`);
-
         const { transactionHash } = response;
 
         if (!transactionHash && id) {
             logger.warn('Transaction hash is not provided, setting transaction status to failed.');
-            await updateTransactionById(id, { status: STATUSES.FAILED });
+            await updateTransaction(id, { status: STATUSES.FAILED });
             return response;
         }
 
@@ -218,7 +193,7 @@ export default function useTransactions({ tmpStore }) {
             return response;
         }
 
-        await updateTransactionById(id, {
+        await updateTransaction(id, {
             txHash: transactionHash,
             metaData: {
                 ...metaData,
@@ -241,8 +216,19 @@ export default function useTransactions({ tmpStore }) {
      * @returns {object}
      */
     const handleSignedTxResponse = async (id, response, { metaData, module, tx }) => {
+        closeNotification(`tx-${id}`);
+
         // Handle error response
-        if (response.error && id) return await handleTransactionErrorResponse(id, response, response.error, { module, tx });
+        const getResponseError = () => {
+            if (response?.error) return response.error;
+            if (response?.rawLog?.includes('failed to execute message')) return response.rawLog;
+            if (response?.isCanceled) return 'Transaction canceled';
+
+            return false;
+        };
+
+        const error = getResponseError();
+        if (error) return await handleTransactionErrorResponse(id, error, { module, tx });
 
         // Handle success response
         return await handleSuccessfulSign(id, response, { metaData, module });
@@ -294,31 +280,7 @@ export default function useTransactions({ tmpStore }) {
             response = await signSend(txFoSign, { ecosystem, chain });
             if (opInstance && opInstance.setTxResponse) opInstance.setTxResponse(response);
         } catch (error) {
-            closeNotification(`tx-${id}`);
             console.error('useTransactions -> signAndSend -> error', error);
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-            throw error;
-        }
-
-        if (response && response.error) {
-            closeNotification(`tx-${id}`);
-            console.error('useTransactions -> signAndSend -> Transaction error from provider', response.error);
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-            throw new Error(response.error);
-        }
-
-        if (response && response.rawLog?.includes('failed to execute message')) {
-            closeNotification(`tx-${id}`);
-            console.error('useTransactions -> signAndSend -> Transaction error from provider', response?.rawLog);
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-            throw new Error(response.rawLog);
-        }
-
-        if (response && response.isCanceled) {
-            closeNotification(`tx-${id}`);
-            console.error('useTransactions -> signAndSend -> Transaction canceled');
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-            throw new Error('Transaction canceled');
         }
 
         try {
@@ -344,7 +306,6 @@ export default function useTransactions({ tmpStore }) {
         signAndSend,
 
         createTransactions,
-        updateTransactionById,
         addTransactionToRequestID,
     };
 }

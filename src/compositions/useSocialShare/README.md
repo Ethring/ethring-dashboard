@@ -4,9 +4,9 @@ A hook to get the share URL for different social media platforms.
 
 ## Supported Platforms
 
-- [x.com / twitter.com](https://x.com)
-- [hey.xyz](https://hey.xyz)
-- [warpcast.com](https://warpcast.com)
+-   [x.com / twitter.com](https://x.com)
+-   [hey.xyz](https://hey.xyz)
+-   [warpcast.com](https://warpcast.com)
 
 ---
 
@@ -25,19 +25,18 @@ A hook to get the share URL for different social media platforms.
 ## Usage
 
 ```tsx
-
 import { useSocialShare } from 'path/to/useSocialShare';
 
 const Example = () => {
-  const { getShareLink } = useSocialShare();
+    const { getShareLink } = useSocialShare();
 
-  const shareUrl = getShareLink('hey', {
-    title: 'Hello World',
-    url: 'https://example.com',
-  });
+    const shareUrl = getShareLink('hey', {
+        title: 'Hello World',
+        url: 'https://example.com',
+    });
 
-  return {
-    shareUrl
-  }
+    return {
+        shareUrl,
+    };
 };
 ```

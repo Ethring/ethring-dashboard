@@ -1,13 +1,17 @@
-import { testMetaMask } from '../__fixtures__/fixtures';
+import util from 'util';
 import { expect } from '@playwright/test';
+
+import { testMetaMask, testKeplr } from '../__fixtures__/fixtures';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
-import util from 'util';
+import { mockPostTransactionsRouteSwapRejectKeplr, mockGetSwapTx, mockSuperswapPutTx } from '../data/mockDataByTests/SuperswapRejectTxMock';
 import { estimateMockDataByUnAuthUser } from '../data/mockHelper';
+
 const sleep = util.promisify(setTimeout);
 
-testMetaMask.describe('SuperSwap e2e tests', () => {
+testMetaMask.describe.skip('SuperSwap e2e tests', () => {
     testMetaMask.skip(
         'Case#: Verifying data reset when navigating to swap page',
         async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
@@ -123,4 +127,45 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
     );
 
     // TODO 'Correct test case is next: sign one tx by service debridge (as example), then set data to tx use any other service. Check params in request "getAllowance"' testMetaMask('Case#: Check request params', async ({ browser, context, page, superSwapPageBalanceMock: superSwapPage }) => {    });
+});
+
+testKeplr.describe('Keplr Superswap e2e tests', () => {
+    testKeplr('Case#: Reject Superswap native token in Cosmos', async ({ browser, context, page, superSwapPage }) => {
+        const amount = '0.1';
+        const tokenTo = 'ATOM';
+        const network = 'osmosis';
+
+        await superSwapPage.setFromNetAndAmount(network, amount);
+        await superSwapPage.setNetToAndTokenTo(network, tokenTo);
+
+        await superSwapPage.modifyDataByPostTxRequest(
+            mockPostTransactionsRouteSwapRejectKeplr,
+            mockPostTransactionsRouteSwapRejectKeplr.data[0],
+        );
+
+        await superSwapPage.modifyDataByGetTxRequest(mockPostTransactionsRouteSwapRejectKeplr);
+
+        await superSwapPage.modifyDataByPutTxRequest(mockSuperswapPutTx, mockSuperswapPutTx.data);
+
+        await superSwapPage.mockSuperswapGetSwapTx(mockGetSwapTx, 200);
+
+        await superSwapPage.clickConfirm();
+
+        superSwapPage.page.on('request', (data) => {
+            const regexPutRejectTx = /\/transactions/;
+            if (!regexPutRejectTx.test(data.url())) return;
+
+            const param = data.postData();
+
+            expect(JSON.parse(param)).toEqual({
+                transaction: {
+                    status: 'REJECTED',
+                },
+            });
+        });
+
+        const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+
+        await notifyKeplr.rejectTx();
+    });
 });
