@@ -359,6 +359,7 @@ export enum URL_MOCK_PATTERNS {
     MOCK_BRIDGE = '**/services/bridgedex/getQuote**',
     MOCK_REMOVE_LP = '**/srv-portal-fi/api/getQuoteRemoveLiquidity**',
     MOCK_ADD_LP = '/srv-portal-fi/api/getQuoteAddLiquidity',
+    MOCK_GET_SWAP_TX = '**/services/bridgedex/getSwapTx**',
 }
 
 export const MEMO_BY_KEPLR_TEST = '105371789';

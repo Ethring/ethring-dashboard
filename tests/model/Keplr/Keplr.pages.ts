@@ -121,7 +121,7 @@ class KeplrNotifyPage {
     }
 
     async rejectTx() {
-        await this.page.click('[data-testid="page-container-footer-cancel"]');
+        await this.page.close();
     }
 
     async getReceiverAddress() {
