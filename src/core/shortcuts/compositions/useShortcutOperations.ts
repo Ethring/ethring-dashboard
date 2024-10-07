@@ -7,7 +7,7 @@ import { useStore, Store } from 'vuex';
 
 // ********************* Compositions *********************
 import useNotifications from '@/compositions/useNotification';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 // ********************* Operations *********************
 import OperationsFactory from '@/core/operations/OperationsFactory';
@@ -58,7 +58,6 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // ****************************************************************************************************
     // * Wallet Adapter
     // ****************************************************************************************************
-
     const { getChainByChainId, setChain, currentChainInfo } = useAdapter({ tmpStore: store });
 
     // ****************************************************************************************************
@@ -738,7 +737,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             operation?.setParamByField(targetAmount, amount);
 
             // Call the calculate params if the amount is correct and isEstimate is true
-            if (isEstimate) operationsFactory.value.calculateParams();
+            if (isEstimate) operationsFactory.value.calculateParams(store);
 
             return true;
         }

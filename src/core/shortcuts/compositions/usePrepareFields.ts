@@ -1,8 +1,8 @@
-import { computed, ComputedRef, onMounted, onUnmounted, watch } from 'vue';
+import { computed, ComputedRef } from 'vue';
 import { useStore, Store } from 'vuex';
 
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import { IChainConfig } from '@/shared/models/types/chain-config';
@@ -33,7 +33,6 @@ const usePrepareFields = (
     // ****************************************************************************************************
     // * Wallet adapter and tokens list
     // ****************************************************************************************************
-
     const { getChainByChainId } = useAdapter({ tmpStore: store });
     const { getTokenById } = useTokensList({ tmpStore: store });
 

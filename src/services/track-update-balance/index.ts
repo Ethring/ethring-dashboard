@@ -2,7 +2,7 @@ import { toLower, isEqual } from 'lodash';
 
 import { computed } from 'vue';
 
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import SocketDataProvider from '@/core/balance-provider/socket';
 import { updateBalanceByChain } from '@/core/balance-provider';

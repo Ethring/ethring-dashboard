@@ -21,12 +21,13 @@ include:
     HOST: work.3ahtim54r.ru
     NODE_ENV: development
     TX_MANAGER_API: https://zomet-tx-manager.3ahtim54r.ru
+    DOCKERFILE: Dockerfile
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - time /kaniko/executor
       --context $CI_PROJECT_DIR
-      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --dockerfile $CI_PROJECT_DIR/$DOCKERFILE
       --destination $IMAGE_TAG
       --cache=true
       --cache-ttl=168h
@@ -105,6 +106,7 @@ Build dev:
       when: never
     - if: $CI_COMMIT_BRANCH == "dev"
 
+
 Build beta:
   extends: .dockerBuildJob
   environment:
@@ -148,6 +150,7 @@ Deploy dev:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH == "dev"
+
 
 Deploy beta:
   extends: .deployJob

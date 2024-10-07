@@ -11,7 +11,6 @@ import PortalFiApi, { IPortalFiApi } from '@/modules/portal-fi/api';
 import { IGetQuoteAddLiquidityRequest } from '@/modules/portal-fi/models/request';
 import ApproveLpOperation from './ApproveLp';
 
-import BigNumber from 'bignumber.js';
 import { formatNumber } from '@/shared/utils/numbers';
 
 export default class PortalFiAddLiquidity extends BaseOperation {

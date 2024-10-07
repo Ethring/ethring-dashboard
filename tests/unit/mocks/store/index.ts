@@ -1,4 +1,4 @@
-import { createStore, Store } from 'vuex';
+import { createStore } from 'vuex';
 
 import { chainListMock, tokensList, CONNECTED_WALLETS } from '../../mocks/compositions/index';
 
@@ -7,12 +7,14 @@ import operationsStore from '../../../../src/store/operations/index';
 import configStore from '../../../../src/store/configs/index';
 import tokensStore from '../../../../src/store/tokens';
 import moduleStatesStore from '../../../../src/store/moduleStates';
+import shortcutsListStore from '../../../../src/store/shortcut-list';
+import updateBalanceStore from '../../../../src/store/update-balance';
 
 import txManagerStore from '../../../../src/core/transaction-manager/store';
 import adapterStore from '../../../../src/core/wallet-adapter/store/index';
 import shortcutStore from '../../../../src/core/shortcuts/store';
-import shortcutListStore from '../../../../src/store/shortcut-list';
 import bridgeDexAPIStore from '../../../../src/modules/bridge-dex/store';
+import portalFiStore from '../../../../src/modules/portal-fi/store';
 
 export function createTestStore(isWalletConnected = true) {
     return createStore({
@@ -88,7 +90,9 @@ export function createTestStore(isWalletConnected = true) {
             shortcuts: shortcutStore,
             moduleStates: moduleStatesStore,
             txManager: txManagerStore,
-            shortcutsList: shortcutListStore,
+            shortcutsList: shortcutsListStore,
+            portalFi: portalFiStore,
+            updateBalance: updateBalanceStore,
         },
     });
 }

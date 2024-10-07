@@ -1,16 +1,12 @@
-import { BaseOpParams, PerformOptionalParams } from '@/core/operations/models/Operations';
-import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { BaseOpParams } from '@/core/operations/models/Operations';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 import { BaseOperation } from '@/core/operations/BaseOperation';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
-import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { getActionByTxType } from '../shared/utils';
-import { IAdapter } from '@/core/wallet-adapter/compositions/useAdapter';
 import AdapterFacade from '@/core/wallet-adapter/ecosystems';
 import BigNumber from 'bignumber.js';
 

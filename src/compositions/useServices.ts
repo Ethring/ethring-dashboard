@@ -7,9 +7,9 @@ import BigNumber from 'bignumber.js';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 import useChainTokenManger from './useChainTokenManager';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { useRoute } from 'vue-router';

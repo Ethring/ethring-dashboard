@@ -3,10 +3,10 @@ import { isEqual, isEmpty } from 'lodash';
 import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { Store, useStore } from 'vuex';
 
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 import usePoolsList from '@/compositions/usePoolList';
 import useInputValidation from '@/shared/form-validations';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType, LIKE_SUPER_SWAP, IS_NEED_DST_NETWORK } from '@/shared/models/enums/modules.enum';
