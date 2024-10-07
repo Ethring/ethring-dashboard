@@ -604,6 +604,7 @@ export class CosmosAdapter implements ICosmosAdapter {
 
     async getWalletLogo(walletModule: string): Promise<string | null> {
         if (!this.walletManager) return null;
+
         const module = this.walletManager.mainWallets.find((wallet) => wallet.walletName === walletModule);
         const { logo } = module?.walletInfo || {};
         return logo as string;

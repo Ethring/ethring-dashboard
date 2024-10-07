@@ -3,7 +3,7 @@
         <DefaultLoading v-if="loading" :tip="tip" />
         <div v-else>
             <component :is="icon" />
-            <span>{{ title }}</span>
+            <span data-testid="confirm-btn">{{ title }}</span>
         </div>
     </button>
 </template>

@@ -55,7 +55,7 @@
 <script lang="ts">
 import { defineComponent, h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';

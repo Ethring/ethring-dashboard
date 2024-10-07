@@ -13,7 +13,7 @@
 <script>
 import { ref, onMounted, onUpdated } from 'vue';
 
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { isSVG } from '@/core/wallet-adapter/utils';
 

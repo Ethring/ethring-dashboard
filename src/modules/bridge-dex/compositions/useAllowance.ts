@@ -2,13 +2,14 @@ import { computed, onUnmounted, watch } from 'vue';
 import { useStore, Store } from 'vuex';
 import BigNumber from 'bignumber.js';
 
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { GetAllowanceParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { Allowance } from '@/modules/bridge-dex/models/Request.type';
 

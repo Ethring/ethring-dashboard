@@ -13,7 +13,6 @@ import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import store from '@/app/providers/store.provider';
 
 interface IDependencyParams {
     dependencyParamKey: string;
@@ -290,7 +289,10 @@ export default class OperationFactory implements IOperationFactory {
         return { operationId, operationParams };
     }
 
-    processDependencyParams(opId: string, { isSetParam = false, isEstimate = false }: { isSetParam: boolean; isEstimate?: boolean }): void {
+    processDependencyParams(
+        opId: string,
+        { isSetParam = false, isEstimate = false, store }: { isSetParam: boolean; isEstimate?: boolean; store?: Storage },
+    ): void {
         const operation = this.getOperationById(opId);
         if (!operation) return;
 
@@ -328,7 +330,7 @@ export default class OperationFactory implements IOperationFactory {
         }
     }
 
-    calculateParams(): void {
+    calculateParams(store: Storage | any): void {
         const operations = Array.from(this.operationsMap.keys());
 
         for (const operation of operations) {
@@ -338,7 +340,7 @@ export default class OperationFactory implements IOperationFactory {
 
             if (!currentOperation) continue;
 
-            this.processDependencyParams(opId, { isSetParam: true });
+            this.processDependencyParams(opId, { isSetParam: true, store });
         }
     }
 
@@ -370,7 +372,7 @@ export default class OperationFactory implements IOperationFactory {
                 continue;
             }
 
-            this.processDependencyParams(opId, { isSetParam: true, isEstimate: true });
+            this.processDependencyParams(opId, { isSetParam: true, isEstimate: true, store });
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus as STATUSES);
 

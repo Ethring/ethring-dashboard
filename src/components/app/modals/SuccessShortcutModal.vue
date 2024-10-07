@@ -105,7 +105,7 @@ import { IOperationsResult } from '@/core/operations/models/Operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 

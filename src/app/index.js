@@ -76,6 +76,7 @@ app.directive(
 
 // * Use compositions
 app.provide('useAdapter', useAdapter);
+app.provide('socket', socket);
 
 // * Init modules before app mount
 initSentry(app, Router);

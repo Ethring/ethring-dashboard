@@ -120,12 +120,9 @@
 </template>
 
 <script lang="ts">
-import { isEmpty } from 'lodash';
-
 import { computed, onBeforeMount, ref } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { useRoute } from 'vue-router';
 
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
@@ -156,9 +153,7 @@ export default {
     setup() {
         const store = useStore();
 
-        const router = useRouter();
         const route = useRoute();
-        const { walletAddress } = useAdapter();
 
         const activeOption = ref('s1');
         const shortcut = computed(() => store.getters['shortcutsList/selectedShortcut']);
@@ -189,7 +184,7 @@ export default {
         const metaInfo = computed(() => store.getters['shortcuts/getShortcutMetaInfo']);
 
         onBeforeMount(() => {
-            store.dispatch('shortcutsList/loadShortcutById', route.params.id);
+            if (route?.params?.id) store.dispatch('shortcutsList/loadShortcutById', route.params.id);
         });
 
         const openShareModal = () => {

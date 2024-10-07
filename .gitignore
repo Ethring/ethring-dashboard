@@ -52,3 +52,5 @@ tests/mockserver2/__pycache__
 # Vite bundle analyzer
 stats.html
 /dist/stats.html
+
+storybook-static

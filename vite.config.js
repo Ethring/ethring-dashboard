@@ -27,6 +27,11 @@ export default defineConfig({
     define: {
         'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '1.0.0',
     },
+    optimizeDeps: {
+        exclude: [
+            '/Users/dianamaduan/Desktop/zomet-dashboard/node_modules/.cache/storybook/1c3385a5d25e538d10b518b310c74d3ca2690b6aaffeadccd74da79736171f86/sb-vite/deps/chunk-LWG5TT3L.js?v=1cbb6d64',
+        ],
+    },
     test: {
         testTimeout: 24000,
         setupFiles: ['fake-indexeddb/auto'],

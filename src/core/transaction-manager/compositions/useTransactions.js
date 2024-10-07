@@ -10,6 +10,7 @@ import {
 } from '@/core/transaction-manager/api';
 
 import useNotification from '@/compositions/useNotification';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
@@ -19,7 +20,6 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { captureTransactionException } from '@/app/modules/sentry';
 
 import logger from '@/shared/logger';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import { formatNumber } from '@/shared/utils/numbers';
 
@@ -35,6 +35,8 @@ export default function useTransactions({ tmpStore }) {
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {
+        console.log(transactions, '--transactions');
+
         const createdTransactions = await createTransactionsQueue(transactions);
 
         if (createdTransactions) {
@@ -60,6 +62,7 @@ export default function useTransactions({ tmpStore }) {
             ...transaction,
             index: transactions.length,
         };
+        console.log(txToSave, '----txToSave');
 
         const tx = await addTransactionToExistingQueue(requestID, txToSave);
 

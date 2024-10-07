@@ -1,4 +1,7 @@
+// Vue/Vuex
+import { computed, onMounted, onUnmounted, ref, watch, inject } from 'vue';
 import { useStore, Store } from 'vuex';
+
 import { useRouter } from 'vue-router';
 import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
 import BigNumber from 'bignumber.js';
@@ -8,7 +11,6 @@ import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum
 import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/core/transaction-manager/TX-manager';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Config
 import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
@@ -31,14 +33,14 @@ import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 
 import { delay } from '@/shared/utils/helpers';
-import socket from '@/app/modules/socket';
+// import socket from '@/app/modules/socket';
 
 // Compositions
 import useInputValidation from '@/shared/form-validations';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 import useServices from '@/compositions/useServices';
 import useTransactions from '@/core/transaction-manager/compositions/useTransactions.js';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 import { callTrackEvent } from '@/app/modules/mixpanel/track';
 import mixpanel from 'mixpanel-browser';
@@ -47,6 +49,7 @@ import { IChainConfig } from '@/shared/models/types/chain-config';
 const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
     const store = process.env.NODE_ENV === 'test' ? (tmpStore as Store<any>) : useStore();
     const route = useRouter();
+    const socket = inject('socket');
 
     // ************************************** SHORTCUTS **************************************
 
@@ -1223,7 +1226,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             await txManager.executeTransactions();
         } catch (error) {
             console.error('useModuleOperations -> executeTransactions -> error', error);
-            throw error;
+            //  throw error;
         } finally {
             isTransactionSigning.value = false;
             claimedItem.value = null;

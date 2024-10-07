@@ -7,9 +7,9 @@ import { useStore, Store } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 
 // ********************* Compositions *********************
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useShortcutOperations from '@/core/shortcuts/compositions/useShortcutOperations';
 import usePrepareFields from '@/core/shortcuts/compositions/usePrepareFields';
+import useAdapter from '#/core/wallet-adapter/compositions/useAdapter';
 
 // ********************* Shortcuts *********************
 import ShortcutCl, { IShortcutData } from '@/core/shortcuts/core/Shortcut';
