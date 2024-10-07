@@ -222,10 +222,9 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .overlay-container {
-    width: 101%;
+    width: 100%;
 
     min-height: 500px;
-    max-width: 520px;
 
     background: var(--#{$prefix}main-background);
 
@@ -237,7 +236,6 @@ export default defineComponent({
     position: absolute;
 
     top: 0;
-    left: -1%;
     right: 0;
     bottom: 0;
 

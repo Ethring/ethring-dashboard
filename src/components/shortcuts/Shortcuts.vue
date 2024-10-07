@@ -40,7 +40,7 @@
 
     <div v-if="shortcuts.length" class="shortcut-list">
         <a-row :gutter="[16, 16]">
-            <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :md="24" :lg="12"> <ShortcutItem :item="item" /> </a-col
+            <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :span="24" :lg="12"> <ShortcutItem :item="item" /> </a-col
         ></a-row>
         <a-spin v-if="isShortcutsLoading" size="medium" class="spin__center mt-16" />
     </div>

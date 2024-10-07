@@ -92,7 +92,7 @@
         <div class="layout-page__content">
             <a-spin :spinning="isShortcutLoading" size="large">
                 <a-row :gutter="[16, 16]">
-                    <a-col :md="24" :lg="12">
+                    <a-col :span="24" :lg="12">
                         <div v-if="shortcutLayout" class="steps-content">
                             <component
                                 :is="shortcutLayout"
@@ -108,7 +108,7 @@
 
                         <ShortcutLoading v-if="isShowLoading" :shortcut-id="shortcutId" />
                     </a-col>
-                    <a-col :md="24" :lg="12">
+                    <a-col :span="24" :lg="12">
                         <a-steps v-model:current="shortcutIndex" direction="vertical" :items="steps" />
                     </a-col>
                 </a-row>

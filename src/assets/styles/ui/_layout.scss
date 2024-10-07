@@ -425,3 +425,13 @@ $top-bar-spacing: 63px;
         }
     }
 }
+
+@media (max-width: 800px) {
+    .main-layout-content {
+        width: 80%;
+    }
+
+    .nav-bar-container {
+        width: 80% !important;
+    }
+}
