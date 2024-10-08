@@ -156,7 +156,17 @@ export default {
                 isSameEcosystem && dispatch('tokenOps/resetSrcBalanceForAccount', null, { root: true });
             }
         },
-        [TYPES.DISCONNECT_ALL_WALLETS]({ commit }) {
+        [TYPES.DISCONNECT_ALL_WALLETS]({ commit, rootState, dispatch }) {
+            // Reset src balance for token ops
+            dispatch('tokenOps/resetSrcBalanceForAccount', null, { root: true });
+
+            const { wallets = [] } = rootState.adapters || {};
+
+            for (const wallet of wallets) {
+                const { account } = wallet || {};
+                if (account) dispatch('tokens/removeBalanceForAccount', account, { root: true });
+            }
+
             commit(TYPES.DISCONNECT_ALL_WALLETS);
         },
         [TYPES.SET_IS_CONNECTED]({ commit }, value) {
