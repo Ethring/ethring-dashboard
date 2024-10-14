@@ -39,7 +39,7 @@ export class BaseOperation implements IBaseOperation {
         from?: IAsset;
         to?: IAsset;
     } = {};
-    quoteRoute?: IQuoteRoute;
+    quoteRoutes?: IQuoteRoute[];
     txResponse: any;
     waitTime: number = 3.5;
 
@@ -150,12 +150,12 @@ export class BaseOperation implements IBaseOperation {
         this.transactionType = type;
     }
 
-    setQuoteRoute(route: IQuoteRoute): void {
-        this.quoteRoute = route;
+    setQuoteRoutes(route: IQuoteRoute[]): void {
+        this.quoteRoutes = route;
     }
 
-    getQuoteRoute(): IQuoteRoute {
-        return this.quoteRoute as IQuoteRoute;
+    getQuoteRoutes(): IQuoteRoute[] {
+        return this.quoteRoutes as IQuoteRoute[];
     }
 
     getNotificationInfo(make: string): {

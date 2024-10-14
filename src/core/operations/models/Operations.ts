@@ -88,7 +88,7 @@ export interface IBaseOperation {
     account: string;
     service?: any;
 
-    quoteRoute?: IQuoteRoute;
+    quoteRoutes?: IQuoteRoute[];
 
     isNeedApprove: boolean;
     abortController: AbortController;
@@ -158,7 +158,7 @@ export interface IBaseOperation {
 
     setQuoteRoute?: (route: IQuoteRoute) => void;
 
-    getQuoteRoute: () => IQuoteRoute;
+    getQuoteRoutes: () => IQuoteRoute[];
     getServiceType?: () => ServiceTypes;
 
     getAdditionalTooltip: () => string;

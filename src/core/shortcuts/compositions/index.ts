@@ -481,9 +481,9 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
         if (!operation) return false;
 
-        const quoteRoute = operation.getQuoteRoute();
+        const quoteRoutes = operation.getQuoteRoutes();
 
-        if (!quoteRoute) {
+        if (!quoteRoutes) {
             initDisabledOrHiddenFields();
             return false;
         }
@@ -494,12 +494,12 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         await store.dispatch('bridgeDexAPI/setSelectedRoute', {
             serviceType: operation.getServiceType(),
-            value: quoteRoute,
+            value: quoteRoutes[0],
         });
 
         await store.dispatch('bridgeDexAPI/setQuoteRoutes', {
             serviceType: operation.getServiceType(),
-            value: [quoteRoute],
+            value: quoteRoutes,
         });
 
         initDisabledOrHiddenFields();

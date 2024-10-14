@@ -106,7 +106,7 @@ export default class DexOperation extends BaseOperation {
             return;
         }
 
-        this.setQuoteRoute(bestRoute);
+        this.setQuoteRoutes(routes);
 
         this.setParamByField('outputAmount', bestRoute.toAmount);
     }
