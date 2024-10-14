@@ -125,6 +125,10 @@
 
 .sidebar-item.ant-menu-item.ant-menu-item-selected {
     background: none !important;
+
+    &:hover{
+        background-color: none !important;
+    }
 }
 
 .sidebar-item.ant-menu-item.ant-menu-item-disabled {
@@ -152,4 +156,9 @@
 .ant-tag {
     color: var(--#{$prefix}primary) !important;
     font-weight: 500;
+}
+
+/* Override the background color for the selected menu item */
+.ant-menu-item-selected, .ant-menu-item-active, .ant-menu-item:hover {
+    background-color: transparent !important;
 }
