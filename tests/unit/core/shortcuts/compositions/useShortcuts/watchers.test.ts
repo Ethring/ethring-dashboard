@@ -164,7 +164,7 @@ describe('useShortcuts', () => {
 
             const { operationsFactory, currentOp } = useShortcutsMock;
             const operation = operationsFactory.value.getOperationById(currentOp.value.id);
-            operation.setQuoteRoute(testRoute);
+            operation.setQuoteRoutes([testRoute]);
             const result = await useShortcutsMock.handleOnChangeIsQuoteLoading(false, true);
             expect(result).toBe(true);
             expect(store.getters['bridgeDexAPI/getSelectedRoute'](operation.getServiceType())).toEqual(testRoute);
@@ -176,7 +176,7 @@ describe('useShortcuts', () => {
 
             const { operationsFactory, currentOp } = useShortcutsMock;
             const operation = operationsFactory.value.getOperationById(currentOp.value.id);
-            operation.setQuoteRoute(null);
+            operation.setQuoteRoutes(null);
 
             const result = await useShortcutsMock.handleOnChangeIsQuoteLoading(false, true);
             expect(result).toBe(false);

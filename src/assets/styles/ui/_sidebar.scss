@@ -126,7 +126,7 @@
 .sidebar-item.ant-menu-item.ant-menu-item-selected {
     background: none !important;
 
-    &:hover{
+    &:hover {
         background-color: none !important;
     }
 }
@@ -159,6 +159,8 @@
 }
 
 /* Override the background color for the selected menu item */
-.ant-menu-item-selected, .ant-menu-item-active, .ant-menu-item:hover {
+.ant-menu-item-selected,
+.ant-menu-item-active,
+.ant-menu-item:hover {
     background-color: transparent !important;
 }
