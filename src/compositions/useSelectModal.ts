@@ -346,8 +346,10 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
         });
 
         // * Filter tokens by include
-        if (includeTokenList.value.length)
-            TOKEN_LIST.value = TOKEN_LIST.value.filter((token: IAsset) => includeTokenList.value.includes(token.id));
+        if (includeTokenList.value.length) {
+            const includeTokenIdsSet = new Set(includeTokenList.value.map((id: string) => id.toLowerCase()));
+            TOKEN_LIST.value = TOKEN_LIST.value.filter((token: IAsset) => includeTokenIdsSet.has(token.id.toLowerCase()));
+        }
 
         setTimeout(() => {
             store.dispatch('app/setLoadingTokenList', false);
