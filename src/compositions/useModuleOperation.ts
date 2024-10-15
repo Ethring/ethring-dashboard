@@ -992,7 +992,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
                     throw new Error('Operation performTx function not implemented');
 
                 const performResponse = await operation.performTx(operation.getEcosystem(), {
-                    serviceId: operation.getParamByField('serviceId'),
+                    serviceId: operation.getParamByField('serviceId') || selectedRoute.value?.serviceId,
                 });
 
                 const { transaction, ecosystem = '' } = performResponse || {};

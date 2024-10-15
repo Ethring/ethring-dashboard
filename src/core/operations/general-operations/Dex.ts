@@ -1,21 +1,17 @@
 import { isNaN } from 'lodash';
 
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
-import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { IBridgeDexTransaction, IQuoteRoute, IQuoteRoutes } from '@/modules/bridge-dex/models/Response.interface';
 
 import { BaseOperation } from '@/core/operations/BaseOperation';
-import { PerformOptionalParams, PerformTxParams } from '@/core/operations/models/Operations';
+import { PerformTxParams } from '@/core/operations/models/Operations';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
-
-import { getActionByTxType } from '@/core/operations/shared/utils';
 
 export default class DexOperation extends BaseOperation {
     module: ModuleType.swap = ModuleType.swap;
@@ -92,10 +88,7 @@ export default class DexOperation extends BaseOperation {
 
         let bestRouteServiceId = null;
 
-        if (!serviceId) {
-            bestRouteServiceId = best;
-            this.setParamByField('serviceId', bestRouteServiceId);
-        }
+        if (!serviceId) bestRouteServiceId = best;
 
         this.setParamByField('routeId', routeId);
 
