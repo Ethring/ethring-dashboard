@@ -286,7 +286,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             ...operationParams,
             ownerAddresses: addressesByChain.value,
             serviceId,
-            slippage: slippage.value,
+            slippage,
         });
 
         registerResponse && (registerResponse = null);
