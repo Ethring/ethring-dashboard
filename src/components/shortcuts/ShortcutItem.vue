@@ -55,8 +55,21 @@
                     <span class="rewards__title">Rewards: </span>
                     <span class="rewards__description">{{ item?.rewardsDescription }}</span>
                     <a-tooltip v-for="elem in item.rewards" :key="elem.tooltip">
-                        <template #title>{{ elem.tooltip }} </template>
-                        <div v-if="elem.tooltip === 'APR'" class="rewards__apr">APR%</div>
+                        <template #title>
+                            <div v-if="elem.tooltip === 'APR'">
+                                <p v-for="data in item.additionalData?.poolsApy?.pools" :key="data?.id">
+                                    Pool: {{ data.name }} - {{ data?.apy || 'N/A' }}{{ !isNaN(data?.apy) ? '%' : '' }}
+                                </p>
+                            </div>
+                            <span v-else>{{ elem.tooltip }}</span>
+                        </template>
+                        <div v-if="elem.tooltip === 'APR'" class="rewards__apr">
+                            {{
+                                !isNaN(+item.additionalData?.poolsApy?.avgApy)
+                                    ? formatNumber(item.additionalData?.poolsApy?.avgApy, 2) + ' %'
+                                    : 'N/A'
+                            }}
+                        </div>
                         <img v-else :src="elem.image" />
                     </a-tooltip>
                 </a-row>
@@ -106,6 +119,7 @@ import Amount from '@/components/app/Amount.vue';
 import { ECOSYSTEM_LOGOS } from '@/core/wallet-adapter/config';
 import { ShortcutTypeColors } from '@/core/shortcuts/core/';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default {
     name: 'ShortcutItem',
@@ -192,6 +206,7 @@ export default {
             getEcosystemLogo,
             handleOnLoadImg,
             handleOnErrorImg,
+            formatNumber,
         };
     },
 };
