@@ -23,6 +23,7 @@ import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/super-swap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
 import shortcutIcon from '@/assets/icons/sidebar/shortcut.svg';
+import portfolioIcon from '@/assets/icons/sidebar/portfolio.svg';
 
 import feedbackIcon from '@/assets/icons/sidebar/feedback';
 
@@ -37,6 +38,7 @@ export default {
         buyCryptoIcon,
         shortcutIcon,
         feedbackIcon,
+        portfolioIcon,
     },
     props: {
         collapsed: {

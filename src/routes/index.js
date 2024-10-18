@@ -93,6 +93,22 @@ export const routes = [
         name: 'Not Found',
         component: () => import('@/pages/general/NotFound.vue'),
     },
+    {
+        path: '/portfolio',
+        name: 'Zomet - portfolio',
+        meta: {
+            key: 'portfolio',
+        },
+        component: () => import('@/pages/portfolio/Portfolio.vue'),
+    },
+    {
+        path: '/withdraw/:id',
+        name: 'Withdraw',
+        meta: {
+            key: 'withdraw',
+        },
+        component: () => import('@/pages/portfolio/Withdraw.vue'),
+    },
     // {
     //     path: '/send',
     //     name: 'Zomet - Send',
