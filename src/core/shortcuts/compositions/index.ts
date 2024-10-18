@@ -22,9 +22,6 @@ import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum
 import { delay } from '@/shared/utils/helpers';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
-// ********************* Balance Provider *********************
-import { loadUsersPoolList } from '@/core/balance-provider';
-
 const getEmptyShortcut = (id: string) => {
     return {
         id,
@@ -365,24 +362,13 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         performDisabledOrHiddenFields(currentStepId.value, moduleType, params);
     };
 
-    const initShortcutMetaInfo = async (isBalanceUpdate = false) => {
+    const initShortcutMetaInfo = async () => {
         if (!walletAccount.value || !currentChainInfo.value?.chain || !shortcut.value.callShortcutMethod) return false;
 
-        switch (shortcut.value.callShortcutMethod) {
-            case 'loadUsersPoolList':
-                await loadUsersPoolList({
-                    ecosystem: currentChainInfo.value.ecosystem,
-                    chain: currentChainInfo.value.chain as string,
-                    address: walletAccount.value,
-                    isBalanceUpdate,
-                });
-                break;
-            default:
-                await store.dispatch(`shortcuts/${shortcut.value.callShortcutMethod}`, {
-                    address: walletAccount.value,
-                    ecosystem: currentChainInfo.value.ecosystem,
-                });
-        }
+        await store.dispatch(`shortcuts/${shortcut.value.callShortcutMethod}`, {
+            address: walletAccount.value,
+            ecosystem: currentChainInfo.value.ecosystem,
+        });
 
         return true;
     };
@@ -539,7 +525,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         if (newVal !== STATUSES.SUCCESS) return;
 
         store.dispatch('app/toggleModal', 'successShortcutModal');
-        await initShortcutMetaInfo(true);
+        await initShortcutMetaInfo();
     };
 
     // **************************************************************************************************

@@ -199,5 +199,10 @@
     },
     "pageNotFound": "Page not found",
     "beraAlertMessage": "You need at least <b>0.001 ETH</b> in your wallet on Ethereum Mainnet to use the faucet. You can claim 1 testnet BERA token every 8 hours.",
-    "getHelp": "Get help?"
+    "getHelp": "Get help?",
+    "portfolio": {
+        "value": "Portfolio Value",
+        "backTo": "Back to portfolio",
+        "withdraw": "Withdraw liquidity"
+    }
 }

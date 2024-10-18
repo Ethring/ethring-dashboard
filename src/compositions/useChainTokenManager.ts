@@ -71,6 +71,11 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         set: (value) => store.dispatch('tokenOps/setDstToken', value),
     });
 
+    const selectedPool = computed({
+        get: () => store.getters['tokenOps/selectedPool'],
+        set: (value) => store.dispatch('tokenOps/setSelectedPool', value),
+    });
+
     const pools = usePoolsList();
     // =================================================================================================================
 
@@ -217,8 +222,14 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         if (moduleType === ModuleType.shortcut && !CurrentShortcut.value) return;
 
         // return pool token, if shortcut is RemoveLiquidityPool
-        if (CurrentShortcut.value === RemoveLiquidityPoolId && isSrc)
+        if (CurrentShortcut.value === RemoveLiquidityPoolId && isSrc) {
+            if (selectedPool.value) {
+                selectedSrcNetwork.value = chainList.value.find((item: { net: any }) => item.net === selectedPool.value.net);
+                return selectedPool.value;
+            }
+
             return pools.value[srcNet?.net]?.length ? pools.value[srcNet?.net][0] : null;
+        }
 
         const getTokensParams = {
             srcNet,
@@ -381,6 +392,9 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         // 5. Set the source and destination tokens
         await defaultTokenManagerByModule();
+
+        // 6. Clear selected pool data
+        selectedPool.value = null;
     };
 
     const onChangeSrcDstNetwork = async (

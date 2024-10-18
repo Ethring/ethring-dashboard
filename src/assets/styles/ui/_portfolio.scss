@@ -1,0 +1,88 @@
+.portfolio {
+    position: relative;
+
+    &-value {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+
+        > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 40px;
+            border-radius: 100px;
+            background: var(--#{$prefix}select-bg-color);
+            border: 1px solid var(--#{$prefix}select-bg-color);
+            transition: 0.2s ease-in-out;
+
+            .title {
+                color: var(--#{$prefix}description-text);
+                font-weight: 500;
+                margin-right: 8px;
+            }
+
+            .value {
+                font-size: var(--#{$prefix}h6-fs);
+            }
+        }
+    }
+
+    &-block {
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-radius: 16px;
+
+        background-color: var(--#{$prefix}secondary-background) !important;
+        border: 1px solid var(--#{$prefix}assets-border-color) !important;
+
+        .network,
+        .name {
+            color: var(--#{$prefix}primary-text);
+            text-transform: capitalize;
+        }
+
+        .network {
+            margin-left: 4px;
+        }
+
+        .rewards {
+            color: var(--#{$prefix}secondary-text);
+        }
+
+        button {
+            border-radius: 20px;
+            height: 34px !important;
+            min-height: 34px !important;
+
+            span {
+                font-size: var(--#{$prefix}small-sm-fs) !important;
+            }
+        }
+
+        .name,
+        .currency .symbol {
+            text-wrap: nowrap !important;
+            text-overflow: ellipsis !important;
+            overflow: hidden !important;
+            display: block;
+            width: 240px;
+        }
+
+        .currency .symbol {
+            width: 80px;
+        }
+    }
+
+    .ant-table-column-sorter{
+        position: absolute;
+        left: 30px;
+    }
+
+    .ant-table-thead .ant-table-cell:nth-child(3){
+        .ant-table-column-sorter{
+            left: 46px;
+        }
+    }
+}

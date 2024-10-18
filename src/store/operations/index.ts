@@ -59,6 +59,8 @@ const TYPES = {
     SET_FUNDS: 'SET_FUNDS',
 
     SET_IS_INPUT: 'SET_IS_INPUT',
+
+    SET_SELECTED_POOL: 'SET_SELECTED_POOL',
 };
 
 const fieldSetter = {
@@ -79,6 +81,7 @@ const fieldSetter = {
     contractCallCount: TYPES.SET_CONTRACT_CALL_COUNT,
     funds: TYPES.SET_FUNDS,
     slippage: TYPES.SET_SLIPPAGE,
+    selectedPool: TYPES.SET_SELECTED_POOL,
 };
 
 interface IState extends IFields {
@@ -102,6 +105,8 @@ interface IState extends IFields {
     };
 
     isInput: boolean;
+
+    selectedPool: any;
 }
 
 export default {
@@ -141,7 +146,7 @@ export default {
         [Field.contractCallCount]: 0,
 
         [Field.funds]: null,
-        [Field.slippage]: slippageFromStore.value || 1,
+        slippage: slippageFromStore.value || 1,
 
         isInput: false,
 
@@ -154,6 +159,8 @@ export default {
             [ModuleType.shortcut]: false,
             [ModuleType.nft]: false,
         },
+
+        selectedPool: null,
     }),
 
     getters: {
@@ -229,6 +236,8 @@ export default {
         slippage: (state: IState): number => state[Field.slippage],
 
         isInput: (state: IState): boolean => state.isInput || false,
+
+        selectedPool: (state: IState): any => state.selectedPool,
     },
 
     mutations: {
@@ -330,6 +339,10 @@ export default {
         [TYPES.SET_IS_INPUT](state: IState, value: boolean) {
             state.isInput = value;
         },
+
+        [TYPES.SET_SELECTED_POOL](state: IState, value: any) {
+            state.selectedPool = value;
+        },
     },
 
     actions: {
@@ -416,6 +429,10 @@ export default {
 
         setIsInput({ commit }, value: boolean) {
             commit(TYPES.SET_IS_INPUT, value);
+        },
+
+        setSelectedPool({ commit }, value: any) {
+            commit(TYPES.SET_SELECTED_POOL, value);
         },
     },
 };

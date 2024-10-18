@@ -38,16 +38,25 @@ const SHORTCUT = {
     type: 'layout',
 };
 
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SUPER_SWAP];
+const PORTFOLIO = {
+    icon: 'portfolioIcon',
+    title: 'Portfolio',
+    key: 'portfolio',
+    to: '/portfolio',
+    disabled: false,
+    type: 'layout',
+};
 
-const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SUPER_SWAP];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, PORTFOLIO, SHORTCUT, SUPER_SWAP];
+
+const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, PORTFOLIO, SHORTCUT, SUPER_SWAP];
 
 const defaultConfig = {
     [Ecosystem.EVM]: {
         sidebar: SIDEBAR_MODULES,
-        // send: {
-        //     component: 'SimpleSend',
-        // },
+        portfolio: {
+            component: 'Portfolio',
+        },
         superSwap: {
             component: 'SuperSwap',
         },
@@ -57,9 +66,9 @@ const defaultConfig = {
     },
     [Ecosystem.COSMOS]: {
         sidebar: SIDEBAR_MODULES,
-        // send: {
-        //     component: 'SimpleSend',
-        // },
+        portfolio: {
+            component: 'Portfolio',
+        },
         superSwap: {
             component: 'SuperSwap',
         },

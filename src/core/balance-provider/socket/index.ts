@@ -3,10 +3,11 @@ import { values } from 'lodash';
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 
-import { BaseType, DP_SDK_PROD_CHAINS_EVM, Providers } from '../models/enums';
+import { BaseType, DP_SDK_PROD_CHAINS_EVM, POOL_BALANCES_CHAINS, Providers, Type } from '../models/enums';
 import { storeBalanceForAccount } from '../utils';
 import { BalanceType, BalanceResponse } from '../models/types';
 import { IAddressByNetwork } from '@/core/wallet-adapter/models/ecosystem-adapter';
+import PortalFiApi from '@/modules/portal-fi/api';
 
 import logger from '@/shared/logger';
 import { loadBalancesFromContract } from '..';
@@ -102,6 +103,21 @@ class SocketInstance {
 
     async updateBalance(address: string, chain?: string) {
         this.socket.emit(SocketEvents.update_balance, address);
+
+        // Load pool balances
+        const poolService = new PortalFiApi();
+        const chains = chain ? [chain] : POOL_BALANCES_CHAINS;
+
+        for (const net of chains) {
+            const chainInfo = this.addresses[net] || {};
+
+            const response = await poolService.getUserBalancePoolList({ net, address });
+            await storeBalanceForAccount(Type.pools, address, net, address, response, {
+                store: this.store,
+                ...chainInfo,
+                provider: 'Portal',
+            });
+        }
 
         if (chain !== 'berachain') return;
 

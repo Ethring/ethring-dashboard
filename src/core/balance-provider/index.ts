@@ -85,27 +85,6 @@ export const updateBalanceByChain = async (account: string, address: string, cha
     }
 };
 
-export const loadUsersPoolList = async (params: { address: string; ecosystem: string; isBalanceUpdate: boolean; chain: string }) => {
-    const { address, isBalanceUpdate, chain, ecosystem } = params;
-    if (!address || ecosystem !== Ecosystem.EVM) return;
-
-    const accountPools = store.getters['tokens/getPoolsByAccount'](address);
-
-    if (accountPools && !isBalanceUpdate) return accountPools;
-
-    const poolService = new PortalFiApi();
-    const chains = isBalanceUpdate ? [chain] : POOL_BALANCES_CHAINS;
-
-    for (const net of chains) {
-        const response = await poolService.getUserBalancePoolList({ net, address });
-        await storeBalanceForAccount(Type.pools, address, net, address, response, {
-            store,
-            chain: net,
-            provider: 'Portal',
-        });
-    }
-};
-
 // TODO: Remove this function after berachain balances are fixed
 // ******************************************************************************************************************************************************
 // ! temporary solution for berachain testnet balances

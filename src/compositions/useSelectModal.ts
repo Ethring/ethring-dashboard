@@ -125,6 +125,11 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
         set: (value) => store.dispatch('tokenOps/setDstToken', value),
     });
 
+    const selectedPool = computed({
+        get: () => store.getters['tokenOps/selectedPool'],
+        set: (value) => store.dispatch('tokenOps/setSelectedPool', value),
+    });
+
     // *****************************************************************************************************************
     // * Flags
     // *****************************************************************************************************************
@@ -166,6 +171,8 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     };
 
     const handleOnSelect = (e: any, item: any) => {
+        selectedPool.value = null;
+
         if (!type.value) return;
 
         const { classList = [] } = e?.target || {};
