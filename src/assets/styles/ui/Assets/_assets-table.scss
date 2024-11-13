@@ -70,7 +70,8 @@
     }
 }
 
-.assets-table, .portfolio-table {
+.assets-table,
+.portfolio-table {
     border-color: var(--#{$prefix}assets-border-color) !important;
     background-color: var(--#{$prefix}secondary-background) !important;
     border-radius: 8px;

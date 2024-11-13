@@ -107,3 +107,33 @@
         }
     }
 }
+
+.shortcuts__view {
+    margin-left: auto;
+
+    & > span {
+        border: 1px solid var(--#{$prefix}border-color);
+
+        border-radius: 6px;
+        padding: 4px 8px;
+
+        transition: 0.2s;
+
+        &:not(:last-child) {
+            margin-right: 4px;
+        }
+
+        &:hover {
+            cursor: pointer;
+            background: var(--#{$prefix}tag-selected);
+        }
+    }
+
+    svg {
+        fill: var(--#{$prefix}secondary-text);
+    }
+
+    &--active {
+        background: var(--#{$prefix}tag-selected);
+    }
+}

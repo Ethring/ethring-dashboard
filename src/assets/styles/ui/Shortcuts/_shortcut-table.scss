@@ -1,0 +1,39 @@
+.shortcuts-table {
+}
+
+.shortcuts-table .ant-table-row {
+    cursor: pointer;
+}
+
+.shortcuts-table {
+    .ant-table-title,
+    .ant-table-cell,
+    .ant-table-row,
+    .ant-table-container,
+    tr,
+    tbody,
+    table,
+    td {
+        border-width: 0.1px !important;
+        border-color: var(--#{$prefix}assets-header-border-color) !important;
+        background-color: var(--#{$prefix}secondary-background) !important;
+        color: var(--#{$prefix}primary-text);
+    }
+
+    .ant-table-thead .ant-table-cell {
+        font-size: var(--#{$prefix}small-sm-fs);
+        font-weight: 500;
+        color: var(--#{$prefix}primary-text);
+
+        &::before,
+        &::after {
+            display: none !important;
+        }
+
+        .name::before {
+            content: '\2022';
+            margin: 0 4px;
+            color: var(--#{$prefix}neutral-text);
+        }
+    }
+}

@@ -10,9 +10,16 @@ const TYPES = {
     SET_AUTHORS_SHORTCUTS: 'SET_AUTHORS_SHORTCUTS',
     SET_SHORTCUTS_LOADING: 'SET_SHORTCUTS_LOADING',
     SET_SEARCH_QUERY: 'SET_SEARCH_QUERY',
+
+    SET_VIEW_TYPE: 'SET_VIEW_TYPE',
 };
 
 const SHORTCUT_WATCH_LIST_KEY = 'shortcuts:watchList';
+
+const VIEWS = {
+    GRID: 'grid',
+    LIST: 'list',
+};
 
 const shortcutWatchList = useLocalStorage(SHORTCUT_WATCH_LIST_KEY, [], { mergeDefaults: true });
 
@@ -32,6 +39,7 @@ const filterShortcuts = (state, type) => {
 export default {
     namespaced: true,
     state: () => ({
+        currentViewType: VIEWS.GRID,
         shortcuts: [],
         selectedTags: [],
         watchList: shortcutWatchList.value,
@@ -42,6 +50,7 @@ export default {
         searchInput: '',
     }),
     getters: {
+        getCurrentViewType: (state) => state.currentViewType,
         shortcuts: (state) => state.shortcuts,
         selectedTags: (state) => state.selectedTags,
         watchList: (state) => state.watchList,
@@ -73,6 +82,9 @@ export default {
         },
         [TYPES.SET_SEARCH_QUERY](state, value) {
             state.searchInput = value;
+        },
+        [TYPES.SET_VIEW_TYPE](state, value) {
+            state.currentViewType = value;
         },
     },
     actions: {
@@ -133,6 +145,9 @@ export default {
             const shortcuts = await getShortcuts({ limit: 30, offset: 0, searchString });
 
             commit(TYPES.SET_ALL_SHORTCUTS, shortcuts);
+        },
+        setViewType({ commit }, value) {
+            commit(TYPES.SET_VIEW_TYPE, value);
         },
     },
 };
