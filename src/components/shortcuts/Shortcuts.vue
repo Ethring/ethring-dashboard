@@ -146,7 +146,7 @@ export default {
 
         const columns = [
             {
-                title: 'Logo',
+                title: '',
                 dataIndex: 'logoURI',
                 key: 'logoURI',
                 width: '2%',
