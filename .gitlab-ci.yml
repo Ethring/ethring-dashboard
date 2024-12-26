@@ -7,8 +7,8 @@ stages:
   - test_performance
   - sentry
 
-include:
-  - local: "/tests/build/tests-ci.yml"
+# include:
+#   - local: "/tests/build/tests-ci.yml"
 
 .dockerBuildJob:
   stage: build_docker
@@ -53,7 +53,7 @@ include:
   cache: {}
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
-    NAME: $CI_PROJECT_NAME
+    NAME: ethring
     TEMPLATE: template.yml
     REPLICAS: 1
     PORT: 8080
@@ -81,24 +81,24 @@ include:
       fi
     - oc rollout status deploy $NAME -n $OPENSHIFT_PROJECT
 
-Sentry release:
-  stage: sentry
-  image: node:14
-  only:
-    - master
-  before_script:
-    - export RELEASE_NAME=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
-  script:
-    - npm ci
-    - NODE_ENV=production npm run build
-    - npm install @sentry/cli
-    - npx sentry-cli releases new $RELEASE_NAME --finalize
-    - npx sentry-cli sourcemaps upload --release $RELEASE_NAME ./dist/
+# Sentry release:
+#   stage: sentry
+#   image: node:14
+#   only:
+#     - master
+#   before_script:
+#     - export RELEASE_NAME=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+#   script:
+#     - npm ci
+#     - NODE_ENV=production npm run build
+#     - npm install @sentry/cli
+#     - npx sentry-cli releases new $RELEASE_NAME --finalize
+#     - npx sentry-cli sourcemaps upload --release $RELEASE_NAME ./dist/
 
 Build dev:
   extends: .dockerBuildJob
-  needs:
-    - "Run tests"
+  # needs:
+  #   - "Run tests"
   environment:
     name: dev
   rules:
@@ -140,8 +140,8 @@ Build prod:
 
 Deploy dev:
   extends: .deployJob
-  variables:
-    TEMPLATE: auth-template.yml
+  # variables:
+  #   TEMPLATE: auth-template.yml
   needs:
     - "Build dev"
   environment:
@@ -152,37 +152,37 @@ Deploy dev:
     - if: $CI_COMMIT_BRANCH == "dev"
 
 
-Deploy beta:
-  extends: .deployJob
-  variables:
-    NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
-  environment:
-    name: prod
-  rules:
-    - if: $CI_COMMIT_BRANCH == "beta"
+# Deploy beta:
+#   extends: .deployJob
+#   variables:
+#     NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+#   environment:
+#     name: prod
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "beta"
 
-Deploy branch:
-  extends: .deployJob
-  needs: ["Build branch"]
-  variables:
-    NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
-    REDEPLOY: "YES"
-    IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/branches:$CI_COMMIT_REF_SLUG
-  after_script:
-    - oc delete route $NAME --ignore-not-found=true
-    - oc create route edge $NAME --service=$NAME --hostname=$NAME.$OPENSHIFT_ROUTE --insecure-policy=Redirect
-    - echo "Deployed here - https://$NAME.$OPENSHIFT_ROUTE"
-  environment:
-    name: test
-  except:
-    - dev
-    - master
-    - schedules
-    - beta
+# Deploy branch:
+#   extends: .deployJob
+#   needs: ["Build branch"]
+#   variables:
+#     NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+#     REDEPLOY: "YES"
+#     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/branches:$CI_COMMIT_REF_SLUG
+#   after_script:
+#     - oc delete route $NAME --ignore-not-found=true
+#     - oc create route edge $NAME --service=$NAME --hostname=$NAME.$OPENSHIFT_ROUTE --insecure-policy=Redirect
+#     - echo "Deployed here - https://$NAME.$OPENSHIFT_ROUTE"
+#   environment:
+#     name: test
+#   except:
+#     - dev
+#     - master
+#     - schedules
+#     - beta
 
-Deploy prod:
-  extends: .deployJob
-  environment:
-    name: prod
-  rules:
-    - if: $CI_COMMIT_BRANCH == "prod"
+# Deploy prod:
+#   extends: .deployJob
+#   environment:
+#     name: prod
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "prod"
