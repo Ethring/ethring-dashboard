@@ -3,7 +3,8 @@
         @include pageFlexRow;
         justify-content: space-between;
 
-        &__right, &__left {
+        &__right,
+        &__left {
             @include pageFlexRow;
             align-items: center;
             gap: 25px;

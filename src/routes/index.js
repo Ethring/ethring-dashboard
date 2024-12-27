@@ -3,11 +3,11 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 export const routes = [
     {
         path: '',
-        redirect: '/shortcuts',
+        redirect: '/dashboard',
     },
     {
         path: '/',
-        redirect: '/shortcuts',
+        redirect: '/dashboard',
     },
     {
         path: '/dashboard',
@@ -17,18 +17,7 @@ export const routes = [
     {
         path: '/connect-wallet',
         name: 'Connect wallet',
-        meta: {
-            key: 'connect-wallet',
-        },
-        component: () => import('@/pages/Dashboard.vue'),
-    },
-    {
-        path: '/shortcuts',
-        name: 'Zomet - Shortcuts',
-        meta: {
-            key: 'shortcut',
-        },
-        component: () => import('@/pages/shortcuts/Shortcut.vue'),
+        component: () => import('@/pages/Dashboard/index.vue'),
     },
     {
         path: '/:pathMatch(.*)*',
