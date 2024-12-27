@@ -29,6 +29,8 @@ import updateBalance from '@/store/update-balance';
 import moduleStates from '@/store/moduleStates';
 import shortcuts from '@/core/shortcuts/store';
 
+import operationBag from '@/core/operations/store';
+
 // Shortcuts
 import shortcutsList from '@/store/shortcut-list';
 
@@ -49,5 +51,6 @@ export default createStore({
         shortcuts,
         shortcutsList,
         portalFi,
+        operationBag,
     },
 });

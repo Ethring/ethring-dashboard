@@ -25,21 +25,9 @@ export default {
     setup(props) {
         const TO_CONNECT = [
             {
-                name: 'adapter.abstractAccount',
-                ecosystem: null,
-                logos: ['Abstract'],
-                disabled: true,
-            },
-
-            {
                 name: 'adapter.ethereumWallets',
                 ecosystem: Ecosystem.EVM,
                 logos: ['Metamask', 'Coinbase', 'Ledger'],
-            },
-            {
-                name: 'adapter.cosmosWallets',
-                ecosystem: Ecosystem.COSMOS,
-                logos: ['Keplr', 'Leap', 'Ledger'],
             },
         ];
 

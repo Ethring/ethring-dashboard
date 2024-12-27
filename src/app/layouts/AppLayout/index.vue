@@ -1,20 +1,15 @@
 <template>
     <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
 
-    <a-layout has-sider>
-        <Sidebar />
-
-        <a-layout class="layout main-layout" :class="{ collapsed: isCollapsed }">
-            <NavBar />
-            <a-layout-content class="content main-layout-content" data-qa="content">
+    <a-layout>
+        <NavBar />
+        <a-layout class="layout main-layout">
+            <a-layout-content class="content-container content main-layout-content" data-qa="content">
                 <router-view v-slot="{ Component }">
                     <component :is="Component" />
                 </router-view>
             </a-layout-content>
         </a-layout>
-        <div class="get-help">
-            <a href="https://discord.com/invite/fneF9WCG7u" target="_blank">{{ $t('getHelp') }}</a>
-        </div>
     </a-layout>
 </template>
 <script>
@@ -23,13 +18,11 @@ import { useStore } from 'vuex';
 
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
-import Sidebar from '@/app/layouts/DefaultLayout/sidebar/MainSidebar.vue';
 import NavBar from './header/NavBar.vue';
 
 export default {
     name: 'DefaultLayout',
     components: {
-        Sidebar,
         NavBar,
 
         LoadingOverlay,
@@ -67,27 +60,3 @@ export default {
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.app-wrap.lock-scroll {
-    overflow: hidden;
-}
-
-.sidebar {
-    background: var(--zmt-primary);
-}
-
-.header {
-    width: 75%;
-    margin: 0 auto;
-
-    height: 48px;
-    padding: 0;
-
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    background-color: var(--#{$prefix}nav-bar-bg-color);
-}
-</style>

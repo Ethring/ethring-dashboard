@@ -150,3 +150,13 @@ export const getLastUpdated = async () => {
         return {};
     }
 };
+
+export const getStakeTokens = async () => {
+    try {
+        const { data }: AxiosResponse = await axiosInstance.get('stake-tokens/lst');
+        return data || {};
+    } catch (error) {
+        logger.error('Error while getting stake tokens from API', error);
+        return [];
+    }
+};

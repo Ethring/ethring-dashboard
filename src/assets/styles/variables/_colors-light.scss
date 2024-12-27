@@ -90,6 +90,8 @@ $banner-secondary-color: $iceberg;
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
 
+$default-border-color: #e2e8f0;
+
 // Assets header icon color
 $asset-header-icon-color: $surfieGreen;
 $assets-border-color: $geyser;
@@ -325,6 +327,8 @@ $theme-colors: (
     'banner-secondary-color': $banner-secondary-color,
     'eye-logo': $eye-logo,
     'eye-logo-hover': $eye-logo-hover,
+
+    'default-border-color': $default-border-color,
 
     'asset-header-icon-color': $asset-header-icon-color,
     'assets-header-border-color': $assets-header-border-color,

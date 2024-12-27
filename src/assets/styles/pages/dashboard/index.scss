@@ -1,0 +1,16 @@
+.dashboard__title {
+    font-size: var(--#{$prefix}h1-fs);
+}
+
+.dashboard__sub-title {
+    color: var(--#{$prefix}mute-text);
+}
+
+.dashboard__radio-group {
+    margin-top: 24px;
+}
+
+.dashboard__stats-row {
+    margin: 24px 0;
+    max-width: 1000px;
+}

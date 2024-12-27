@@ -1,15 +1,12 @@
 <template>
-    <KeepAlive>
-        <a-config-provider>
-            <AppLayout />
-            <WalletsModal />
-            <AddressModal />
-            <BridgeDexRoutesModal />
-            <KadoModal />
-            <SelectModal />
-            <ReleaseNotes />
-        </a-config-provider>
-    </KeepAlive>
+    <a-config-provider>
+        <AppLayout />
+        <WalletsModal />
+        <AddressModal />
+        <BridgeDexRoutesModal />
+        <SelectModal />
+        <OperationBag />
+    </a-config-provider>
 </template>
 <script>
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
@@ -18,14 +15,13 @@ import { useStore } from 'vuex';
 import Socket from '@/app/modules/socket';
 import SocketDataProvider from '@/core/balance-provider/socket';
 
-import AppLayout from '@/app/layouts/DefaultLayout';
-import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
+import AppLayout from '@/app/layouts/AppLayout';
 
 import WalletsModal from '@/core/wallet-adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/core/wallet-adapter/UI/Modal/AddressModal';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import OperationBag from '@/core/operations/UI/OperationBag';
 
-import KadoModal from '@/components/app/modals/KadoModal.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 import { callTrackEvent, identify } from '@/app/modules/mixpanel/track';
@@ -43,11 +39,10 @@ export default {
     name: 'App',
     components: {
         AppLayout,
-        KadoModal,
         SelectModal,
         BridgeDexRoutesModal,
-        ReleaseNotes,
         WalletsModal,
+        OperationBag,
         AddressModal,
     },
 
@@ -175,6 +170,7 @@ export default {
 
         onBeforeMount(async () => {
             await store.dispatch('configs/setLastUpdated');
+            await store.dispatch('configs/setStakeTokens');
 
             await store.dispatch('configs/setConfigLoading', true);
 

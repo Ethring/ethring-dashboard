@@ -1,5 +1,5 @@
-$layout-width: 75%;
-$layout-max-width: 1024px;
+$layout-width: 90%;
+$layout-max-width: 1440px;
 
 $sidebar-size: 240px;
 $sidebar-size-collapse: 64px;
@@ -8,13 +8,8 @@ $top-bar-spacing: 63px;
 
 .main-layout {
     transition: margin-left 0.2s ease-in-out;
-    margin-left: $sidebar-size !important;
 
     background: var(--#{$prefix}main-background);
-
-    &.collapsed {
-        margin-left: $sidebar-size-collapse !important;
-    }
 
     &-content {
         width: $layout-width;
@@ -375,7 +370,7 @@ $top-bar-spacing: 63px;
     margin: auto;
     width: 16px;
     height: 16px;
-    content: '';
+    content: "";
     display: block;
     border-radius: 50%;
     z-index: 1;

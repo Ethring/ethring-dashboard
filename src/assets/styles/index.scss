@@ -1,5 +1,3 @@
-@import './font';
-
 @import './web3-onboard/custom-style.scss';
 
 @import './reset';
@@ -11,6 +9,8 @@
 @import './root.scss';
 
 @import './ui';
+
+@import './pages/index.scss';
 
 html,
 body {

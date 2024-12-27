@@ -1,0 +1,30 @@
+.operation-bag__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.operation-bag__action {
+    padding: 4px;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 6px;
+}
+
+.operation-bag .ant-drawer-content-wrapper,
+.operation-bag .ant-drawer-content {
+    border-radius: 16px 0 0 16px;
+}
+
+.operation-bag-trigger {
+    cursor: pointer;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 50%;
+    padding: 8px;
+
+    background-color: #fff;
+
+    transition: all 0.3s;
+
+    &:hover {
+        background-color: var(--#{$prefix}default-border-color);
+    }
+}

@@ -2,9 +2,6 @@
     <div class="wallet-adapter" @click="$emit('toggleDropdown')">
         <div class="wallet-adapter__account">
             <div class="wallet-adapter__logos">
-                <div class="logo-container main-logo">
-                    <ZometLogo />
-                </div>
                 <div class="logo-container">
                     <ModuleIcon
                         width="40px"
@@ -34,7 +31,6 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/core/wallet-adapter/UI/Entities/ModuleIcon.vue';
 
-import ZometLogo from '@/assets/icons/platform-icons/only-logo-black.svg';
 import CheckIcon from '@/assets/icons/form-icons/check-circle.svg';
 import ArrowIcon from '@/assets/icons/form-icons/drop-down.svg';
 
@@ -44,7 +40,6 @@ export default {
     name: 'AccountCenter',
     components: {
         ModuleIcon,
-        ZometLogo,
         CheckIcon,
         ArrowIcon,
     },
@@ -78,9 +73,9 @@ export default {
     width: 100%;
     position: relative;
 
-    background-color: var(--#{$prefix}banner-color);
+    background-color: var(--#{$prefix}white);
 
-    border: 1px solid var(--#{$prefix}border-color);
+    border: 1px solid var(--#{$prefix}default-border-color);
 
     transition: 0.3s;
 

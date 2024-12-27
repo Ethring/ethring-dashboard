@@ -2,7 +2,7 @@ import { values } from 'lodash';
 
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
-import { getConfigsByEcosystems, getLastUpdated, getTokensConfigByChain } from '@/modules/chain-configs/api';
+import { getConfigsByEcosystems, getLastUpdated, getTokensConfigByChain, getStakeTokens } from '@/modules/chain-configs/api';
 
 import ConfigsDB from '@/services/indexed-db/configs';
 
@@ -12,6 +12,7 @@ const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
     SET_CHAIN_CONFIG: 'SET_CHAIN_CONFIG',
     SET_LAST_UPDATED: 'SET_LAST_UPDATED',
+    SET_STAKE_TOKENS: 'SET_STAKE_TOKENS',
 };
 
 export default {
@@ -24,6 +25,8 @@ export default {
             [Ecosystem.EVM]: {},
             [Ecosystem.COSMOS]: {},
         },
+
+        stakeTokens: {},
 
         lastUpdated: null,
     }),
@@ -72,6 +75,14 @@ export default {
 
             return state.chains[ecosystem][chain].native_token || {};
         },
+
+        getStakeTokens: (state) => {
+            const tokens = [];
+
+            for (const token in state.stakeTokens) tokens.push(state.stakeTokens[token]);
+
+            return tokens;
+        },
     },
 
     mutations: {
@@ -87,6 +98,9 @@ export default {
 
         [TYPES.SET_LAST_UPDATED](state, lastUpdated) {
             state.lastUpdated = lastUpdated;
+        },
+        [TYPES.SET_STAKE_TOKENS](state, tokens) {
+            state.stakeTokens = tokens;
         },
     },
 
@@ -179,6 +193,16 @@ export default {
                 return null;
             } catch (error) {
                 return null;
+            }
+        },
+
+        async setStakeTokens({ commit }) {
+            try {
+                const tokens = await getStakeTokens();
+
+                commit(TYPES.SET_STAKE_TOKENS, tokens);
+            } catch (error) {
+                return {};
             }
         },
     },
