@@ -1,4 +1,4 @@
-import { filter, orderBy, slice } from 'lodash';
+import { filter, orderBy, slice, keys } from 'lodash';
 
 import { ref, computed, nextTick, watch, ComputedRef, onUnmounted } from 'vue';
 import { useStore, Store } from 'vuex';
@@ -50,6 +50,9 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
     const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
 
+    const currentOpId = computed(() => store.getters['operationBag/getCurrentOperationId']);
+    const currentBagOperation = computed(() => store.getters['operationBag/getOperationById'](currentOpId.value));
+
     const CurrentOperation = computed(() => {
         if (!CurrentShortcut.value) return null;
         if (!CurrentStepId.value) return null;
@@ -65,6 +68,12 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     const includeChainList = computed(() => {
         const { includeChains = [] } = CurrentOperation.value || {};
         return includeChains || [];
+    });
+
+    const includeChainListFromBag = computed(() => {
+        const { contracts = {} } = currentBagOperation.value || {};
+        const chains = Object.keys(contracts);
+        return chains;
     });
 
     // TODO: Add also for exclude tokens
@@ -285,6 +294,8 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
 
         // * Filter chains by include
         if (includeChainList.value.length) list = list.filter((chain) => includeChainList.value.includes(chain.net));
+        if (includeChainListFromBag.value.length && !isSrcDirection.value)
+            list = list.filter((chain) => includeChainListFromBag.value.includes(chain.net));
 
         // * Filter chains by exclude
         if (excludeChainList.value.length) list = list.filter((chain) => !excludeChainList.value.includes(chain.net));

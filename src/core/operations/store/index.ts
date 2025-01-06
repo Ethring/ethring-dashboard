@@ -2,13 +2,17 @@ import { Commit } from 'vuex';
 
 const TYPES = {
     SET_IS_OPEN: 'SET_IS_OPEN',
-    SET_OPERATION: 'SET_DEPOSIT_OPERATION',
+
+    SET_CURRENT_OPERATION: 'SET_CURRENT_OPERATION',
+
+    SET_OPERATION: 'SET_OPERATION',
     REMOVE_OPERATION: 'REMOVE_OPERATION',
 };
 
 interface IState {
     isOpen: boolean;
     operations: Record<string, any>;
+    currentOperationId: string;
 }
 
 export default {
@@ -17,10 +21,12 @@ export default {
     state: (): IState => ({
         isOpen: false,
         operations: {},
+        currentOperationId: '',
     }),
 
     getters: {
         isOpen: (state: IState): boolean => state.isOpen,
+        getCurrentOperationId: (state: IState): string => state.currentOperationId,
         getOperations:
             (state: IState) =>
             (type: string): any[] => {
@@ -30,10 +36,8 @@ export default {
             },
         getOperationById:
             (state: IState) =>
-            (type: string, id: string): any => {
-                if (type === 'deposit') return state.operations[`deposit_${id}`];
-                return state.operations[`withdraw_${id}`];
-            },
+            (id: string): any =>
+                state.operations[id],
 
         isOperationExist:
             (state: IState) =>
@@ -75,6 +79,13 @@ export default {
                     delete state.operations[`withdraw_${id}`];
                     break;
             }
+
+            if (state.currentOperationId === `deposit_${id}` || state.currentOperationId === `withdraw_${id}`)
+                state.currentOperationId = '';
+        },
+        [TYPES.SET_CURRENT_OPERATION](state: IState, id: string): void {
+            if (state.operations[`deposit_${id}`]) state.currentOperationId = `deposit_${id}`;
+            else if (state.operations[`withdraw_${id}`]) state.currentOperationId = `withdraw_${id}`;
         },
     },
 
@@ -90,6 +101,9 @@ export default {
         },
         removeOperation({ state, commit }: { state: IState; commit: Commit }, value: any): void {
             commit(TYPES.REMOVE_OPERATION, value);
+        },
+        setCurrentOperation({ commit }: { commit: Commit }, id: string): void {
+            commit(TYPES.SET_CURRENT_OPERATION, id);
         },
     },
 };

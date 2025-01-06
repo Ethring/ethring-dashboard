@@ -162,6 +162,14 @@ export default {
             }
         },
 
+        async getTokenConfigForChain({}, { chain, address }) {
+            try {
+                return await ConfigsDB.getTokenByChainAndAddress(chain, address);
+            } catch (error) {
+                return {};
+            }
+        },
+
         setConfigLoading({ commit }, value) {
             commit(TYPES.SET_CONFIG_LOADING, value);
         },

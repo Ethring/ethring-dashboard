@@ -36,7 +36,11 @@
                                 <DeleteOutlined />
                             </a-button>
 
-                            <a-button type="primary" class="operation-card__action operation-card__action--start" @click="isOpen = false">
+                            <a-button
+                                type="primary"
+                                class="operation-card__action operation-card__action--start"
+                                @click="onClickSelectCurrentOperation(operation)"
+                            >
                                 <PlayCircleOutlined />
                             </a-button>
                         </div>
@@ -48,7 +52,9 @@
             </a-card>
         </div>
 
-        <!-- <div>
+        <a-divider v-if="currentOpId" type="horizontal" />
+
+        <div v-if="currentOpId" class="operation-bag__content">
             <SwapField name="srcAmount" :value="srcAmount" :token="selectedSrcToken" @set-amount="handleOnSetAmount">
                 <SelectRecord
                     :placeholder="$t('tokenOperations.selectNetwork')"
@@ -73,7 +79,6 @@
                 hide-max
             >
                 <SelectRecord
-                    :disabled="true"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     :current="selectedDstNetwork"
                     @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
@@ -97,14 +102,25 @@
                 :on-click-expand="toggleRoutesModal"
                 :amount="dstAmount"
             />
-        </div> -->
+
+            <UiButton
+                :title="$t(opTitle)"
+                :disabled="isDisableConfirmButton"
+                :tip="$t(opTitle)"
+                :loading="isAllowanceLoading || isTransactionSigning"
+                class="module-layout-view-btn"
+                data-qa="confirm"
+                size="large"
+                @click="handleOnConfirm"
+            />
+        </div>
     </a-drawer>
 </template>
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, PlayCircleOutlined } from '@ant-design/icons-vue';
+import { ArrowDownOutlined, ArrowUpOutlined, ConsoleSqlOutlined, DeleteOutlined, PlayCircleOutlined } from '@ant-design/icons-vue';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 import useModuleOperations from '@/compositions/useModuleOperation';
 
@@ -115,7 +131,8 @@ import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 import SwapField from '@/components/ui/SuperSwap/SwapField.vue';
 import SelectRecord from '@/components/ui/Select/SelectRecord.vue';
-import { disable } from 'mixpanel-browser';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+import UiButton from '@/components/ui/Button.vue';
 
 export default {
     name: 'OperationBag',
@@ -128,6 +145,7 @@ export default {
         SelectRecord,
         TokenIcon,
         EstimatePreviewInfo,
+        UiButton,
     },
     setup() {
         const TITLES = {
@@ -142,6 +160,8 @@ export default {
         const operationBagTitle = computed(() => TITLES[activeRadio.value]);
 
         const operations = computed(() => store.getters['operationBag/getOperations'](activeRadio.value));
+        const currentOpId = computed(() => store.getters['operationBag/getCurrentOperationId']);
+        const currentOperation = computed(() => store.getters['operationBag/getOperationById'](currentOpId.value));
 
         const radioOptions = [
             {
@@ -171,6 +191,8 @@ export default {
                 id: record.id,
             });
         };
+
+        const onClickSelectCurrentOperation = (record) => store.dispatch('operationBag/setCurrentOperation', record.id);
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
             ModuleType.superSwap,
@@ -241,11 +263,45 @@ export default {
             });
         };
 
+        const setSelectedDstTokenForNetwork = async () => {
+            if (!currentOperation.value) return;
+            const { contracts } = currentOperation.value || {};
+
+            const tokenConfig = await store.dispatch('configs/getTokenConfigForChain', {
+                chain: selectedDstNetwork.value.chain,
+                address: contracts[selectedDstNetwork.value.chain].toLowerCase(),
+            });
+
+            selectedDstToken.value = tokenConfig;
+        };
+
+        watch(currentOpId, async () => {
+            if (!currentOpId.value) return;
+
+            const { contracts } = currentOperation.value || {};
+            const [chain] = Object.keys(contracts);
+            const config = store.getters['configs/getChainConfigByChainOrNet'](chain, Ecosystem.EVM);
+            selectedDstNetwork.value = config;
+        });
+
+        watch(
+            [currentOpId, selectedSrcNetwork, selectedDstNetwork],
+            async () => {
+                if (!selectedDstNetwork.value) return;
+                await setSelectedDstTokenForNetwork();
+            },
+            {
+                immediate: true,
+            },
+        );
+
         return {
             isOpen,
             currentStage,
             activeRadio,
             operations,
+            currentOpId,
+
             radioOptions,
             operationBagTitle,
 
@@ -253,6 +309,12 @@ export default {
             TOKEN_SELECT_TYPES,
 
             // * Module values
+            opTitle,
+            isDisableSelect,
+            isDisableConfirmButton,
+            isAllowanceLoading,
+            isTransactionSigning,
+
             srcAmount,
             dstAmount,
             selectedDstToken,
@@ -270,11 +332,13 @@ export default {
 
             // * Module methods
             handleOnSetAmount,
+            handleOnConfirm,
 
             onSelectNetwork,
             onSelectToken,
 
             onClickRemoveOperation,
+            onClickSelectCurrentOperation,
         };
     },
 };

@@ -236,6 +236,10 @@ const useBridgeDexQuote = (
             return (isQuoteLoading.value = false);
         }
 
+        // TODO: Optimize this
+        if (requestParams.fromNet === requestParams.toNet) requestParams.serviceId = 'lifiswap';
+        else requestParams.serviceId = 'lifibridge';
+
         // !If the tokens & networks are the same, return
         if (isSameToken && isSameNetwork.value) {
             resetQuoteRoutes();
@@ -258,7 +262,8 @@ const useBridgeDexQuote = (
 
             const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
-            let routeFromAPI = routes.find(({ serviceId }) => serviceId === best) as IQuoteRoute;
+            // let routeFromAPI = routes.find(({ serviceId }) => serviceId === best) as IQuoteRoute;
+            let routeFromAPI = routes.find(({ serviceId }) => serviceId === requestParams.serviceId) as IQuoteRoute;
 
             if (!routeFromAPI) return resetQuoteRoutes();
 

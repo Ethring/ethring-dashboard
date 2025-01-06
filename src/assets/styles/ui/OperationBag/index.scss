@@ -55,7 +55,7 @@
     align-items: center;
 
     &:hover {
-        background-color: transparent;
+        background-color: var(--#{$prefix}default-border-color) !important;
     }
 }
 
