@@ -15,7 +15,11 @@
                 :row-key="(record) => rowKey(record)"
             >
                 <template #bodyCell="{ column, record }">
-                    <AssetRow v-if="record && column" :item="record" :column="column.dataIndex" />
+                    <AssetRow v-if="record && column" :item="record" :column="column.dataIndex">
+                        <template #actions>
+                            <a-button type="link" @click="() => onClickToAction(record)">Add to Cart</a-button>
+                        </template>
+                    </AssetRow>
                 </template>
             </a-table>
         </a-col>
@@ -51,6 +55,10 @@ export default {
         type: {
             type: String,
             default: 'asset',
+        },
+        onClickToAction: {
+            type: Function,
+            default: () => {},
         },
     },
 

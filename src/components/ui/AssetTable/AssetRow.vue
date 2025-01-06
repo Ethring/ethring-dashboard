@@ -21,7 +21,9 @@
         </template>
 
         <template v-if="column === 'chains'">
-            <TokenIcon v-for="chain in chains" :key="chain" :token="chain" width="24" height="24" />
+            <div class="chains-row">
+                <TokenIcon v-for="chain in chains" :key="chain" :token="chain" width="24" height="24" />
+            </div>
         </template>
 
         <template v-if="balanceKeys.includes(column)">
@@ -30,6 +32,12 @@
 
         <template v-if="valueKeys.includes(column)">
             <Amount type="usd" :value="balanceUsd" symbol="$" />
+        </template>
+
+        <template v-if="column === 'actions'">
+            <div>
+                <slot name="actions"></slot>
+            </div>
         </template>
     </div>
 </template>
@@ -42,8 +50,6 @@ import Amount from '@/components/app/Amount.vue';
 
 import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
-import TokenIcon from '@/components/ui/Tokens/TokenIcon';
-import { contracts } from 'stargazejs';
 
 export default {
     name: 'AssetRow',

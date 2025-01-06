@@ -53,7 +53,7 @@ export default {
     state: {
         adapters: {
             [Ecosystem.EVM]: EcosystemAdapter(Ecosystem.EVM),
-            [Ecosystem.COSMOS]: EcosystemAdapter(Ecosystem.COSMOS),
+            // [Ecosystem.COSMOS]: EcosystemAdapter(Ecosystem.COSMOS),
         },
 
         modals: {

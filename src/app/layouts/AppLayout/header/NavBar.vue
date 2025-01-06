@@ -4,7 +4,9 @@
             <div class="nav-bar-row">
                 <div class="nav-bar-row__left"></div>
                 <div class="nav-bar-row__right">
-                    <ShoppingCartOutlined v-if="walletAccount" class="operation-bag-trigger" @click="onClickBagTrigger" />
+                    <a-badge :count="operationsCount">
+                        <ShoppingCartOutlined v-if="walletAccount" class="operation-bag-trigger" @click="onClickBagTrigger" />
+                    </a-badge>
                     <Adapter />
                 </div>
             </div>
@@ -12,7 +14,7 @@
     </a-layout-header>
 </template>
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useStore } from 'vuex';
 
 import Adapter from '@/core/wallet-adapter/UI/Adapter.vue';
@@ -36,6 +38,8 @@ export default {
 
         const onClickBagTrigger = () => store.dispatch('operationBag/setIsOpen', true);
 
+        const operationsCount = computed(() => store.getters['operationBag/getOperationsCount']);
+
         onMounted(() => {
             window.addEventListener('scroll', handleScroll);
         });
@@ -48,6 +52,7 @@ export default {
             isScrolled,
             onClickBagTrigger,
             walletAccount,
+            operationsCount,
         };
     },
 };

@@ -130,6 +130,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
         store.dispatch('configs/setConfigLoading', true);
 
         for (const ecosystem in Ecosystem) {
+            if (ecosystem === Ecosystem.COSMOS) continue;
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             if (adapter?.init) await adapter.init(store);
         }

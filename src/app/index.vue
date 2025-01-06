@@ -26,8 +26,6 @@ import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 import { callTrackEvent, identify } from '@/app/modules/mixpanel/track';
 
-import { updateBalanceForAccount } from '@/core/balance-provider';
-
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
@@ -105,16 +103,6 @@ export default {
                         case Ecosystem.EVM:
                             SocketDataProvider.subscribeToAddress(Providers.GoldRush, account, addresses);
                             await SocketDataProvider.updateBalance(account);
-
-                            break;
-                        case Ecosystem.COSMOS:
-                            await updateBalanceForAccount(account, addresses, {
-                                provider: Providers.Pulsar,
-                                fetchTokens: true,
-                                fetchIntegrations: true,
-                                fetchNfts: true,
-                            });
-
                             break;
                         default:
                             break;
@@ -179,9 +167,8 @@ export default {
             await initAdapter();
 
             const EVM_NETS = getChainListByEcosystem(Ecosystem.EVM);
-            const COSMOS_NETS = getChainListByEcosystem(Ecosystem.COSMOS);
 
-            await Promise.all([setNativeTokensPrices(EVM_NETS), setNativeTokensPrices(COSMOS_NETS)]);
+            await Promise.all([setNativeTokensPrices(EVM_NETS)]);
 
             // TODO: Uncomment this code when we need to show all networks
             // for (const network of [...getChainListByEcosystem(Ecosystem.EVM, true), ...getChainListByEcosystem(Ecosystem.COSMOS, true)])

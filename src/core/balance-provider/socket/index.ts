@@ -105,19 +105,19 @@ class SocketInstance {
         this.socket.emit(SocketEvents.update_balance, address);
 
         // Load pool balances
-        const poolService = new PortalFiApi();
-        const chains = chain ? [chain] : POOL_BALANCES_CHAINS;
+        // const poolService = new PortalFiApi();
+        // const chains = chain ? [chain] : POOL_BALANCES_CHAINS;
 
-        for (const net of chains) {
-            const chainInfo = this.addresses[net] || {};
+        // for (const net of chains) {
+        //     const chainInfo = this.addresses[net] || {};
 
-            const response = await poolService.getUserBalancePoolList({ net, address });
-            await storeBalanceForAccount(Type.pools, address, net, address, response, {
-                store: this.store,
-                ...chainInfo,
-                provider: 'Portal',
-            });
-        }
+        //     const response = await poolService.getUserBalancePoolList({ net, address });
+        //     await storeBalanceForAccount(Type.pools, address, net, address, response, {
+        //         store: this.store,
+        //         ...chainInfo,
+        //         provider: 'Portal',
+        //     });
+        // }
 
         if (chain !== 'berachain') return;
 

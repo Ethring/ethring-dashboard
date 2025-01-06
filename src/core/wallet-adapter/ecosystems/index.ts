@@ -19,9 +19,9 @@ const AdapterFacade = (ecosystem: Ecosystems) => {
         case Ecosystem.EVM:
             return EthereumAdapter as IEthereumAdapter;
 
-        case Ecosystem.cosmos:
-        case Ecosystem.COSMOS:
-            return CosmosAdapter as ICosmosAdapter;
+        // case Ecosystem.cosmos:
+        // case Ecosystem.COSMOS:
+        //     return CosmosAdapter as ICosmosAdapter;
 
         default:
             throw new Error(`Ecosystem '${ecosystem}' is not supported.`);

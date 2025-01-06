@@ -1,7 +1,7 @@
 <template>
     <div class="swap-field" :class="{ focused }">
         <div class="row">
-            <h3 class="label">{{ label }}</h3>
+            <h3 v-if="label" class="label">{{ label }}</h3>
             <div class="row select-row">
                 <template v-if="isTokenLoading">
                     <a-space class="token-skeleton">
@@ -77,8 +77,6 @@ export default {
     props: {
         label: {
             type: String,
-            required: true,
-            default: 'From',
         },
         name: {
             type: String,

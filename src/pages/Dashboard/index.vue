@@ -11,7 +11,39 @@
             </a-col>
         </a-row>
 
-        <AssetTable type="asset" :columns="columns" :data="assets" :loading="isLoadingBalances" style="margin-top: 30px" />
+        <a-row>
+            <a-col :span="24">
+                <a-table
+                    class="asset-table"
+                    size="small"
+                    :columns="columns"
+                    :data-source="assets"
+                    :pagination="false"
+                    :bordered="false"
+                    :loading="isLoadingBalances"
+                    :scroll="{ x: 700 }"
+                    :row-key="(record) => rowKey(record)"
+                >
+                    <template #bodyCell="{ column, record }">
+                        <AssetRow v-if="record && column" :item="record" :column="column.dataIndex">
+                            <template #actions>
+                                <div
+                                    class="asset-table__action"
+                                    type="link"
+                                    :class="{
+                                        'asset-table__action--add': !isAlreadyExistInCart(record),
+                                        'asset-table__action--remove': isAlreadyExistInCart(record),
+                                    }"
+                                    @click="() => onClickToAction(record)"
+                                >
+                                    <component :is="getActionTitle(record)" />
+                                </div>
+                            </template>
+                        </AssetRow>
+                    </template>
+                </a-table>
+            </a-col>
+        </a-row>
     </div>
 </template>
 <script>
@@ -19,16 +51,18 @@ import { ref, onMounted, computed, shallowRef, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import StatisticalCard from '@/components/ui/StatisticalCard/index.vue';
-import AssetTable from '@/components/ui/AssetTable/AssetTable.vue';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import BalancesDB from '@/services/indexed-db/balances';
 
+import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
+
 export default {
     name: 'Dashboard',
     components: {
-        AssetTable,
         StatisticalCard,
+        MinusCircleOutlined,
+        PlusCircleOutlined,
     },
     setup() {
         const activeRadio = ref('assets');
@@ -129,6 +163,25 @@ export default {
             }
         };
 
+        const onClickToAction = (record) => {
+            if (isAlreadyExistInCart(record))
+                return store.dispatch('operationBag/removeOperation', {
+                    type: 'deposit',
+                    id: record.id,
+                });
+
+            return store.dispatch('operationBag/setDepositOperation', {
+                type: 'deposit',
+                operation: record,
+            });
+        };
+
+        const isAlreadyExistInCart = (record) => store.getters['operationBag/isOperationExist']('deposit', record.id);
+
+        const getActionTitle = (record) => (isAlreadyExistInCart(record) ? 'MinusCircleOutlined' : 'PlusCircleOutlined');
+
+        const rowKey = (record) => record?.id || `assets-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`;
+
         // *********************************************************************************
         // * Watcher's handler
         // *********************************************************************************
@@ -148,7 +201,6 @@ export default {
         onMounted(async () => {
             isMounted.value = true;
             await makeRequest();
-            console.log('Dashboard mounted', assets.value);
         });
 
         // *********************************************************************************
@@ -181,6 +233,11 @@ export default {
 
             radioOptions,
             activeRadio,
+
+            rowKey,
+            isAlreadyExistInCart,
+            onClickToAction,
+            getActionTitle,
         };
     },
 };

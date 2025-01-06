@@ -3,6 +3,10 @@
     gap: 10px;
 }
 
+.operation-bag .ant-drawer-mask {
+    backdrop-filter: blur(7.5px);
+}
+
 .operation-bag__action {
     padding: 4px;
     border: 1px solid var(--#{$prefix}default-border-color);
@@ -27,4 +31,39 @@
     &:hover {
         background-color: var(--#{$prefix}default-border-color);
     }
+}
+
+.operation-list {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.operation-card__info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.operation-card__action {
+    max-width: 24px;
+    max-height: 36px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+        background-color: transparent;
+    }
+}
+
+.operation-card__action--start {
+    background-color: var(--#{$prefix}success);
+}
+
+.operation-card__action--remove {
+    margin-left: auto;
+    background-color: var(--#{$prefix}danger);
 }
