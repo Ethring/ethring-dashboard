@@ -26,7 +26,7 @@
                 >
                     <template #bodyCell="{ column, record }">
                         <AssetRow v-if="record && column" :item="record" :column="column.dataIndex">
-                            <template #actions>
+                            <template v-if="walletAccount" #actions>
                                 <div
                                     class="asset-table__action"
                                     type="link"
@@ -223,6 +223,8 @@ export default {
 
         return {
             isLoadingBalances,
+            walletAccount,
+
             assets,
 
             // * Assets from IndexedDB

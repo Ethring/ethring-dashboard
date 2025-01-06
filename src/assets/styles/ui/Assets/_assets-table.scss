@@ -120,7 +120,7 @@
         }
 
         .name::before {
-            content: "\2022";
+            content: '\2022';
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -231,7 +231,7 @@
 
         div:not(:first-child) {
             &::before {
-                content: "\2022";
+                content: '\2022';
                 margin: 0 4px;
                 color: var(--#{$prefix}neutral-text);
             }
