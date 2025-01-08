@@ -20,14 +20,14 @@
             </div>
         </template>
 
-        <template v-if="column === 'chains'">
+        <template v-if="column === 'chain'">
             <div class="chains-row">
-                <TokenIcon v-for="chain in chains" :key="chain" :token="chain" width="24" height="24" />
+                <TokenIcon :key="chainInfo" :token="chainInfo" width="24" height="24" />
             </div>
         </template>
 
         <template v-if="balanceKeys.includes(column)">
-            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="type === 'NFTS' ? '$' : null" :decimals="3" />
+            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :decimals="3" />
         </template>
 
         <template v-if="valueKeys.includes(column)">
@@ -96,23 +96,19 @@ export default {
             };
         });
 
-        const chains = computed(() => {
-            const chains = [];
-            for (const chain in props.item?.contracts) {
-                const logo = store.getters['configs/getChainLogoByNet'](chain);
-                chains.push({
-                    symbol: chain,
-                    logo,
-                });
-            }
-            return chains;
+        const chainInfo = computed(() => {
+            const logo = store.getters['configs/getChainLogoByNet'](props.item.chain);
+            return {
+                symbol: props.item.chain,
+                logo,
+            };
         });
 
         return {
             balance,
             balanceUsd,
 
-            chains,
+            chainInfo,
 
             tokenChainIcon,
 

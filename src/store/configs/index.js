@@ -76,16 +76,7 @@ export default {
             return state.chains[ecosystem][chain].native_token || {};
         },
 
-        getStakeTokens: (state) => {
-            const tokens = [];
-
-            for (const token in state.stakeTokens) {
-                state.stakeTokens[token].id = `stake-${token}`;
-                tokens.push(state.stakeTokens[token]);
-            }
-
-            return tokens;
-        },
+        getStakeTokens: (state) => Object.values(state.stakeTokens),
     },
 
     mutations: {

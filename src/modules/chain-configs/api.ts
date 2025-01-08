@@ -1,4 +1,4 @@
-import { AxiosResponse, HttpStatusCode } from 'axios';
+import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 import ApiClient from '@/shared/axios';
 
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';

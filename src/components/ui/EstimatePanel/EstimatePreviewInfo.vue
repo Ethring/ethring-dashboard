@@ -246,9 +246,7 @@ export default {
             },
         );
 
-        const minOutAmount = (amount) => {
-            return calculateMinAmount(amount, slippage.value);
-        };
+        const minOutAmount = (amount) => calculateMinAmount(amount, slippage.value);
 
         const getTag = (services) => {
             const tags = [];

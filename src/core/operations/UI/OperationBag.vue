@@ -26,7 +26,7 @@
                 <a-card-meta>
                     <template #title>
                         <div class="operation-card__info">
-                            <span>Deposit {{ operation.symbol }}</span>
+                            <span>{{ operation.chain }} {{ operation.symbol }} </span>
 
                             <a-button
                                 type="primary"
@@ -79,6 +79,7 @@
                 hide-max
             >
                 <SelectRecord
+                    :disabled="true"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     :current="selectedDstNetwork"
                     @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
@@ -263,37 +264,21 @@ export default {
             });
         };
 
-        const setSelectedDstTokenForNetwork = async () => {
+        const setSelectedDstInfo = () => {
             if (!currentOperation.value) return;
-            const { contracts } = currentOperation.value || {};
 
-            const tokenConfig = await store.dispatch('configs/getTokenConfigForChain', {
-                chain: selectedDstNetwork.value.chain,
-                address: contracts[selectedDstNetwork.value.chain].toLowerCase(),
-            });
+            const { chain } = currentOperation.value || {};
+            const config = store.getters['configs/getChainConfigByChainOrNet'](chain, Ecosystem.EVM);
 
-            selectedDstToken.value = tokenConfig;
+            selectedDstNetwork.value = config;
+
+            selectedDstToken.value = currentOperation.value;
         };
 
-        watch(currentOpId, async () => {
-            if (!currentOpId.value) return;
-
-            const { contracts } = currentOperation.value || {};
-            const [chain] = Object.keys(contracts);
-            const config = store.getters['configs/getChainConfigByChainOrNet'](chain, Ecosystem.EVM);
-            selectedDstNetwork.value = config;
+        watch(currentOpId, () => setSelectedDstInfo());
+        watch(selectedDstToken, () => {
+            if (selectedDstToken.value?.id !== currentOperation.value?.id) selectedDstToken.value = currentOperation.value;
         });
-
-        watch(
-            [currentOpId, selectedSrcNetwork, selectedDstNetwork],
-            async () => {
-                if (!selectedDstNetwork.value) return;
-                await setSelectedDstTokenForNetwork();
-            },
-            {
-                immediate: true,
-            },
-        );
 
         return {
             isOpen,

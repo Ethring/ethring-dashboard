@@ -105,7 +105,7 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
     if (chain && DP_COSMOS[chain] && !record.balanceType) record = cosmosChainTokens(record, opt);
 
     if (type === Type.tokens && !record.balanceType && !record.id && record.address)
-        record.id = `${record.chain}:${type}__${record.address}:${record.symbol}`;
+        record.id = `${record.chain}:${type}__${record.address}:${record.symbol?.toUpperCase()}`;
 
     if (!record.balanceType && !record.address && !record.id) {
         record.id = `${record.chain}:${type}__native:${record.symbol}`;
@@ -123,7 +123,7 @@ const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions =
     record.chain = chain as string;
     record.chainLogo = logo as string;
 
-    record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol}`;
+    record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol?.toUpperCase()}`;
     record.balanceUsd = record.balanceUSD;
     record.net = record.network;
 

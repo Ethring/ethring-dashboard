@@ -233,7 +233,7 @@ export default {
             return state[field];
         },
 
-        slippage: (state: IState): number => state[Field.slippage],
+        slippage: (state: IState): number => state[Field.slippage] || 1,
 
         isInput: (state: IState): boolean => state.isInput || false,
 

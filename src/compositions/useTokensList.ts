@@ -94,6 +94,8 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
 
         const NATIVE_TOKEN_ID = `${network.net}:tokens__native:${info.symbol}`;
 
+        if (NATIVE_TOKEN_ID.includes('undefined')) return allTokens;
+
         const nativeToken: any = {
             ...info,
             chain: network.net,
@@ -106,9 +108,6 @@ export default function useTokensList({ tmpStore = null }: { tmpStore?: Store<an
             chainLogo: '',
             id: NATIVE_TOKEN_ID,
         };
-
-        // ! if there is no native token, return the list of tokens
-        if (!nativeToken) return allTokens;
 
         const tokenFromList = allTokens.find(({ id }) => id === NATIVE_TOKEN_ID) as IAsset;
 

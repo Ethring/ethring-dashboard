@@ -22,6 +22,7 @@ export enum Field {
     contractCallCount = 'contractCallCount',
 
     funds = 'funds',
+    slippage = 'slippage',
 }
 
 export enum FieldAttr {

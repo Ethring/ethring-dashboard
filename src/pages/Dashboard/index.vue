@@ -17,7 +17,7 @@
                     class="asset-table"
                     size="small"
                     :columns="columns"
-                    :data-source="assets"
+                    :data-source="stakeAssets"
                     :pagination="false"
                     :bordered="false"
                     :loading="isLoadingBalances"
@@ -86,9 +86,15 @@ export default {
                 sorter: true,
             },
             {
-                title: 'Chains',
-                dataIndex: 'chains',
-                key: 'chains',
+                title: 'Chain',
+                dataIndex: 'chain',
+                key: 'chain',
+            },
+            {
+                title: 'Balance',
+                dataIndex: 'balance',
+                key: 'balance',
+                sorter: (prev, next) => prev.balance - next.balance,
             },
             {
                 title: 'Value',
@@ -121,8 +127,6 @@ export default {
         const assetIndex = computed(() => store.getters['tokens/assetIndex']);
         const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](targetAccount.value));
 
-        const assets = computed(() => store.getters['configs/getStakeTokens']);
-
         // *********************************************************************************
         // * Assets from IndexedDB
         // * ShallowRef is used to avoid reactivity issues
@@ -134,6 +138,19 @@ export default {
             list: [],
             total: 0,
             totalBalance: 0,
+        });
+
+        const stakeAssets = computed(() => {
+            const assets = store.getters['configs/getStakeTokens'];
+            return assets.map((asset) => {
+                const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
+                return {
+                    ...asset,
+                    balance: balance?.balance || 0,
+                    balanceUsd: balance?.balanceUsd || 0,
+                    apy: balance?.apy || 0,
+                };
+            });
         });
 
         // *********************************************************************************
@@ -154,6 +171,8 @@ export default {
                 console.error('Error getting assets for account', error);
             }
         };
+
+        // *********************************************************************************
 
         const makeRequest = async () => {
             try {
@@ -225,7 +244,7 @@ export default {
             isLoadingBalances,
             walletAccount,
 
-            assets,
+            stakeAssets,
 
             // * Assets from IndexedDB
             assetsForAccount,
