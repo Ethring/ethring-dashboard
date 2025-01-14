@@ -7,14 +7,14 @@
 
         .symbol {
             font-size: var(--#{$prefix}default-fs);
-            font-weight: 400;
+            font-weight: 500;
             color: var(--#{$prefix}secondary-text);
         }
 
         .name {
             font-size: var(--#{$prefix}default-fs);
             color: var(--#{$prefix}primary-text);
-            font-weight: 400;
+            font-weight: 500;
             margin-left: 8px;
             white-space: nowrap;
             overflow: hidden;
@@ -27,7 +27,7 @@
         @include pageFlexRow;
         margin-left: 10px;
         line-height: 20px;
-        font-weight: 400;
+        font-weight: 500;
         font-size: var(--#{$prefix}small-lg-fs);
 
         div:not(:first-child) {
@@ -68,12 +68,12 @@
 
     .amount {
         .symbol {
-            font-weight: 400;
+            font-weight: 500;
             color: var(--#{$prefix}secondary-text);
         }
 
         .value {
-            font-weight: 400;
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
     }
@@ -81,7 +81,7 @@
 
 .asset-nfts-count {
     font-size: var(--#{$prefix}small-lg-fs);
-    font-weight: 400;
+    font-weight: 500;
     & > .ant-badge-count {
         background-color: var(--#{$prefix}secondary-background);
         box-shadow: 0 0 0 1px var(--#{$prefix}border-secondary-color);

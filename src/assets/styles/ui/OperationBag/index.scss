@@ -18,11 +18,25 @@
     border-radius: 16px 0 0 16px;
 }
 
+// **********************************************************
+// * Operation bag navbar
+// **********************************************************
+
+.nav-bar-row__right__operation-bag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 10px;
+    padding: 20px 12px;
+    max-height: 48px;
+
+    font-size: var(--#{$prefix}small-lg-fs);
+}
+
 .operation-bag-trigger {
     cursor: pointer;
-    border: 1px solid var(--#{$prefix}default-border-color);
-    border-radius: 50%;
-    padding: 8px;
 
     background-color: #fff;
 
@@ -32,6 +46,9 @@
         background-color: var(--#{$prefix}default-border-color);
     }
 }
+// **********************************************************
+// * Operation Card
+// **********************************************************
 
 .operation-list {
     display: flex;
@@ -66,4 +83,38 @@
 .operation-card__action--remove {
     margin-left: auto;
     background-color: var(--#{$prefix}danger);
+}
+
+// **********************************************************
+// * Operations COUNT badge
+// **********************************************************
+
+.operations-count {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+}
+
+.operations-count-badge {
+    background-color: transparent;
+}
+
+.operations-count-badge .ant-badge-count {
+    background-color: transparent;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 4px;
+    font-size: var(--#{$prefix}small-sm-fs);
+}
+
+.operations-count-badge--withdraw .ant-badge-count {
+    color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}white);
+    border-color: var(--#{$prefix}black);
+}
+
+.operations-count-badge--deposit .ant-badge-count {
+    color: var(--#{$prefix}white);
+    background-color: var(--#{$prefix}black);
+    border-color: var(--#{$prefix}black);
 }

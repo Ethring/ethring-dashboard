@@ -1,4 +1,5 @@
 .nav-bar {
+    position: fixed;
     &-row {
         @include pageFlexRow;
         justify-content: space-between;

@@ -48,6 +48,11 @@ export default {
             },
 
         getOperationsCount: (state: IState): number => Object.keys(state.operations).length,
+        getDepositOperationsCount: (state: IState): number => Object.keys(state.operations).filter((key) => key.includes('deposit')).length,
+        getWithdrawOperationsCount: (state: IState): number =>
+            Object.keys(state.operations).filter((key) => key.includes('withdraw')).length,
+
+        isAllowToAddOps: (state: IState): boolean => Object.keys(state.operations).length < 5,
     },
 
     mutations: {

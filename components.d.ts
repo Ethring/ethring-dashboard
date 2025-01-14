@@ -61,6 +61,7 @@ declare module 'vue' {
     AssetWithChain: typeof import('./src/components/app/assets/AssetWithChain.vue')['default']
     AStatistic: typeof import('ant-design-vue/es')['Statistic']
     AStatisticCountdown: typeof import('ant-design-vue/es')['StatisticCountdown']
+    ASubMenu: typeof import('ant-design-vue/es')['SubMenu']
     ATable: typeof import('ant-design-vue/es')['Table']
     ATabPane: typeof import('ant-design-vue/es')['TabPane']
     ATabs: typeof import('ant-design-vue/es')['Tabs']

@@ -1,97 +1,78 @@
 .sidebar {
-    &-container {
-        position: fixed !important;
-        z-index: 999;
+    position: fixed !important;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    overflow: auto;
 
-        left: 0;
-        top: 0;
-        bottom: 0;
-
-        height: 100vh;
-
-        background: var(--#{$prefix}primary) !important;
-        padding: 20px 0;
-    }
-
-    &-item {
-        width: 200px;
-        max-width: 260px;
-
-        display: flex;
-        align-items: center;
-
-        & > .ant-menu-title-content {
-            display: flex;
-            align-items: center;
-        }
-
-        &__title {
-            font-weight: 400;
-            font-size: var(--#{$prefix}h6-fs);
-            color: var(--#{$prefix}sidebar-text);
-            transition: 0.2s;
-
-            display: flex;
-            align-items: center;
-
-            & > span {
-                margin-left: 5px;
-            }
-        }
-
-        &__icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            svg {
-                &[fill='none'] {
-                    fill: var(--#{$prefix}sidebar-text);
-                }
-            }
-        }
-    }
-
-    &-logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-
-        margin-bottom: 40px;
-
-        .title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 40px;
-
-            & > span {
-                margin-left: 5px;
-            }
-        }
-
-        .tag {
-            color: var(--#{$prefix}primary);
-            font-weight: 500;
-        }
-    }
-
-    &__menu {
-        background-color: transparent;
-        width: fit-content;
-    }
-
-    &-items {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        height: 100%;
-
-        margin: 0 auto;
-    }
+    padding: 40px 0;
+    border-right: 1px solid var(--#{$prefix}default-border-color);
+    background: var(--#{$prefix}sidebar-background) !important;
 }
+
+.sidebar.ant-layout-sider {
+    background: var(--#{$prefix}sidebar-background) !important;
+}
+
+.sidebar .ant-menu {
+    background: var(--#{$prefix}sidebar-background) !important;
+}
+
+// * Default Menu Item
+
+.sidebar .ant-menu-submenu .ant-menu-submenu-title,
+.sidebar .ant-menu-item {
+    color: var(--#{$prefix}neutral-gray);
+    font-size: var(--#{$prefix}h5-fs);
+}
+
+.sidebar .ant-menu-item-icon path,
+.sidebar .ant-menu-item-icon.stroke-icons path {
+    transition: 0.2s;
+}
+
+.sidebar .ant-menu-item-icon.stroke-icons path {
+    stroke: var(--#{$prefix}neutral-gray);
+}
+
+.sidebar .ant-menu-item-icon:not(.stroke-icons) path {
+    fill: var(--#{$prefix}neutral-gray);
+}
+
+// * Active Menu Item
+
+.sidebar .ant-menu-submenu-selected .ant-menu-submenu-title,
+.sidebar .ant-menu-item-selected {
+    color: var(--#{$prefix}sidebar-menu-active);
+}
+
+.sidebar .ant-menu-submenu-selected .ant-menu-item-icon:not(.stroke-icons) path,
+.sidebar .ant-menu-item-selected > .ant-menu-item-icon:not(.stroke-icons) path {
+    fill: var(--#{$prefix}sidebar-menu-active);
+}
+
+.sidebar .ant-menu-submenu-selected .ant-menu-item-icon.stroke-icons path,
+.sidebar .ant-menu-item-selected > .ant-menu-item-icon.stroke-icons path {
+    stroke: var(--#{$prefix}sidebar-menu-active);
+}
+
+// * Disabled Menu Item
+
+.sidebar .ant-menu-item-disabled {
+    color: var(--#{$prefix}neutral-gray-100);
+}
+
+.sidebar .ant-menu-item-disabled .ant-menu-item-icon.stroke-icons path {
+    stroke: var(--#{$prefix}neutral-gray-100);
+}
+
+.sidebar .ant-menu-item-disabled .ant-menu-item-icon:not(.stroke-icons) path {
+    fill: var(--#{$prefix}neutral-gray-100);
+}
+
+// -------
 
 .sidebar-container > .ant-layout-sider-children {
     display: flex;
@@ -163,4 +144,14 @@
 .ant-menu-item-active,
 .ant-menu-item:hover {
     background-color: transparent !important;
+}
+
+.sidebar-logo-menu {
+    margin-bottom: 30px;
+}
+
+.sidebar-logo-menu .ant-menu-title-content {
+    color: var(--#{$prefix}sidebar-logo-color);
+    font-weight: 700;
+    font-size: var(--#{$prefix}h4-fs);
 }

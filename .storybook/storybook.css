@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
 @import url('https://necolas.github.io/normalize.css/latest/normalize.css');
 
 .sb-show-main {
-    font-family: 'Sora' !important;
+    font-family: "Space Grotesk", serif !important;
     font-weight: 400;
     font-style: normal;
 }

@@ -4,9 +4,22 @@
             <div class="nav-bar-row">
                 <div class="nav-bar-row__left"></div>
                 <div class="nav-bar-row__right">
-                    <a-badge :count="operationsCount">
-                        <ShoppingCartOutlined v-if="walletAccount" class="operation-bag-trigger" @click="onClickBagTrigger" />
-                    </a-badge>
+                    <div class="nav-bar-row__right__operation-bag operation-bag-trigger" @click="onClickBagTrigger">
+                        <ShoppingCart v-if="walletAccount" class="operation-bag-icon" />
+                        Bag
+                        <div class="operations-count">
+                            <a-badge
+                                show-zero
+                                :count="depositOperationsCount"
+                                class="operations-count-badge operations-count-badge--deposit"
+                            />
+                            <a-badge
+                                show-zero
+                                :count="withdrawOperationsCount"
+                                class="operations-count-badge operations-count-badge--withdraw"
+                            />
+                        </div>
+                    </div>
                     <Adapter />
                 </div>
             </div>
@@ -20,13 +33,13 @@ import { useStore } from 'vuex';
 import Adapter from '@/core/wallet-adapter/UI/Adapter.vue';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import { ShoppingCartOutlined } from '@ant-design/icons-vue';
+import ShoppingCart from '@/assets/icons/dashboard/shopping-cart.svg';
 
 export default {
     name: 'NavBar',
     components: {
         Adapter,
-        ShoppingCartOutlined,
+        ShoppingCart,
     },
     setup() {
         const store = useStore();
@@ -39,6 +52,8 @@ export default {
         const onClickBagTrigger = () => store.dispatch('operationBag/setIsOpen', true);
 
         const operationsCount = computed(() => store.getters['operationBag/getOperationsCount']);
+        const depositOperationsCount = computed(() => store.getters['operationBag/getDepositOperationsCount']);
+        const withdrawOperationsCount = computed(() => store.getters['operationBag/getWithdrawOperationsCount']);
 
         onMounted(() => {
             window.addEventListener('scroll', handleScroll);
@@ -52,7 +67,10 @@ export default {
             isScrolled,
             onClickBagTrigger,
             walletAccount,
+
             operationsCount,
+            depositOperationsCount,
+            withdrawOperationsCount,
         };
     },
 };

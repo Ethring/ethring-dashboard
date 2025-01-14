@@ -1,3 +1,17 @@
 .statistical-card {
     border-color: var(--#{$prefix}default-border-color);
+    max-width: 270px;
+    width: 100%;
+}
+
+.statistical-card .ant-card-body {
+    padding: 20px;
+    .ant-statistic-content {
+        font-weight: 700;
+    }
+}
+
+.statistical-card .statistical-card__statistic {
+    display: flex;
+    flex-direction: column-reverse;
 }

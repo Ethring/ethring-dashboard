@@ -16,6 +16,7 @@ html,
 body {
     background: var(--#{$prefix}main-background) !important;
     font-size: var(--#{$prefix}default-fs);
+    font-family: var(--#{$prefix}font-family);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }

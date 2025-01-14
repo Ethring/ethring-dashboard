@@ -16,6 +16,14 @@ $turquoise: #3fdfae;
 $surfieGreen: #0d7e71;
 
 $kellyGreen: #52c41a;
+
+$raisinBlack: #242526;
+$cultured: #f5f5f5;
+$azureishWhite: #e2e8f0;
+
+$spanishViolet: #422C74; // MAIN LOGO COLOR
+$nickel: #737373;
+
 //  ===========================================================================
 //  SECONDARY COLORS
 //  ===========================================================================
@@ -90,10 +98,15 @@ $banner-secondary-color: $iceberg;
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
 
-$default-border-color: #e2e8f0;
+$default-border-color: $azureishWhite;
+
+$sidebar-logo-color: $spanishViolet;
+$sidebar-background: $cultured;
+$sidebar-menu-active: $raisinBlack;
 
 // Assets header icon color
 $asset-header-icon-color: $surfieGreen;
+$assets-bg-color: $cultured;
 $assets-border-color: $geyser;
 $assets-header-border-color: $gainsboro;
 
@@ -101,6 +114,8 @@ $assets-arrow-color: $gulfStream;
 $assets-arrow-border-color: $gulfStream;
 $assets-arrow-hover-color: $surfieGreen;
 $assets-arrow-bg-color: $iceberg;
+
+$assets-added-bg-color: $nickel;
 
 // Shortcuts
 $shortcut-bg-color: $white;
@@ -330,10 +345,16 @@ $theme-colors: (
 
     'default-border-color': $default-border-color,
 
+    'sidebar-background': $sidebar-background,
+    'sidebar-menu-active': $sidebar-menu-active,
+    'sidebar-logo-color': $sidebar-logo-color,
+
     'asset-header-icon-color': $asset-header-icon-color,
     'assets-header-border-color': $assets-header-border-color,
 
     'assets-arrow-color': $assets-arrow-color,
+    'assets-header-bg-color': $assets-bg-color,
+    'assets-added-bg-color': $assets-added-bg-color,
     'assets-arrow-border-color': $assets-arrow-border-color,
     'assets-arrow-hover-color': $assets-arrow-hover-color,
     'assets-arrow-bg-color': $assets-arrow-bg-color,

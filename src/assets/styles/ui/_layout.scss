@@ -7,6 +7,7 @@ $sidebar-size-collapse: 64px;
 $top-bar-spacing: 63px;
 
 .main-layout {
+    margin-left: 256px;
     transition: margin-left 0.2s ease-in-out;
 
     background: var(--#{$prefix}main-background);
@@ -14,12 +15,13 @@ $top-bar-spacing: 63px;
     &-content {
         width: $layout-width;
         max-width: $layout-max-width;
-        margin: 5px auto 25px;
+        margin: 85px auto 25px;
     }
 }
 
 .header-layout {
-    position: sticky;
+    position: fixed;
+    right: 7.5%;
     top: 0;
 
     z-index: 100;

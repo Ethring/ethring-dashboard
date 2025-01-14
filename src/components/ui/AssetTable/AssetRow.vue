@@ -2,7 +2,7 @@
     <div class="assets__item">
         <template v-if="column === 'asset'">
             <div class="network">
-                <TokenIcon :token="item" />
+                <TokenIcon :token="item" :width="24" :height="24" />
 
                 <div class="info">
                     <div class="name">{{ item.symbol }}</div>
@@ -12,7 +12,7 @@
 
         <template v-if="column === 'protocol'">
             <div class="network">
-                <TokenIcon :token="item.protocol" />
+                <TokenIcon :token="item.protocol" :width="24" :height="24" />
 
                 <div class="info">
                     <div class="name">{{ item.protocol.name }}</div>
@@ -24,6 +24,12 @@
             <div class="chains-row">
                 <TokenIcon :key="chainInfo" :token="chainInfo" width="24" height="24" />
             </div>
+        </template>
+        <template v-if="column === 'tvl'">
+            <Amount type="usd" :value="200000000" symbol="$" />
+        </template>
+        <template v-if="column === 'apy'">
+            <Amount type="currency" :value="2.5" symbol="%" />
         </template>
 
         <template v-if="balanceKeys.includes(column)">

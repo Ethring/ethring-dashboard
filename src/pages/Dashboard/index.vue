@@ -28,15 +28,44 @@
                         <AssetRow v-if="record && column" :item="record" :column="column.dataIndex">
                             <template v-if="walletAccount" #actions>
                                 <div
-                                    class="asset-table__action"
+                                    class="asset-table__actions"
                                     type="link"
                                     :class="{
-                                        'asset-table__action--add': !isAlreadyExistInCart(record),
-                                        'asset-table__action--remove': isAlreadyExistInCart(record),
+                                        'asset-table__actions--added': isAlreadyExistInCart(record),
                                     }"
-                                    @click="() => onClickToAction(record)"
                                 >
-                                    <component :is="getActionTitle(record)" />
+                                    <div
+                                        class="asset-table__action asset-table__action--deposit"
+                                        :class="{
+                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record),
+                                            'asset-table__action--disabled': !isAllowToAddOps,
+                                        }"
+                                        @click="() => isAllowToAddOps && onClickToAction(record)"
+                                    >
+                                        <DepositIcon class="asset-table__action-icon" />
+                                        <span> Deposit </span>
+                                    </div>
+                                    <div
+                                        class="asset-table__action asset-table__action--withdraw"
+                                        :class="{
+                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record),
+                                            'asset-table__action--disabled': !isAllowToAddOps,
+                                        }"
+                                    >
+                                        <WithdrawIcon class="asset-table__action-icon" />
+                                        <span> Withdraw </span>
+                                    </div>
+
+                                    <div
+                                        class="asset-table__action asset-table__action--added"
+                                        :class="{
+                                            'asset-table__action--added-show': isAlreadyExistInCart(record),
+                                        }"
+                                        @click="() => onClickToAction(record)"
+                                    >
+                                        <AddedIcon class="asset-table__action-icon" />
+                                        <span> Added </span>
+                                    </div>
                                 </div>
                             </template>
                         </AssetRow>
@@ -55,14 +84,18 @@ import StatisticalCard from '@/components/ui/StatisticalCard/index.vue';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import BalancesDB from '@/services/indexed-db/balances';
 
-import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
+import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
+import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
+import AddedIcon from '@/assets/icons/dashboard/added.svg';
 
 export default {
     name: 'Dashboard',
     components: {
         StatisticalCard,
-        MinusCircleOutlined,
-        PlusCircleOutlined,
+
+        DepositIcon,
+        WithdrawIcon,
+        AddedIcon,
     },
     setup() {
         const activeRadio = ref('assets');
@@ -91,21 +124,31 @@ export default {
                 key: 'chain',
             },
             {
-                title: 'Balance',
-                dataIndex: 'balance',
-                key: 'balance',
-                sorter: (prev, next) => prev.balance - next.balance,
-            },
-            {
                 title: 'Value',
                 dataIndex: 'balanceUsd',
                 key: 'balanceUsd',
                 sorter: (prev, next) => prev.balanceUsd - next.balanceUsd,
             },
             {
+                title: 'Position',
+                dataIndex: 'balance',
+                key: 'balance',
+                sorter: (prev, next) => prev.balance - next.balance,
+            },
+            {
+                title: 'TVL',
+                dataIndex: 'tvl',
+                key: 'tvl',
+            },
+            {
                 title: 'APY',
                 dataIndex: 'apy',
                 key: 'apy',
+            },
+            {
+                title: 'Rewards',
+                dataIndex: 'rewards',
+                key: 'rewards',
             },
             {
                 title: 'Actions',
@@ -117,6 +160,8 @@ export default {
             { key: 'Assets', value: 'assets' },
             { key: 'DeFi', value: 'defi' },
         ];
+
+        const isAllowToAddOps = computed(() => store.getters['operationBag/isAllowToAddOps']);
 
         const isLoadingBalances = computed(() =>
             walletAccount.value ? store.getters['tokens/loadingByAccount'](walletAccount.value) : false,
@@ -251,6 +296,8 @@ export default {
 
             // * Columns for the table
             columns: COLUMNS,
+
+            isAllowToAddOps,
 
             radioOptions,
             activeRadio,
