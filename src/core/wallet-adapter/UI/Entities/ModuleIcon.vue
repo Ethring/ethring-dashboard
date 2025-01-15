@@ -73,6 +73,7 @@ export default {
         height: 32px;
         border-radius: 50%;
         background-color: var(--#{$prefix}banner-secondary-color);
+        border: 1px solid var(--#{$prefix}default-border-color);
 
         @include pageFlexRow;
         justify-content: center;

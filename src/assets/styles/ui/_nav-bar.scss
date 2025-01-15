@@ -83,3 +83,12 @@
         max-height: 55px !important;
     }
 }
+
+.not-connected .icon-container svg path {
+    fill: var(--#{$prefix}white);
+    transition: 0.2s;
+}
+
+.not-connected:hover .icon-container svg path {
+    fill: var(--#{$prefix}black);
+}

@@ -21,10 +21,11 @@ $top-bar-spacing: 63px;
 
 .header-layout {
     position: fixed;
-    right: 7.5%;
     top: 0;
+    left: 0;
+    right:0;
 
-    z-index: 100;
+    z-index: 999;
 
     height: auto !important;
 
@@ -41,7 +42,7 @@ $top-bar-spacing: 63px;
 }
 
 .scroll {
-    border-bottom: 1px solid var(--#{$prefix}border-secondary-color);
+    border-bottom: 1px solid var(--#{$prefix}default-border-color);
 }
 
 .sidebar-trigger {

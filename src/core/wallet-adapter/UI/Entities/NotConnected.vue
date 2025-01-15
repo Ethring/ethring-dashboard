@@ -1,18 +1,18 @@
 <template>
     <div v-click-away="() => $emit('closeDropdown')" class="not-connected" @click="$emit('toggleDropdown')">
         <div class="icon-container">
-            <PlusIcon />
+            <WalletIcon />
         </div>
         <p>{{ $t('connect.emptyTitle') }}</p>
     </div>
 </template>
 
 <script>
-import PlusIcon from '@/assets/icons/dashboard/plus.svg';
+import WalletIcon from '@/assets/icons/wallets/wallet.svg';
 
 export default {
     name: 'NotConnected',
-    components: { PlusIcon },
+    components: { WalletIcon },
     emits: ['toggleDropdown', 'closeDropdown'],
 };
 </script>
@@ -20,46 +20,45 @@ export default {
 <style lang="scss" scoped>
 .not-connected {
     @include pageFlexRow;
-    justify-content: flex-end;
+    justify-content: center;
+    gap: 3px;
 
     cursor: pointer;
 
     width: fit-content !important;
+    background-color: var(--#{$prefix}black);
+    border-radius: 10px;
     height: 50px;
     margin-left: auto;
+    border: 1px solid transparent;
 
     transition: 0.2s;
+    padding: 12px 20px;
 
     .icon-container {
         @include pageFlexRow;
         justify-content: center;
 
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-
-        background: var(--#{$prefix}adapter-not-connected-bg);
-
-        margin-right: 8px;
-
-        svg {
-            fill: var(--#{$prefix}adapter-not-connected-icon);
-        }
+        width: 24px;
+        height: 24px;
     }
 
     p {
-        width: 160px;
-
+        width: max-content;
         margin: 0;
 
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
-        color: var(--#{$prefix}base-text);
+        color: var(--#{$prefix}white);
         line-height: 1.5;
     }
 
     &:hover {
-        border-color: var(--#{$prefix}btn-bg-color-hover);
+        border-color: var(--#{$prefix}black);
+        background-color: var(--#{$prefix}white);
+        p {
+            color: var(--#{$prefix}black);
+        }
     }
 }
 </style>

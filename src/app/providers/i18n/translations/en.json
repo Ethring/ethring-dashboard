@@ -53,7 +53,7 @@
         "feedback": "Feedback"
     },
     "connect": {
-        "emptyTitle": "Connect a wallet to manage your portfolio",
+        "emptyTitle": "Connect a wallet",
         "pageTitle": "Connecting wallet",
         "blockTitle": "Connect with",
         "anotherWallet": "Connect Another Wallet",

@@ -70,20 +70,31 @@ export default {
 
     @include pageFlexRow;
 
+    gap: 10px;
+
     width: 100%;
     position: relative;
 
-    background-color: var(--#{$prefix}white);
+    background-color: var(--#{$prefix}black);
 
     border: 1px solid var(--#{$prefix}default-border-color);
 
     transition: 0.3s;
 
-    border-radius: 50px;
+    border-radius: 10px;
     padding: 4px 16px 4px 4px;
 
     &:hover {
-        border-color: var(--#{$prefix}btn-bg-color-hover);
+        border-color: var(--#{$prefix}black);
+        background-color: var(--#{$prefix}white);
+
+        .account {
+            color: var(--#{$prefix}black);
+        }
+
+        .arrow {
+            fill: var(--#{$prefix}black);
+        }
     }
 
     &__account {
@@ -93,7 +104,7 @@ export default {
 
     .arrow {
         cursor: pointer;
-        fill: var(--#{$prefix}select-icon-color);
+        fill: var(--#{$prefix}white);
         @include animateEasy;
     }
 
@@ -141,7 +152,7 @@ export default {
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 500;
-            color: var(--#{$prefix}primary-text);
+            color: var(--#{$prefix}white);
 
             text-overflow: ellipsis;
             overflow: hidden;
@@ -151,7 +162,7 @@ export default {
         .ecosystem {
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-            color: var(--#{$prefix}adapter-ecosystem-color);
+            color: var(--#{$prefix}mute-text);
         }
 
         @media (max-width: 1024px) {

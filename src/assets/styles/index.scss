@@ -41,7 +41,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: $gulfStream;
+    background: var(--#{$prefix}black);
     border-radius: 4px;
 }
 
