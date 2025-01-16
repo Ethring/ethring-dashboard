@@ -38,14 +38,17 @@
 .operation-bag-trigger {
     cursor: pointer;
 
-    background-color: #fff;
+    background-color: var(--#{$prefix}white);
+
+    border: 1px solid var(--#{$prefix}default-border-color);
 
     transition: all 0.3s;
 
     &:hover {
-        background-color: var(--#{$prefix}default-border-color);
+        border-color: var(--#{$prefix}black);
     }
 }
+
 // **********************************************************
 // * Operation Card
 // **********************************************************

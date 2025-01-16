@@ -64,7 +64,10 @@
                                         @click="() => onClickToAction(record)"
                                     >
                                         <AddedIcon class="asset-table__action-icon" />
-                                        <span> Added </span>
+                                        <RemoveIcon class="asset-table__action-icon asset-table__action-icon--remove" />
+
+                                        <span class="asset-table__action-text"> Added </span>
+                                        <span class="asset-table__action-text asset-table__action-text--remove"> Remove </span>
                                     </div>
                                 </div>
                             </template>
@@ -87,6 +90,7 @@ import BalancesDB from '@/services/indexed-db/balances';
 import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
+import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 
 export default {
     name: 'Dashboard',
@@ -96,6 +100,7 @@ export default {
         DepositIcon,
         WithdrawIcon,
         AddedIcon,
+        RemoveIcon,
     },
     setup() {
         const activeRadio = ref('assets');

@@ -31,6 +31,9 @@
         <template v-if="column === 'apy'">
             <Amount type="currency" :value="2.5" symbol="%" />
         </template>
+        <template v-if="column === 'rewards'">
+            <RewardsIcons />
+        </template>
 
         <template v-if="balanceKeys.includes(column)">
             <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :decimals="3" />
@@ -57,10 +60,13 @@ import Amount from '@/components/app/Amount.vue';
 import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
 
+import RewardsIcons from '@/assets/icons/dashboard/rewards.svg';
+
 export default {
     name: 'AssetRow',
     components: {
         Amount,
+        RewardsIcons,
     },
     props: {
         item: {

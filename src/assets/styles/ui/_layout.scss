@@ -1,5 +1,6 @@
 $layout-width: 90%;
 $layout-max-width: 1440px;
+$layout-nav-bar-width: 1690px;
 
 $sidebar-size: 240px;
 $sidebar-size-collapse: 64px;
@@ -23,7 +24,7 @@ $top-bar-spacing: 63px;
     position: fixed;
     top: 0;
     left: 0;
-    right:0;
+    right: 0;
 
     z-index: 999;
 
@@ -36,7 +37,7 @@ $top-bar-spacing: 63px;
 
     .nav-bar-container {
         width: $layout-width;
-        max-width: $layout-max-width;
+        max-width: $layout-nav-bar-width;
         margin: 20px auto;
     }
 }

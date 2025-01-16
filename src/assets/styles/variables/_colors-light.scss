@@ -16,6 +16,7 @@ $turquoise: #3fdfae;
 $surfieGreen: #0d7e71;
 
 $kellyGreen: #52c41a;
+$smokyTopaz: #984949; // Danger color
 
 $raisinBlack: #242526;
 $cultured: #f5f5f5;
@@ -243,8 +244,9 @@ $success-op-01: rgba($success, 0.1);
 $success-color: #5aec99;
 $success-text: $ebonyClay;
 
-$danger: $wildWatermelon;
+$danger: $smokyTopaz;
 $danger-op-01: rgba($danger, 0.1);
+$danger-op-06: rgba($danger, 0.6);
 $danger-color: $watermelon;
 
 $warning: $pizazz;

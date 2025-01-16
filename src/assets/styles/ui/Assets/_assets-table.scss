@@ -120,7 +120,7 @@
         }
 
         .name::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -299,12 +299,33 @@
     background-color: var(--#{$prefix}assets-added-bg-color);
     color: var(--#{$prefix}white);
     justify-content: center;
+    z-index: 1;
 
     &:hover {
-        background-color: var(--#{$prefix}black);
+        background-color: var(--#{$prefix}danger);
+        .asset-table__action-icon {
+            display: none;
+        }
+        .asset-table__action-text {
+            display: none;
+        }
+        .asset-table__action-icon--remove {
+            display: block;
+        }
+        .asset-table__action-text--remove {
+            display: block;
+        }
     }
 }
 
 .asset-table__action--added-show {
     bottom: 0;
+}
+
+.asset-table__action-icon--remove {
+    display: none;
+}
+
+.asset-table__action-text--remove {
+    display: none;
 }
