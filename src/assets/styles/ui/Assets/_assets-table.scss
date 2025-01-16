@@ -120,7 +120,7 @@
         }
 
         .name::before {
-            content: "\2022";
+            content: '\2022';
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -194,8 +194,7 @@
 }
 
 .asset-table.ant-table-wrapper .ant-table-cell {
-    padding: 16px !important;
-    max-height: 56px;
+    padding: 10px 16px !important;
     font-weight: 500;
 }
 
@@ -247,6 +246,7 @@
     align-items: center;
     gap: 15px;
     cursor: pointer;
+    max-height: 36px;
     font-size: var(--#{$prefix}small-lg-fs);
     color: var(--#{$prefix}primary-text);
     padding: 8px 15px;

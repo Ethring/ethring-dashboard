@@ -127,6 +127,7 @@ export default {
                 title: 'Chain',
                 dataIndex: 'chain',
                 key: 'chain',
+                width: 10,
             },
             {
                 title: 'Value',
