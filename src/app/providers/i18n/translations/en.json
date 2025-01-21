@@ -94,6 +94,7 @@
         "to": "To",
         "select": "Select",
         "selectToken": "Select token",
+        "selectChainAndToken": "Select Chain and Token",
         "selectNetwork": "Select network",
         "networkFee": "Network fee",
         "time": "Estimate time",

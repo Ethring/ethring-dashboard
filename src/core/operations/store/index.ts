@@ -7,6 +7,8 @@ const TYPES = {
 
     SET_OPERATION: 'SET_OPERATION',
     REMOVE_OPERATION: 'REMOVE_OPERATION',
+
+    CLEAR_ALL_OPERATIONS: 'CLEAR_ALL_OPERATIONS',
 };
 
 interface IState {
@@ -92,6 +94,11 @@ export default {
             if (state.operations[`deposit_${id}`]) state.currentOperationId = `deposit_${id}`;
             else if (state.operations[`withdraw_${id}`]) state.currentOperationId = `withdraw_${id}`;
         },
+
+        [TYPES.CLEAR_ALL_OPERATIONS](state: IState): void {
+            state.operations = {};
+            state.currentOperationId = '';
+        },
     },
 
     actions: {
@@ -109,6 +116,10 @@ export default {
         },
         setCurrentOperation({ commit }: { commit: Commit }, id: string): void {
             commit(TYPES.SET_CURRENT_OPERATION, id);
+        },
+
+        clearAllOperations({ state, commit }: { state: IState; commit: Commit }): void {
+            commit(TYPES.CLEAR_ALL_OPERATIONS);
         },
     },
 };

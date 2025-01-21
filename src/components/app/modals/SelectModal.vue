@@ -8,6 +8,19 @@
         class="select-modal"
     >
         <div data-qa="select-record-modal">
+            <div v-if="type === 'token'" class="select-record__chain-list">
+                <div
+                    v-for="chain in chains"
+                    :key="chain.id"
+                    class="select-record__chain"
+                    :class="{
+                        'select-record__chain--selected': selectedSrcNetwork?.id === chain.id,
+                    }"
+                    @click="handleOnSelectNetwork(chain)"
+                >
+                    <TokenIcon :key="chain.id" :token="chain" width="24" height="24" />
+                </div>
+            </div>
             <a-form>
                 <SearchInput
                     :placeholder="$t(inputPlaceholder)"
@@ -62,6 +75,7 @@ import SearchInput from '@/components/ui/SearchInput.vue';
 import SelectOption from '@/components/ui/Select/SelectOption.vue';
 
 import NotFoundIcon from '@/assets/icons/form-icons/not-found.svg';
+import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
 export default {
     name: 'SelectModal',
@@ -74,7 +88,7 @@ export default {
     setup() {
         const MODAL_TITLES = {
             network: 'tokenOperations.selectNetwork',
-            token: 'tokenOperations.selectToken',
+            token: 'tokenOperations.selectChainAndToken',
         };
 
         const PLACEHOLDERS = {
@@ -103,8 +117,11 @@ export default {
             // Variables
             searchValue,
             options,
+            chains,
+            selectedSrcNetwork,
 
             // Methods
+            handleOnSelectNetwork,
             handleOnSelect,
             handleLoadMore,
             handleOnFilterNetworks,
@@ -135,6 +152,9 @@ export default {
         return {
             type,
 
+            selectedSrcNetwork,
+            chains,
+
             isModalOpen,
             isLoadMore,
             isLoadingTokenList,
@@ -146,6 +166,7 @@ export default {
             optionList,
             scrollComponent,
 
+            handleOnSelectNetwork,
             handleScroll,
             handleLoadMore,
             handleOnSelect,

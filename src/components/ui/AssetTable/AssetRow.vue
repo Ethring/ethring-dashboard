@@ -1,45 +1,45 @@
 <template>
     <template v-if="column === 'asset'">
-        <div class="asset_item--network">
-            <TokenIcon :token="item" :width="24" :height="24" />
+        <div class="asset__item--network">
+            <TokenIcon :token="item" :width="20" :height="20" />
 
-            <div class="asset_item--info">
+            <div class="asset__item--info">
                 <div class="name">{{ item.symbol }}</div>
             </div>
         </div>
     </template>
 
     <template v-if="column === 'protocol'">
-        <div class="asset_item--network">
-            <TokenIcon :token="item.protocol" :width="24" :height="24" />
+        <div class="asset__item--network asset__item--protocol">
+            <TokenIcon :token="item.protocol" :width="20" :height="20" />
 
-            <div class="asset_item--info">
+            <div class="asset__item--info">
                 <div class="name">{{ item.protocol.name }}</div>
             </div>
         </div>
     </template>
 
     <template v-if="column === 'chain'">
-        <div class="asset_item--network">
-            <TokenIcon :key="chainInfo" :token="chainInfo" width="24" height="24" />
+        <div class="asset__item--network">
+            <TokenIcon :key="chainInfo" :token="chainInfo" width="20" height="20" />
         </div>
     </template>
     <template v-if="column === 'tvl'">
-        <Amount type="usd" :value="200000000" symbol="$" class="asset_item--amount" />
+        <Amount type="usd" :value="200000000" symbol="$" class="asset__item--amount asset__item--tvl" />
     </template>
     <template v-if="column === 'apy'">
-        <Amount type="currency" :value="2.5" symbol="%" class="asset_item--amount" />
+        <Amount type="currency" :value="2.5" symbol="%" class="asset__item--amount asset__item--apy" />
     </template>
     <template v-if="column === 'rewards'">
         <RewardsIcons />
     </template>
 
     <template v-if="balanceKeys.includes(column)">
-        <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :decimals="3" class="asset_item--amount" />
+        <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :decimals="3" class="asset__item--amount" />
     </template>
 
     <template v-if="valueKeys.includes(column)">
-        <Amount type="usd" :value="balanceUsd" symbol="$" class="asset_item--amount" />
+        <Amount type="usd" :value="balanceUsd" symbol="$" class="asset__item--amount" />
     </template>
 
     <template v-if="column === 'actions'">

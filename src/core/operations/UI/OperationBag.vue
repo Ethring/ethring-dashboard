@@ -4,149 +4,151 @@
         root-class-name="operation-bag"
         :title="operationBagTitle"
         placement="right"
-        :width="420"
+        :width="570"
         :closable="false"
     >
         <template #extra>
             <div class="operation-bag__actions">
-                <a-segmented v-model:value="activeRadio" :options="radioOptions">
-                    <template #label="{ payload }">
-                        <a-tooltip placement="bottom">
-                            <template #title>
-                                {{ payload.title }}
-                            </template>
-                            <component :is="payload.icon"></component>
-                        </a-tooltip>
-                    </template>
-                </a-segmented>
+                <div
+                    class="operation-bag__radio operation-bag__radio--deposit"
+                    :class="{
+                        'operation-bag__radio--active': activeRadio === 'deposit',
+                    }"
+                    @click="activeRadio = 'deposit'"
+                >
+                    <DepositIcon />
+                    <span>
+                        {{ depositOperationsCount }}
+                    </span>
+                </div>
+                <div
+                    class="operation-bag__radio operation-bag__radio--withdraw"
+                    :class="{
+                        'operation-bag__radio--active': activeRadio === 'withdraw',
+                    }"
+                    @click="activeRadio = 'withdraw'"
+                >
+                    <WithdrawIcon />
+                    <span>
+                        {{ withdrawOperationsCount }}
+                    </span>
+                </div>
             </div>
         </template>
+
+        <div v-if="operations.length" class="operation-bag__header">
+            <div class="operation-bag__header__title">
+                <span> Bag </span>
+            </div>
+            <div class="operation-bag__header__clear" @click="onClickClearAllOperations">
+                <span> Clear All </span>
+            </div>
+        </div>
+
         <div class="operation-list">
-            <a-card v-for="(operation, index) in operations" :key="index" hoverable class="operation-card">
+            <a-card
+                v-for="(operation, index) in operations"
+                :key="index"
+                hoverable
+                class="operation-card"
+                :class="{
+                    'operation-card--active': currentOpId.includes(operation.id),
+                }"
+                @click="onClickSelectCurrentOperation(operation)"
+            >
                 <a-card-meta>
                     <template #title>
                         <div class="operation-card__info">
-                            <span>{{ operation.chain }} {{ operation.symbol }} </span>
+                            <div class="operation-card__title">
+                                <span> {{ operation.symbol }} </span>
+                                <div class="operation-card__protocol">
+                                    <TokenIcon :token="operation.protocol" :width="20" :height="20" />
+                                    <span class="operation-card__protocol-name">
+                                        {{ operation.protocol.name }}
+                                    </span>
+                                </div>
+                            </div>
 
-                            <a-button
-                                type="primary"
+                            <RemoveIcon
                                 class="operation-card__action operation-card__action--remove"
                                 @click="onClickRemoveOperation(operation)"
-                            >
-                                <DeleteOutlined />
-                            </a-button>
+                            />
 
-                            <a-button
-                                type="primary"
+                            <ArrowIcon
                                 class="operation-card__action operation-card__action--start"
                                 @click="onClickSelectCurrentOperation(operation)"
-                            >
-                                <PlayCircleOutlined />
-                            </a-button>
+                            />
                         </div>
                     </template>
                     <template #avatar>
-                        <TokenIcon :token="operation" />
+                        <AssetWithChain type="asset" :chain="operation.chainInfo" :asset="operation" :width="48" :height="48" />
                     </template>
                 </a-card-meta>
             </a-card>
         </div>
 
-        <a-divider v-if="currentOpId" type="horizontal" />
-
-        <div v-if="currentOpId" class="operation-bag__content">
-            <SwapField name="srcAmount" :value="srcAmount" :token="selectedSrcToken" @set-amount="handleOnSetAmount">
-                <SelectRecord
-                    :placeholder="$t('tokenOperations.selectNetwork')"
-                    :current="selectedSrcNetwork"
-                    @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                />
-                <SelectRecord
-                    :placeholder="$t('tokenOperations.selectToken')"
-                    :current="selectedSrcToken"
-                    @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                />
-            </SwapField>
-
-            <a-divider type="horizontal" />
-
-            <SwapField
-                :disabled="true"
-                name="dstAmount"
-                :value="dstAmount"
-                :token="selectedDstToken"
-                :is-amount-loading="isQuoteLoading"
-                hide-max
-            >
-                <SelectRecord
-                    :disabled="true"
-                    :placeholder="$t('tokenOperations.selectNetwork')"
-                    :current="selectedDstNetwork"
-                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
-                />
-                <SelectRecord
-                    :disabled="true"
-                    :placeholder="$t('tokenOperations.selectToken')"
-                    :current="selectedDstToken"
-                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
-                />
-            </SwapField>
-
-            <EstimatePreviewInfo
-                v-if="isShowEstimateInfo"
-                :is-loading="isQuoteLoading"
-                :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
-                :main-rate="fees[FEE_TYPE.RATE] || null"
-                :services="[selectedRoute]"
-                :is-show-expand="otherRoutes?.length > 0"
-                :error="quoteErrorMessage"
-                :on-click-expand="toggleRoutesModal"
-                :amount="dstAmount"
+        <template v-if="currentOpId && currentOpId.includes(activeRadio)" #footer>
+            <AmountAndTokenSelector
+                :asset="selectedSrcToken"
+                :chain="selectedSrcNetwork"
+                :value="srcAmount"
+                :on-select-token="() => onSelectToken(true, DIRECTIONS.SOURCE)"
+                @set-amount="handleOnSetAmount"
             />
+
+            <QuotePreview :fees="fees" :quote="selectedRoute" />
 
             <UiButton
                 :title="$t(opTitle)"
                 :disabled="isDisableConfirmButton"
                 :tip="$t(opTitle)"
                 :loading="isAllowanceLoading || isTransactionSigning"
-                class="module-layout-view-btn"
+                class="operation__bag--execute module-layout-view-btn"
                 data-qa="confirm"
                 size="large"
                 @click="handleOnConfirm"
             />
-        </div>
+        </template>
     </a-drawer>
 </template>
 <script>
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import { ArrowDownOutlined, ArrowUpOutlined, ConsoleSqlOutlined, DeleteOutlined, PlayCircleOutlined } from '@ant-design/icons-vue';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
+
 import useModuleOperations from '@/compositions/useModuleOperation';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
-import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
-import SwapField from '@/components/ui/SuperSwap/SwapField.vue';
-import SelectRecord from '@/components/ui/Select/SelectRecord.vue';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import UiButton from '@/components/ui/Button.vue';
+import AssetWithChain from '@/components/app/assets/AssetWithChain.vue';
+
+import RemoveIcon from '@/assets/icons/operations-bag/remove.svg';
+import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
+import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
+import ArrowIcon from '@/assets/icons/operations-bag/arrow.svg';
+
+import AmountAndTokenSelector from '@/components/ui/AmountAndTokenSelector/index.vue';
+import QuotePreview from '@/components/ui/QuotePreview/index.vue';
 
 export default {
     name: 'OperationBag',
     components: {
-        ArrowDownOutlined,
-        ArrowUpOutlined,
-        DeleteOutlined,
-        PlayCircleOutlined,
-        SwapField,
-        SelectRecord,
         TokenIcon,
-        EstimatePreviewInfo,
+        AssetWithChain,
         UiButton,
+
+        AmountAndTokenSelector,
+        QuotePreview,
+
+        DepositIcon,
+        WithdrawIcon,
+        RemoveIcon,
+        ArrowIcon,
     },
     setup() {
         const TITLES = {
@@ -160,6 +162,9 @@ export default {
         const currentStage = ref('1');
         const operationBagTitle = computed(() => TITLES[activeRadio.value]);
 
+        const depositOperationsCount = computed(() => store.getters['operationBag/getDepositOperationsCount']);
+        const withdrawOperationsCount = computed(() => store.getters['operationBag/getWithdrawOperationsCount']);
+
         const operations = computed(() => store.getters['operationBag/getOperations'](activeRadio.value));
         const currentOpId = computed(() => store.getters['operationBag/getCurrentOperationId']);
         const currentOperation = computed(() => store.getters['operationBag/getOperationById'](currentOpId.value));
@@ -169,14 +174,14 @@ export default {
                 value: 'deposit',
                 payload: {
                     title: 'Deposit',
-                    icon: 'ArrowUpOutlined',
+                    icon: 'DepositIcon',
                 },
             },
             {
                 value: 'withdraw',
                 payload: {
                     title: 'Withdraw',
-                    icon: 'ArrowDownOutlined',
+                    icon: 'WithdrawIcon',
                 },
             },
         ];
@@ -194,6 +199,8 @@ export default {
         };
 
         const onClickSelectCurrentOperation = (record) => store.dispatch('operationBag/setCurrentOperation', record.id);
+
+        const onClickClearAllOperations = () => store.dispatch('operationBag/clearAllOperations');
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
             ModuleType.superSwap,
@@ -287,6 +294,9 @@ export default {
             operations,
             currentOpId,
 
+            depositOperationsCount,
+            withdrawOperationsCount,
+
             radioOptions,
             operationBagTitle,
 
@@ -323,6 +333,7 @@ export default {
             onSelectToken,
 
             onClickRemoveOperation,
+            onClickClearAllOperations,
             onClickSelectCurrentOperation,
         };
     },

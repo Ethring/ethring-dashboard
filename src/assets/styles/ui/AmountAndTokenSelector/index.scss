@@ -1,0 +1,148 @@
+.amount-and-token-selector--label {
+    font-size: var(--#{$prefix}h6-fs);
+    font-weight: 500;
+    color: var(--#{$prefix}primary-text);
+    margin: 10px 0;
+}
+
+.amount-and-token-selector {
+    display: flex;
+    align-items: center;
+
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 16px;
+    margin-bottom: 10px;
+}
+
+// **********************************************************
+// * Amount Input
+// **********************************************************
+
+.amount__input-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 50%;
+    padding: 0 20px;
+}
+
+.amount__input {
+    font-size: var(--#{$prefix}h4-fs);
+    font-weight: 500;
+    color: var(--#{$prefix}primary-text);
+    padding: 0;
+}
+
+.amount__input::placeholder {
+    color: var(--#{$prefix}input-placeholder-text) !important;
+}
+
+.amount__in-usd {
+    font-size: var(--#{$prefix}default-fs);
+    color: var(--#{$prefix}mute-text);
+    font-weight: 500;
+}
+
+// **********************************************************
+// * Token Selector
+// **********************************************************
+
+.token__selector-container {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1 50%;
+
+    border-left: 1px solid var(--#{$prefix}default-border-color);
+}
+
+.token__selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 5px 10px;
+
+    border-bottom: 1px solid var(--#{$prefix}default-border-color);
+
+    cursor: pointer;
+
+    background-color: var(--#{$prefix}card-active-bg-color);
+
+    border-radius: 0 16px 0 0;
+}
+
+// **********************************************************
+// * Token Selector ICON
+// **********************************************************
+
+.token__selector__icon {
+    margin-right: 10px;
+}
+
+// **********************************************************
+// * Token Selector CONTENT
+// **********************************************************
+
+.token__selector__content {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.token__selector__info {
+    display: flex;
+    flex-direction: column;
+}
+
+.token__selector__symbol {
+    font-size: var(--#{$prefix}small-lg-fs);
+    font-weight: 500;
+}
+
+.token__selector__chain {
+    font-size: var(--#{$prefix}small-sm-fs);
+    color: var(--#{$prefix}mute-text);
+}
+
+.token__selector__arrow {
+    & > svg {
+        transform: rotate(-90deg);
+        width: 14px;
+        height: 14px;
+    }
+
+    & svg path {
+        fill: var(--#{$prefix}mute-text);
+    }
+}
+
+// **********************************************************
+// * Token Selector BALANCE
+// **********************************************************
+
+.token__balance {
+    display: flex;
+    align-items: center;
+
+    gap: 3px;
+
+    height: fit-content;
+
+    margin: auto 0;
+
+    padding: 10px;
+
+    font-size: var(--#{$prefix}small-lg-fs);
+    font-weight: 500;
+}
+
+.token__balance--error .token__balance__value .value,
+.token__balance--error {
+    color: var(--#{$prefix}danger);
+}
+
+.token__balance__value.amount-block .value {
+    font-weight: 500;
+    font-size: var(--#{$prefix}small-lg-fs);
+}

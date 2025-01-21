@@ -6,7 +6,7 @@
         :class="{ selected: record.selected }"
     >
         <div class="info-container">
-            <TokenIcon width="32" height="32" :token="record" class="logo" />
+            <TokenIcon width="20" height="20" :token="record" class="logo" />
 
             <div class="label-container">
                 <div class="row" :class="{ showHover: record.address && tokenExplorerLink }">

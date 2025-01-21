@@ -12,5 +12,11 @@
 
 .dashboard__stats-row {
     margin: 24px 0;
-    max-width: 650px;
+    max-width: 570px;
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 24px;
 }

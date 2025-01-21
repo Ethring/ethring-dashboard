@@ -1,4 +1,4 @@
-.asset_item--network {
+.asset__item--network {
     display: inline-flex;
     gap: 10px;
 
@@ -20,7 +20,7 @@
     }
 }
 
-.asset_item--info {
+.asset__item--info {
     display: flex;
     align-items: center;
 
@@ -36,9 +36,21 @@
     }
 }
 
-.asset_item--amount.amount-block {
-    display: flex;
-    height: fit-content;
+.asset__item--protocol .asset_item--info {
+    font-size: var(--#{$prefix}small-sm-fs);
+
+    .name {
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+.asset__item--amount.amount-block {
+    display: inline-flex;
+    align-items: center;
+
+    font-size: var(--#{$prefix}small-sm-fs);
+
     .symbol {
         font-weight: 500;
         color: var(--#{$prefix}secondary-text);
@@ -48,4 +60,10 @@
         font-weight: 500;
         color: var(--#{$prefix}primary-text);
     }
+}
+
+
+.asset__item--amount.asset__item--apy,
+.asset__item--amount.asset__item--tvl {
+    font-size: var(--#{$prefix}h6-fs);
 }

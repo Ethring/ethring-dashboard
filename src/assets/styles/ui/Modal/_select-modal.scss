@@ -1,5 +1,6 @@
 .select-modal {
-    height: 90vh;
+    max-height: 500px;
+    max-width: 420px;
 
     .ant-modal-content {
         min-height: 30vh;
@@ -12,7 +13,7 @@
 
             margin-top: 8px;
             min-height: 300px;
-            max-height: 60vh;
+            max-height: 300px;
 
             overflow-y: overlay;
             overflow-x: hidden;
@@ -70,4 +71,64 @@
             align-items: center;
         }
     }
+}
+
+.select-modal .ant-modal-title {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 16px;
+}
+
+.select-record__chain-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.select-record__chain {
+    cursor: pointer;
+
+    padding: 14px;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 8px;
+
+    transition: 0.2s;
+
+    &:hover {
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
+    }
+}
+
+.select-record__chain--selected {
+    border-color: var(--#{$prefix}active-border-color);
+    background-color: var(--#{$prefix}card-active-bg-color);
+}
+
+.search-input.select-modal-search {
+    padding: 12px 10px;
+    border-color: var(--#{$prefix}default-border-color);
+    background-color: transparent;
+
+    .search-input__logo svg {
+        fill: var(--#{$prefix}input-placeholder-text);
+    }
+
+    ::placeholder {
+        color: var(--#{$prefix}input-placeholder-text) !important;
+    }
+}
+
+.search-input.select-modal-search:not(.active) input {
+    color: var(--#{$prefix}input-placeholder-text);
+}
+
+.select-modal-empty svg path,
+.select-modal-empty svg circle {
+    stroke: var(--#{$prefix}input-placeholder-text);
+}
+.select-modal-empty svg circle:not(:first-child) {
+    fill: var(--#{$prefix}input-placeholder-text);
 }

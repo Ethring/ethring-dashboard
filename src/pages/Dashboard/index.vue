@@ -1,27 +1,20 @@
 <template>
     <div class="dashboard">
-        <a-typography-title class="dashboard__title">Dashboard</a-typography-title>
-
         <a-row :gutter="16" class="dashboard__stats-row">
-            <a-col :span="12">
-                <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" />
-            </a-col>
-            <a-col :span="12">
-                <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" />
-            </a-col>
+            <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" />
+            <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" />
         </a-row>
 
         <a-row>
             <a-col :span="24">
                 <a-table
                     class="asset-table"
-                    size="small"
                     :columns="columns"
                     :data-source="stakeAssets"
                     :pagination="false"
                     :bordered="false"
                     :loading="isLoadingBalances"
-                    :scroll="{ x: 700 }"
+                    :scroll="{ x: 1000 }"
                     :row-key="(record) => rowKey(record)"
                 >
                     <template #bodyCell="{ column, record }">
@@ -127,7 +120,6 @@ export default {
                 title: 'Chain',
                 dataIndex: 'chain',
                 key: 'chain',
-                width: 10,
             },
             {
                 title: 'Value',

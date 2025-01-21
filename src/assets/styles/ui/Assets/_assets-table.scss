@@ -244,7 +244,7 @@
 .asset-table__action {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 5px;
     cursor: pointer;
     max-height: 36px;
     font-size: var(--#{$prefix}small-lg-fs);
@@ -282,9 +282,12 @@
     color: var(--#{$prefix}black);
     position: absolute;
     right: -70%;
+    gap: 15px;
 
     &:not(.asset-table__action--disabled):hover {
         right: 0;
+        gap: 5px;
+        justify-content: center;
 
         .asset-table__action-icon path {
             fill: var(--#{$prefix}black);

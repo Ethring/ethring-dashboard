@@ -160,6 +160,8 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
                 IS_NEED_DST_NETWORK.includes(module.value) && (selectedDstNetwork.value = item);
                 break;
         }
+
+        handleOnTokenSelect();
     };
 
     const handleOnSelectToken = (item: IAsset) => {
@@ -269,6 +271,8 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
                 return chainList.value;
         }
     };
+
+    const chains = computed(() => getChainListForModules());
 
     // * Get chains for modules
     const getChainsList = () => {
@@ -405,6 +409,12 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
 
     return {
         options,
+
+        chains,
+
+        selectedSrcNetwork,
+        selectedDstNetwork,
+
         MAX_OPTIONS_PER_PAGE,
 
         CHAIN_LIST,

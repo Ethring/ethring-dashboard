@@ -25,7 +25,18 @@
 .sidebar .ant-menu-submenu .ant-menu-submenu-title,
 .sidebar .ant-menu-item {
     color: var(--#{$prefix}neutral-gray);
-    font-size: var(--#{$prefix}h5-fs);
+    font-size: var(--#{$prefix}small-lg-fs);
+}
+
+.sidebar .ant-menu-item-icon,
+.sidebar .ant-menu-item-icon.stroke-icons {
+    width: 20px;
+    height: 20px;
+}
+
+.sidebar .ant-menu-item-icon.sidebar-logo {
+    width: 36px;
+    height: 36px;
 }
 
 .sidebar .ant-menu-item-icon path,
@@ -154,4 +165,8 @@
     color: var(--#{$prefix}sidebar-logo-color);
     font-weight: 700;
     font-size: var(--#{$prefix}h4-fs);
+}
+
+.ant-menu-title-content {
+    font-weight: 500;
 }

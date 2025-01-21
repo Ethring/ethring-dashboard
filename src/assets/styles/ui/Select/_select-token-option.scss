@@ -12,13 +12,13 @@
     padding: 8px 12px 8px 8px;
 
     border-radius: 8px;
-    border: 1px solid var(--#{$prefix}collapse-border-color);
+    border: 1px solid var(--#{$prefix}default-border-color);
 
     background-color: var(--#{$prefix}secondary-background);
 
     &:hover {
-        border-color: var(--#{$prefix}btn-bg-color-hover);
-        background-color: var(--#{$prefix}btn-secondary-hover-op-01);
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
 
         .showHover {
             transform: translateY(0) !important;
@@ -35,8 +35,8 @@
     }
 
     &.selected {
-        border: 1px solid var(--#{$prefix}banner-logo-color);
-        background-color: var(--#{$prefix}selected-bg-color);
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
     }
 
     &:not(:last-child) {
@@ -65,7 +65,7 @@
 
         .top {
             color: var(--#{$prefix}primary-text);
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 500;
             text-wrap: nowrap;
         }
@@ -86,7 +86,7 @@
                 font-style: normal;
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-sm-fs);
-                color: var(--#{$prefix}sub-text);
+                color: var(--#{$prefix}mute-text);
                 transition: 0.2s ease-in-out;
 
                 svg {
@@ -95,14 +95,14 @@
                     padding: 2px;
 
                     margin-left: 4px;
-                    fill: var(--#{$prefix}sub-text);
+                    fill: var(--#{$prefix}mute-text);
 
                     transition: 0.2s;
                     background-color: transparent;
                     border-radius: 50%;
 
                     &:hover {
-                        background-color: var(--#{$prefix}btn-bg-color-hover);
+                        background-color: var(--#{$prefix}default-border-color);
                     }
                 }
 
@@ -124,7 +124,7 @@
     }
 
     .currency {
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}default-fs);
 
         .value {
             font-weight: 500;
@@ -138,7 +138,7 @@
     }
 
     .usd {
-        font-size: var(--#{$prefix}small-lg-fs);
+        font-size: var(--#{$prefix}small-sm-fs);
 
         .value {
             font-weight: 600;

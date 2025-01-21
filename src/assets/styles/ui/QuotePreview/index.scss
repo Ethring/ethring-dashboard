@@ -1,0 +1,58 @@
+.quote-preview {
+    margin-top: 40px;
+}
+
+.quote-preview__header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.quote-preview__header__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.quote-preview__header__slippage {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 6px;
+
+    & > div:first-child {
+        border-right: 1px solid var(--#{$prefix}default-border-color);
+    }
+
+    & > div {
+        padding: 8px;
+    }
+}
+
+.quote-preview__header__settings {
+    cursor: not-allowed;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--#{$prefix}default-border-color);
+
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.quote-preview__summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.quote-preview__summary__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 24px;
+}
+
+.quote-preview .skeleton span {
+    height: 14px !important;
+}

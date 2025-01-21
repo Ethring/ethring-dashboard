@@ -1,10 +1,14 @@
-.operation-bag__actions {
-    display: flex;
-    gap: 10px;
-}
-
 .operation-bag .ant-drawer-mask {
     backdrop-filter: blur(7.5px);
+}
+
+.operation-bag .ant-drawer-title {
+    font-size: var(--#{$prefix}h4-fs);
+}
+
+.operation-bag .ant-drawer-header {
+    padding-bottom: 0;
+    border-color: transparent;
 }
 
 .operation-bag__action {
@@ -49,14 +53,61 @@
     }
 }
 
+.operation-bag__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.operation-bag__header__clear {
+    cursor: pointer;
+    transition: 0.2s;
+    &:hover {
+        color: var(--#{$prefix}danger);
+    }
+}
+
 // **********************************************************
 // * Operation Card
 // **********************************************************
 
 .operation-list {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-direction: column;
+}
+
+.operation-card {
+    border-radius: 12px;
+    &:hover {
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
+        box-shadow: none;
+
+        .operation-card__action.operation-card__action--remove {
+            opacity: 1;
+        }
+    }
+}
+
+.operation-card .ant-card-body {
+    padding: 16px;
+}
+
+.operation-card--active {
+    border-color: var(--#{$prefix}active-border-color);
+    background-color: var(--#{$prefix}card-active-bg-color);
+    box-shadow: none;
+
+    .operation-card__action.operation-card__action--remove {
+        opacity: 1;
+    }
+
+    .operation-card__action.operation-card__action--start {
+        transform: rotate(-180deg);
+    }
 }
 
 .operation-card__info {
@@ -66,6 +117,22 @@
     justify-content: space-between;
 }
 
+.operation-bag__title {
+    font-size: var(--#{$prefix}default-fs);
+}
+
+.operation-card__protocol {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.operation-card__protocol-name {
+    font-size: var(--#{$prefix}small-md-fs);
+    color: var(--#{$prefix}mute-text);
+}
+
 .operation-card__action {
     max-width: 24px;
     max-height: 36px;
@@ -73,19 +140,32 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 
-    &:hover {
-        background-color: var(--#{$prefix}default-border-color) !important;
-    }
-}
-
-.operation-card__action--start {
-    background-color: var(--#{$prefix}success);
+    transition: 0.2s;
 }
 
 .operation-card__action--remove {
     margin-left: auto;
-    background-color: var(--#{$prefix}danger);
+    background-color: transparent;
+}
+
+.operation-bag__actions {
+    display: flex;
+}
+
+.operation-card__action.operation-card__action--remove {
+    opacity: 0;
+
+    & path {
+        transition: 0.2s;
+    }
+
+    &:hover path {
+        fill: var(--#{$prefix}danger);
+    }
 }
 
 // **********************************************************
@@ -120,4 +200,81 @@
     color: var(--#{$prefix}white);
     background-color: var(--#{$prefix}black);
     border-color: var(--#{$prefix}black);
+}
+
+// **********************************************************
+// * Operation Bag Radio buttons
+// **********************************************************
+
+.operation-bag__radio {
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid black;
+    max-height: 36px;
+
+    transition: 0.2s;
+
+    svg path {
+        transition: 0.2s;
+        fill: var(--#{$prefix}black);
+    }
+
+    &:hover {
+        background-color: var(--#{$prefix}black);
+        color: var(--#{$prefix}white);
+
+        svg path {
+            fill: var(--#{$prefix}white);
+        }
+    }
+}
+
+.operation-bag__radio--active {
+    background-color: var(--#{$prefix}black);
+    color: var(--#{$prefix}white);
+
+    svg path {
+        fill: var(--#{$prefix}white);
+    }
+}
+
+.operation-bag__radio--deposit {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+
+.operation-bag__radio--withdraw {
+    border-radius: 0 8px 8px 0;
+    border-color: var(--#{$prefix}black);
+}
+
+.operation__bag--execute {
+    border-radius: 10px;
+}
+
+.operation__bag--execute.disabled {
+    cursor: not-allowed;
+    background-color: var(--#{$prefix}default-border-color);
+
+    span {
+        color: var(--#{$prefix}mute-text);
+    }
+}
+
+.operation__bag--execute {
+    background-color: var(--#{$prefix}black);
+    max-height: 48px;
+    span {
+        text-transform: capitalize;
+        font-size: var(--#{$prefix}small-lg-fs) !important;
+    }
+}
+
+.operation__bag--execute:not(.disabled):hover {
+    border-color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}white) !important;
 }

@@ -3,7 +3,7 @@
         <a-menu mode="inline" :default-selected-keys="['1']" class="sidebar-logo-menu">
             <a-menu-item key="1">
                 <template #icon>
-                    <SidebarLogo />
+                    <SidebarLogo class="sidebar-logo" />
                 </template>
                 <span>Ethring</span>
             </a-menu-item>

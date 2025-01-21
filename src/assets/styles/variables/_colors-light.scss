@@ -22,8 +22,13 @@ $raisinBlack: #242526;
 $cultured: #f5f5f5;
 $azureishWhite: #e2e8f0;
 
+$quickSilver: #A2A2A2;
+
 $spanishViolet: #422c74; // MAIN LOGO COLOR
 $nickel: #737373;
+$soap: #D9D2EB;
+
+$magnolia: #F7F4FF;
 
 //  ===========================================================================
 //  SECONDARY COLORS
@@ -135,6 +140,9 @@ $symbol-text: $charade;
 $mute-apr-text: $mineralGreen;
 $amount-text: $charade;
 $input-disabled-text: $mineralGreen;
+
+$input-placeholder-text: $quickSilver;
+
 $balance-text: $surfieGreen;
 $unlock-text: $paleSky;
 $neutral-text: $stormGrey;
@@ -187,6 +195,8 @@ $border-secondary-color: $geyser;
 $border-color-op-05: rgba($border-color, 0.5);
 $social-border-color: $trout;
 $info-border-color: $gallery;
+
+$active-border-color: $soap;
 
 // Button
 $btn-text-color: $white;
@@ -322,6 +332,8 @@ $card-btn-bg-color: $aquamarine;
 $card-tag-bg-color: $turquoise;
 $card-btn-secondary-color: $gainsboro;
 
+$card-active-bg-color: $magnolia;
+
 $shortcut-step-success: $iceberg;
 
 $radio-btn-bg-color: $gainsboro;
@@ -372,6 +384,7 @@ $theme-colors: (
     'mute-apr-text': $mute-apr-text,
     'amount-text': $amount-text,
     'input-disabled-text': $input-disabled-text,
+    'input-placeholder-text': $input-placeholder-text,
     'balance-text': $balance-text,
     'unlock-text': $unlock-text,
     'neutral-text': $neutral-text,
@@ -419,6 +432,7 @@ $theme-colors: (
     'border-color-op-05': $border-color-op-05,
     'social-border-color': $social-border-color,
     'info-border-color': $info-border-color,
+    'active-border-color': $active-border-color,
 
     'btn-text-hover': $btn-text-hover,
     'btn-bg-color-hover': $btn-bg-color-hover,
@@ -533,6 +547,7 @@ $theme-colors: (
     'card-btn-bg-color': $card-btn-bg-color,
     'card-tag-bg-color': $card-tag-bg-color,
     'card-btn-secondary-color': $card-btn-secondary-color,
+    'card-active-bg-color': $card-active-bg-color,
 
     'shortcut-step-success': $shortcut-step-success,
 
