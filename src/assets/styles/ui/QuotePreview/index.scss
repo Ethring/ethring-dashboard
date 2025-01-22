@@ -71,6 +71,16 @@
     }
 }
 
+.quote-preview__summary__item.quote-preview__summary__item--receive div:not(:first-child) {
+    color: var(--#{$prefix}quote-receive-color);
+    font-size: var(--#{$prefix}h1-fs);
+    font-weight: 700;
+}
+
+.quote-preview__summary__item.quote-preview__summary__item--receive .skeleton span {
+    height: 24px !important;
+}
+
 .quote-preview__summary__item.quote-preview__summary__item--receive .amount-block .symbol,
 .quote-preview__summary__item.quote-preview__summary__item--receive .amount-block .value {
     color: var(--#{$prefix}quote-receive-color);

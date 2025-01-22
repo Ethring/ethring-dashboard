@@ -138,13 +138,17 @@
 
 .operation-bag__title {
     font-size: var(--#{$prefix}default-fs);
+
+    & > span {
+        display: block;
+        margin-top: -4px;
+    }
 }
 
 .operation-card__protocol {
     display: flex;
     align-items: center;
     gap: 5px;
-    margin-top: 4px;
 }
 
 .operation-card__protocol-name {

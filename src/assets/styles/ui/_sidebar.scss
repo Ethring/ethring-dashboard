@@ -7,7 +7,7 @@
     height: 100vh;
     overflow: auto;
 
-    padding: 40px 0;
+    padding: 20px 0 40px;
     border-right: 1px solid var(--#{$prefix}default-border-color);
     background: var(--#{$prefix}sidebar-background) !important;
 }

@@ -35,15 +35,15 @@
         <Amount type="currency" :value="2.5" symbol="%" class="asset__item--amount asset__item--apy" />
     </template>
     <template v-if="column === 'rewards'">
-        <RewardsIcons />
+        <RewardsIcons style="transform: translateY(15%)" />
     </template>
 
     <template v-if="balanceKeys.includes(column)">
-        <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :decimals="3" class="asset__item--amount" />
+        <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :decimals="3" class="asset__item--amount asset__item--balance" />
     </template>
 
     <template v-if="valueKeys.includes(column)">
-        <Amount type="usd" :value="balanceUsd" symbol="$" class="asset__item--amount" />
+        <Amount type="usd" :value="balanceUsd" symbol="$" class="asset__item--amount asset__item--value" />
     </template>
 
     <template v-if="column === 'actions'">

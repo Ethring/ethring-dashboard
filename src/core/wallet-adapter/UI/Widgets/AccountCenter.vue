@@ -5,15 +5,12 @@
                 <WalletIcon class="wallet-adapter__logo" />
             </div>
         </div>
-
-        <div class="wallet-adapter__actions"><ArrowIcon class="arrow" /></div>
     </div>
 </template>
 <script>
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import WalletIcon from '@/assets/icons/wallets/wallet.svg';
-import ArrowIcon from '@/assets/icons/form-icons/drop-down.svg';
 
 import { cutAddress } from '@/shared/utils/address';
 
@@ -21,7 +18,6 @@ export default {
     name: 'AccountCenter',
     components: {
         WalletIcon,
-        ArrowIcon,
     },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup() {
@@ -90,7 +86,6 @@ export default {
 
     &__logos {
         @include pageFlexRow;
-        margin-right: 8px;
 
         .logo-container {
             position: relative;

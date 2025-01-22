@@ -1,6 +1,7 @@
 .asset__item--network {
     display: inline-flex;
     gap: 8px;
+    transform: translateY(15%);
 
     .network_symbol {
         font-size: var(--#{$prefix}default-fs);
@@ -70,4 +71,11 @@
     .symbol {
         margin-left: -4px;
     }
+}
+
+
+
+.asset__item--amount.asset__item--value,
+.asset__item--amount.asset__item--balance {
+    transform: translateY(-10%);
 }

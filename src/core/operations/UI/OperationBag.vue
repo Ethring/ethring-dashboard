@@ -62,7 +62,7 @@
                             <div class="operation-card__title">
                                 <span> {{ operation.symbol }} </span>
                                 <div class="operation-card__protocol">
-                                    <TokenIcon :token="operation.protocol" :width="20" :height="20" />
+                                    <TokenIcon :token="operation.protocol" :width="18" :height="18" />
                                     <span class="operation-card__protocol-name">
                                         {{ operation.protocol.name }}
                                     </span>
@@ -85,8 +85,8 @@
                             type="asset"
                             :chain="operation.chainInfo"
                             :asset="operation"
-                            :width="36"
-                            :height="36"
+                            :width="40"
+                            :height="40"
                             :divider="2"
                         />
                     </template>

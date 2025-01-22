@@ -58,8 +58,8 @@
             <span class="sidebar-footer-copyright">© Ethring 2025</span>
             <div class="sidebar-footer-links">
                 <a href="#" @click.prevent=""> Privacy Policy </a>
-                <a href="#" @click.prevent=""> Docs </a>
                 <a href="#" @click.prevent="">T&Cs </a>
+                <a href="#" @click.prevent=""> Docs </a>
                 <a href="#" @click.prevent=""> Send Feedback </a>
                 <a href="#" @click.prevent=""> Partnership </a>
             </div>

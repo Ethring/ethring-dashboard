@@ -1,5 +1,5 @@
 <template>
-    <a-dropdown v-model:open="open" :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
+    <a-dropdown v-model:open="open" :arrow="{ pointAtCenter: true }" placement="bottomRight" class="wallet-adapter-container">
         <AccountCenter v-if="walletAddress" class="ant-dropdown-link" />
         <NotConnected v-else class="ant-dropdown-link" />
 
