@@ -3,6 +3,11 @@
     max-width: 260px;
     width: 100%;
     border-radius: 12px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 1) 65%, rgba(78, 53, 136, 0.5) 300%);
+}
+
+.statistical-card:not(:first-child) {
+    background: linear-gradient(to right, rgba(255, 255, 255, 1) 65%, rgba(136, 95, 53, 0.5) 300%);
 }
 
 .statistical-card .ant-card-body {

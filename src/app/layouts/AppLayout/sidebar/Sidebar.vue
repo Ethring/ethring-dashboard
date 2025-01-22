@@ -53,6 +53,25 @@
                 <span>Transactions</span>
             </a-menu-item>
         </a-menu>
+
+        <div class="sidebar-footer">
+            <span class="sidebar-footer-copyright">© Ethring 2025</span>
+            <div class="sidebar-footer-links">
+                <a href="#" @click.prevent=""> Privacy Policy </a>
+                <a href="#" @click.prevent=""> Docs </a>
+                <a href="#" @click.prevent="">T&Cs </a>
+                <a href="#" @click.prevent=""> Send Feedback </a>
+                <a href="#" @click.prevent=""> Partnership </a>
+            </div>
+
+            <div class="sidebar-footer-socials">
+                <a href="#" @click.prevent=""> <MirrorIcon /> </a>
+                <a href="#" @click.prevent=""> <XTwitterIcon /> </a>
+                <a href="#" @click.prevent=""> <DiscordIcon /> </a>
+                <a href="#" @click.prevent=""> <WarpcastIcon /> </a>
+                <a href="#" @click.prevent=""> <LensIcon /> </a>
+            </div>
+        </div>
     </a-layout-sider>
 </template>
 <script>
@@ -63,6 +82,12 @@ import ProtocolsIcon from '@/assets/icons/sidebar/protocols.svg';
 import ExploreIcon from '@/assets/icons/sidebar/explore.svg';
 import TransactionsIcon from '@/assets/icons/sidebar/transactions.svg';
 
+import MirrorIcon from '@/assets/icons/socials/mirror.svg';
+import XTwitterIcon from '@/assets/icons/socials/x-twitter.svg';
+import DiscordIcon from '@/assets/icons/socials/discord-channel.svg';
+import WarpcastIcon from '@/assets/icons/socials/warpcast-channel.svg';
+import LensIcon from '@/assets/icons/socials/lens.svg';
+
 export default {
     name: 'Sidebar',
     components: {
@@ -72,6 +97,12 @@ export default {
         ExploreIcon,
         ProtocolsIcon,
         TransactionsIcon,
+
+        MirrorIcon,
+        XTwitterIcon,
+        DiscordIcon,
+        WarpcastIcon,
+        LensIcon,
     },
     props: {
         isCollapsed: {
