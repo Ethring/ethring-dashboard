@@ -194,7 +194,8 @@
 .sidebar-footer-links {
     display: flex;
     flex-wrap: wrap;
-    margin-top: 5px;
+    margin-top: 8px;
+    margin-bottom: 16px;
 
     gap: 8px;
 
@@ -216,7 +217,6 @@
 }
 
 .sidebar-footer-socials {
-    margin-top: 16px;
     display: flex;
     align-items: center;
     gap: 16px;
