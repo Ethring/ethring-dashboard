@@ -123,6 +123,8 @@ $assets-arrow-bg-color: $iceberg;
 
 $assets-added-bg-color: $nickel;
 
+$quote-receive-color: $spanishViolet;
+
 // Shortcuts
 $shortcut-bg-color: $white;
 $shortcut-shadow-color: #81808033;
@@ -426,6 +428,8 @@ $theme-colors: (
     'checkbox-disabled': $checkbox-disabled,
     'checkbox-border': $checkbox-border,
     'checkbox-border-checked': $checkbox-border-checked,
+
+    'quote-receive-color': $quote-receive-color,
 
     'border-color': $border-color,
     'border-secondary-color': $border-secondary-color,

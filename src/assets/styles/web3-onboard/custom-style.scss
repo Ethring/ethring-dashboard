@@ -131,7 +131,7 @@
     /* --onboard-action-required-modal-background */
 
     /* FONTS */
-    --onboard-font-family-normal: 'Space Grotesk', serif;
+    --onboard-font-family-normal: "Space Grotesk", serif;
 
     /*
     --onboard-font-size-1: 3rem;
@@ -244,4 +244,11 @@
 
 .not-connect {
     display: none !important;
+}
+
+.wallet-adapter:hover .wallet-adapter__logo path {
+    fill: var(--#{$prefix}black);
+}
+.wallet-adapter__logo path {
+    fill: var(--#{$prefix}white);
 }

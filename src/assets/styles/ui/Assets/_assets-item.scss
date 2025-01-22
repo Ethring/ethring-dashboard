@@ -54,7 +54,7 @@
 
     .symbol {
         font-weight: 500;
-        color: var(--#{$prefix}secondary-text);
+        color: var(--#{$prefix}primary-text);
     }
 
     .value {
@@ -66,4 +66,8 @@
 .asset__item--amount.asset__item--apy,
 .asset__item--amount.asset__item--tvl {
     font-size: var(--#{$prefix}h6-fs);
+
+    .symbol {
+        margin-left: -4px;
+    }
 }

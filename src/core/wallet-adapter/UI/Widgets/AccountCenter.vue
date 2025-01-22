@@ -2,24 +2,7 @@
     <div class="wallet-adapter" @click="$emit('toggleDropdown')">
         <div class="wallet-adapter__account">
             <div class="wallet-adapter__logos">
-                <div class="logo-container">
-                    <ModuleIcon
-                        width="40px"
-                        height="40px"
-                        :ecosystem="connectedWallet.ecosystem"
-                        :module="connectedWallet.walletModule"
-                        background="#1c1f2c"
-                    />
-                    <CheckIcon class="check-icon" />
-                </div>
-            </div>
-
-            <div class="wallet-adapter__info">
-                <a-skeleton-button v-if="isConnecting" :loading="isConnecting" active block />
-                <template v-else>
-                    <p class="account">{{ cutAddress(walletAccount, 11, 4) }}</p>
-                    <p class="ecosystem">{{ ecosystem }}</p>
-                </template>
+                <WalletIcon class="wallet-adapter__logo" />
             </div>
         </div>
 
@@ -29,9 +12,7 @@
 <script>
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import ModuleIcon from '@/core/wallet-adapter/UI/Entities/ModuleIcon.vue';
-
-import CheckIcon from '@/assets/icons/form-icons/check-circle.svg';
+import WalletIcon from '@/assets/icons/wallets/wallet.svg';
 import ArrowIcon from '@/assets/icons/form-icons/drop-down.svg';
 
 import { cutAddress } from '@/shared/utils/address';
@@ -39,8 +20,7 @@ import { cutAddress } from '@/shared/utils/address';
 export default {
     name: 'AccountCenter',
     components: {
-        ModuleIcon,
-        CheckIcon,
+        WalletIcon,
         ArrowIcon,
     },
     emits: ['toggleDropdown', 'closeDropdown'],
@@ -82,7 +62,7 @@ export default {
     transition: 0.3s;
 
     border-radius: 10px;
-    padding: 4px 16px 4px 4px;
+    padding: 12px 20px;
 
     &:hover {
         border-color: var(--#{$prefix}black);

@@ -4,9 +4,8 @@
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
-            <a-menu class="adapter__dropdown">
+            <a-menu v-if="walletAddress" class="adapter__dropdown">
                 <AdapterDropdown v-if="walletAddress" />
-                <ConnectToEcosystems :close="() => (open = false)" />
             </a-menu>
         </template>
     </a-dropdown>
@@ -18,7 +17,6 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import AccountCenter from '@/core/wallet-adapter/UI/Widgets/AccountCenter';
 import AdapterDropdown from '@/core/wallet-adapter/UI/Widgets/AdapterDropdown';
-import ConnectToEcosystems from '@/core/wallet-adapter/UI/Widgets/ConnectToEcosystems';
 
 import NotConnected from '@/core/wallet-adapter/UI/Entities/NotConnected';
 
@@ -27,7 +25,6 @@ export default {
     components: {
         AccountCenter,
         AdapterDropdown,
-        ConnectToEcosystems,
         NotConnected,
     },
     setup() {

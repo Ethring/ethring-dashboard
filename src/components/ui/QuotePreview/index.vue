@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="quote-preview__summary__item">
+            <div class="quote-preview__summary__item quote-preview__summary__item--receive">
                 <div>Receive</div>
                 <div>
                     <template v-if="isQuoteLoading">

@@ -279,6 +279,9 @@ export default {
         };
 
         const setSelectedDstInfo = () => {
+            srcAmount.value = 0;
+            dstAmount.value = 0;
+
             if (!currentOperation.value) return;
 
             const { chain } = currentOperation.value || {};

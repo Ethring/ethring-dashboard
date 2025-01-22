@@ -120,7 +120,7 @@
         }
 
         .name::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -268,12 +268,7 @@
     background-color: var(--#{$prefix}black);
     color: var(--#{$prefix}white);
     &:not(.asset-table__action--disabled):hover {
-        background-color: var(--#{$prefix}white);
-        color: var(--#{$prefix}black);
-
-        .asset-table__action-icon path {
-            fill: var(--#{$prefix}black);
-        }
+        opacity: 0.6;
     }
 }
 
@@ -285,9 +280,8 @@
     gap: 15px;
 
     &:not(.asset-table__action--disabled):hover {
-        right: 0;
+        right: -25%;
         gap: 5px;
-        justify-content: center;
 
         .asset-table__action-icon path {
             fill: var(--#{$prefix}black);
@@ -331,4 +325,12 @@
 
 .asset-table__action-text--remove {
     display: none;
+}
+
+.asset-table .ant-table-column-sorters {
+    justify-content: flex-start;
+}
+
+.asset-table .ant-table-column-sorters .ant-table-column-title {
+    flex: 0;
 }

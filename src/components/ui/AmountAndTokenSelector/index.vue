@@ -55,7 +55,7 @@
             </div>
         </div>
     </div>
-
+    <!--
     <div class="amount__slider-container">
         <a-slider v-model:value="sliderValue" class="amount__slider" :marks="marks" @change="onChangeSlider">
             <template #mark="{ label, point }">
@@ -65,7 +65,7 @@
                 <template v-else>{{ label }}</template>
             </template>
         </a-slider>
-    </div>
+    </div> -->
 </template>
 <script>
 import BigNumber from 'bignumber.js';

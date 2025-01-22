@@ -1,10 +1,16 @@
 .quote-preview {
-    margin-top: 40px;
+    // margin-top: 40px; // TODO: uncomment after fix slider
+    margin-top: 16px;
 }
 
 .quote-preview__header {
     display: flex;
     justify-content: space-between;
+
+    & > div {
+        display: flex;
+        align-items: center;
+    }
 }
 
 .quote-preview__header__actions {
@@ -55,4 +61,19 @@
 
 .quote-preview .skeleton span {
     height: 14px !important;
+}
+
+.quote-preview__summary__item.quote-preview__summary__item--receive {
+    color: var(--#{$prefix}quote-receive-color);
+
+    .amount-block {
+        color: var(--#{$prefix}quote-receive-color);
+    }
+}
+
+.quote-preview__summary__item.quote-preview__summary__item--receive .amount-block .symbol,
+.quote-preview__summary__item.quote-preview__summary__item--receive .amount-block .value {
+    color: var(--#{$prefix}quote-receive-color);
+    font-size: var(--#{$prefix}h1-fs);
+    font-weight: 700;
 }
