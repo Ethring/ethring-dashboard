@@ -1,14 +1,30 @@
 .statistical-card {
     border-color: var(--#{$prefix}default-border-color);
-    max-width: 270px;
+    max-width: 260px;
     width: 100%;
+    border-radius: 12px;
 }
 
 .statistical-card .ant-card-body {
-    padding: 15px;
+    padding: 20px;
     .ant-statistic-content {
         font-weight: 700;
     }
+}
+
+.statistical-card .ant-statistic-title {
+    height: 20px;
+}
+
+.statistical-card .ant-statistic-content {
+    height: 30px;
+}
+
+.statistical-card .ant-statistic-content-suffix {
+    margin-inline-start: 2px !important;
+}
+.statistical-card .ant-statistic-content-prefix {
+    margin-inline-end: 2px !important;
 }
 
 .statistical-card .statistical-card__statistic {

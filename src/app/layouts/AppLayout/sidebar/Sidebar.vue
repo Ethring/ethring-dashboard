@@ -1,5 +1,5 @@
 <template>
-    <a-layout-sider :collapsed-width="0" :width="256" :collapsed="isCollapsed" :trigger="null" class="sidebar">
+    <a-layout-sider :collapsed-width="0" :width="230" :collapsed="isCollapsed" :trigger="null" class="sidebar">
         <a-menu mode="inline" :default-selected-keys="['1']" class="sidebar-logo-menu">
             <a-menu-item key="1">
                 <template #icon>
@@ -10,12 +10,18 @@
         </a-menu>
 
         <a-menu mode="inline" :default-selected-keys="['1']" class="sidebar-menu">
-            <a-menu-item key="1">
+            <a-sub-menu key="dashboard-menu">
                 <template #icon>
                     <DashboardIcon />
                 </template>
-                <span>Dashboard</span>
-            </a-menu-item>
+                <template #title>
+                    <span>
+                        <span>Dashboard</span>
+                    </span>
+                </template>
+                <a-menu-item key="dashboard-assets">Assets</a-menu-item>
+                <a-menu-item key="dashboard-defi">DeFi</a-menu-item>
+            </a-sub-menu>
             <a-sub-menu key="restake-menu">
                 <template #icon>
                     <RestakeIcon class="stroke-icons" />
@@ -25,8 +31,8 @@
                         <span>Restake</span>
                     </span>
                 </template>
-                <a-menu-item key="assets">Assets</a-menu-item>
-                <a-menu-item key="defi">DeFi</a-menu-item>
+                <a-menu-item key="restake-assets">Assets</a-menu-item>
+                <a-menu-item key="restake-defi">DeFi</a-menu-item>
             </a-sub-menu>
             <a-menu-item key="2" disabled>
                 <template #icon>

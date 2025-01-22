@@ -20,12 +20,16 @@
     </template>
 
     <template v-if="column === 'chain'">
-        <div class="asset__item--network">
-            <TokenIcon :key="chainInfo" :token="chainInfo" width="20" height="20" />
+        <div class="asset__item--network asset__item--chain">
+            <TokenIcon :key="item.chainInfo.net" :token="item.chainInfo" width="20" height="20" />
+
+            <div class="asset__item--info">
+                <div class="name">{{ item.chainInfo.name }}</div>
+            </div>
         </div>
     </template>
     <template v-if="column === 'tvl'">
-        <Amount type="usd" :value="200000000" symbol="$" class="asset__item--amount asset__item--tvl" />
+        <Amount type="currency" :value="200" symbol="M" class="asset__item--amount asset__item--tvl" />
     </template>
     <template v-if="column === 'apy'">
         <Amount type="currency" :value="2.5" symbol="%" class="asset__item--amount asset__item--apy" />

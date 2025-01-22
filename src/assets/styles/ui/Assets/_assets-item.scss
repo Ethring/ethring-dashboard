@@ -1,6 +1,6 @@
 .asset__item--network {
     display: inline-flex;
-    gap: 10px;
+    gap: 8px;
 
     .network_symbol {
         font-size: var(--#{$prefix}default-fs);
@@ -29,14 +29,15 @@
 
     div:not(:first-child) {
         &::before {
-            content: "\2022";
+            content: '\2022';
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
     }
 }
 
-.asset__item--protocol .asset_item--info {
+.asset__item--chain .asset__item--info,
+.asset__item--protocol .asset__item--info {
     font-size: var(--#{$prefix}small-sm-fs);
 
     .name {
@@ -61,7 +62,6 @@
         color: var(--#{$prefix}primary-text);
     }
 }
-
 
 .asset__item--amount.asset__item--apy,
 .asset__item--amount.asset__item--tvl {

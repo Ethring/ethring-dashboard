@@ -12,7 +12,11 @@
 
 .dashboard__stats-row {
     margin: 24px 0;
-    max-width: 570px;
+
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    max-width: 545px;
 
     display: flex;
     align-items: center;

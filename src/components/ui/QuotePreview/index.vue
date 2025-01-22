@@ -15,6 +15,13 @@
             </div>
         </div>
         <div class="quote-preview__summary">
+            <div v-if="service" class="quote-preview__summary__item">
+                <div>Route</div>
+                <div>
+                    <ServiceIcon v-bind="service" :show-title="true" />
+                </div>
+            </div>
+
             <div class="quote-preview__summary__item">
                 <div>Rate</div>
                 <div>
@@ -41,6 +48,7 @@
                     <template v-else> 0 </template>
                 </div>
             </div>
+
             <div class="quote-preview__summary__item">
                 <div>Receive</div>
                 <div>
@@ -52,12 +60,6 @@
                         <Amount :value="minOutAmount(quote.toAmount)" :decimals="2" :symbol="fees.RATE.toSymbol" type="currency" />
                     </template>
                     <template v-else> 0 </template>
-                </div>
-            </div>
-            <div v-if="service" class="quote-preview__summary__item">
-                <div>Route</div>
-                <div>
-                    <ServiceIcon v-bind="service" :show-title="true" />
                 </div>
             </div>
         </div>

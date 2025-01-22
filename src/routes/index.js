@@ -15,6 +15,11 @@ export const routes = [
         component: () => import('@/pages/Dashboard/index.vue'),
     },
     {
+        path: '/restake',
+        name: 'Restake',
+        component: () => import('@/pages/Restake/index.vue'),
+    },
+    {
         path: '/connect-wallet',
         name: 'Connect wallet',
         component: () => import('@/pages/Dashboard/index.vue'),

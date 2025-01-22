@@ -13,7 +13,7 @@
         <TokenIcon v-else :width="width" :height="height" :token="asset" />
 
         <div class="chain">
-            <TokenIcon :width="width / 2" :height="height / 2" :token="chain" />
+            <TokenIcon :width="width / divider" :height="height / divider" :token="chain" />
         </div>
     </div>
 </template>
@@ -47,6 +47,10 @@ export default {
             type: Number,
             default: 32,
         },
+        divider: {
+            type: Number,
+            default: 2,
+        },
     },
     data() {
         return {
@@ -61,7 +65,7 @@ export default {
 
     .chain {
         position: absolute;
-        right: -8px;
+        right: -4px;
         bottom: 0;
     }
 }

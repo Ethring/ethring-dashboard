@@ -1,9 +1,9 @@
-import icon from './zomet-logo';
+import icon from './logo';
 
 export default {
-    name: 'Zomet',
+    name: 'Ethring',
     icon,
-    description: 'Demo app for Onboard V2',
+    description: 'App for Onboard V2',
     recommendedInjectedWallets: [
         { name: 'MetaMask', url: 'https://metamask.io' },
         { name: 'Coinbase', url: 'https://wallet.coinbase.com/' },

@@ -77,7 +77,6 @@ if (process.env.WC_PROJECT_ID && process.env.WC_PROJECT_ID !== 'null')
 export default {
     wallets,
     connect: {
-        showSidebar: false,
         disableClose: false,
     },
     accountCenter: {

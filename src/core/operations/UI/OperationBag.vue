@@ -4,7 +4,7 @@
         root-class-name="operation-bag"
         :title="operationBagTitle"
         placement="right"
-        :width="570"
+        :width="480"
         :closable="false"
     >
         <template #extra>
@@ -81,7 +81,14 @@
                         </div>
                     </template>
                     <template #avatar>
-                        <AssetWithChain type="asset" :chain="operation.chainInfo" :asset="operation" :width="48" :height="48" />
+                        <AssetWithChain
+                            type="asset"
+                            :chain="operation.chainInfo"
+                            :asset="operation"
+                            :width="36"
+                            :height="36"
+                            :divider="2"
+                        />
                     </template>
                 </a-card-meta>
             </a-card>

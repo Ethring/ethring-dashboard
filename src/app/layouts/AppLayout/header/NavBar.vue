@@ -4,8 +4,14 @@
             <div class="nav-bar-row">
                 <div class="nav-bar-row__left"></div>
                 <div class="nav-bar-row__right">
-                    <div class="nav-bar-row__right__operation-bag operation-bag-trigger" @click="onClickBagTrigger">
-                        <ShoppingCart v-if="walletAccount" class="operation-bag-icon" />
+                    <div
+                        class="nav-bar-row__right__operation-bag operation-bag-trigger"
+                        :class="{
+                            'operation-bag-trigger--disabled': !walletAccount,
+                        }"
+                        @click="onClickBagTrigger"
+                    >
+                        <ShoppingCart class="operation-bag-icon" />
                         Bag
                         <div class="operations-count">
                             <a-badge
@@ -49,7 +55,10 @@ export default {
 
         const handleScroll = () => (isScrolled.value = window.scrollY > 0);
 
-        const onClickBagTrigger = () => store.dispatch('operationBag/setIsOpen', true);
+        const onClickBagTrigger = () => {
+            if (!walletAccount.value) return;
+            store.dispatch('operationBag/setIsOpen', true);
+        };
 
         const operationsCount = computed(() => store.getters['operationBag/getOperationsCount']);
         const depositOperationsCount = computed(() => store.getters['operationBag/getDepositOperationsCount']);
