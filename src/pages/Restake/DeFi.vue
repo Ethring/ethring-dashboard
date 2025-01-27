@@ -85,7 +85,7 @@ import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 
 export default {
-    name: 'Dashboard',
+    name: 'RestakeDeFi',
     components: {
         StatisticalCard,
 
@@ -182,8 +182,8 @@ export default {
         });
 
         const stakeAssets = computed(() => {
-            const assets = store.getters['stakeAssets/getStakeAssets'];
-            console.log('ASSETS', assets);
+            const assets = store.getters['stakeAssets/getDeFiAssets'];
+            console.log('assets', assets);
             return assets.map((asset) => {
                 const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
                 return {

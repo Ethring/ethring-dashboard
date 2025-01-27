@@ -31,6 +31,8 @@ import shortcuts from '@/core/shortcuts/store';
 
 import operationBag from '@/core/operations/store';
 
+import stakeAssets from '@/store/stake-assets';
+
 // Shortcuts
 import shortcutsList from '@/store/shortcut-list';
 
@@ -52,5 +54,7 @@ export default createStore({
         shortcutsList,
         portalFi,
         operationBag,
+
+        stakeAssets,
     },
 });

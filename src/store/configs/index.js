@@ -26,7 +26,7 @@ export default {
             [Ecosystem.COSMOS]: {},
         },
 
-        stakeTokens: {},
+        stakeTokens: [],
 
         lastUpdated: null,
     }),
@@ -76,7 +76,7 @@ export default {
             return state.chains[ecosystem][chain].native_token || {};
         },
 
-        getStakeTokens: (state) => Object.values(state.stakeTokens),
+        getStakeTokens: (state) => state.stakeTokens,
     },
 
     mutations: {
@@ -93,8 +93,8 @@ export default {
         [TYPES.SET_LAST_UPDATED](state, lastUpdated) {
             state.lastUpdated = lastUpdated;
         },
-        [TYPES.SET_STAKE_TOKENS](state, tokens) {
-            state.stakeTokens = tokens;
+        [TYPES.SET_STAKE_TOKENS](state, { list }) {
+            state.stakeTokens = list;
         },
     },
 

@@ -17,7 +17,18 @@ export const routes = [
     {
         path: '/restake',
         name: 'Restake',
-        component: () => import('@/pages/Restake/index.vue'),
+        children: [
+            {
+                path: 'assets',
+                name: 'Restake Assets',
+                component: () => import('@/pages/Restake/Assets.vue'),
+            },
+            {
+                path: 'defi',
+                name: 'Restake De-Fi assets',
+                component: () => import('@/pages/Restake/DeFi.vue'),
+            },
+        ],
     },
     {
         path: '/connect-wallet',

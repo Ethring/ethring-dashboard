@@ -158,7 +158,8 @@ export default {
 
         onBeforeMount(async () => {
             await store.dispatch('configs/setLastUpdated');
-            await store.dispatch('configs/setStakeTokens');
+            await store.dispatch('stakeAssets/setStakeTokens');
+            await store.dispatch('stakeAssets/setDefiAssets');
 
             await store.dispatch('configs/setConfigLoading', true);
 

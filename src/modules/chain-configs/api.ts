@@ -153,7 +153,17 @@ export const getLastUpdated = async () => {
 
 export const getStakeTokens = async () => {
     try {
-        const { data }: AxiosResponse = await axiosInstance.get('stake-tokens/lst');
+        const { data }: AxiosResponse = await axiosInstance.get('stake-assets');
+        return data || {};
+    } catch (error) {
+        logger.error('Error while getting stake tokens from API', error);
+        return [];
+    }
+};
+
+export const getDefiAssets = async () => {
+    try {
+        const { data }: AxiosResponse = await axiosInstance.get('defi-assets');
         return data || {};
     } catch (error) {
         logger.error('Error while getting stake tokens from API', error);

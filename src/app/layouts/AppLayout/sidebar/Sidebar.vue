@@ -19,8 +19,12 @@
                         <span>Dashboard</span>
                     </span>
                 </template>
-                <a-menu-item key="dashboard-assets">Assets</a-menu-item>
-                <a-menu-item key="dashboard-defi">DeFi</a-menu-item>
+                <a-menu-item key="dashboard-assets">
+                    <router-link to="/dashboard/assets">Assets</router-link>
+                </a-menu-item>
+                <a-menu-item key="dashboard-defi">
+                    <router-link to="/dashboard/defi">DeFi</router-link>
+                </a-menu-item>
             </a-sub-menu>
             <a-sub-menu key="restake-menu">
                 <template #icon>
@@ -31,8 +35,12 @@
                         <span>Restake</span>
                     </span>
                 </template>
-                <a-menu-item key="restake-assets">Assets</a-menu-item>
-                <a-menu-item key="restake-defi">DeFi</a-menu-item>
+                <a-menu-item key="restake-assets">
+                    <router-link to="/restake/assets">Assets</router-link>
+                </a-menu-item>
+                <a-menu-item key="restake-defi">
+                    <router-link to="/restake/defi">DeFi</router-link>
+                </a-menu-item>
             </a-sub-menu>
             <a-menu-item key="2" disabled>
                 <template #icon>
