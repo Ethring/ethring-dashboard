@@ -83,7 +83,7 @@ import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 
 export default {
-    name: 'RestakeDeFi',
+    name: 'DashboardAssets',
     components: {
         DepositIcon,
         WithdrawIcon,
@@ -178,16 +178,18 @@ export default {
         });
 
         const stakeAssets = computed(() => {
-            const assets = store.getters['stakeAssets/getDeFiAssets'];
-            return assets.map((asset) => {
+            const assets = store.getters['stakeAssets/getStakeAssets'];
+            if (!assets.length) return [];
+            if (!assetsForAccount.value.list.length) return assets;
+
+            // * get assets only with balance
+            const balances = assets.reduce((acc, asset) => {
                 const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
-                return {
-                    ...asset,
-                    balance: balance?.balance || 0,
-                    balanceUsd: balance?.balanceUsd || 0,
-                    apy: balance?.apy || 0,
-                };
-            });
+                if (balance) acc.push({ ...asset, balance: balance.balance, balanceUsd: balance.balanceUsd, apy: balance.apy });
+                return acc;
+            }, []);
+
+            return balances;
         });
 
         // *********************************************************************************

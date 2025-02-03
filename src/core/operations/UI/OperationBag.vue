@@ -287,9 +287,11 @@ export default {
             const { chain } = currentOperation.value || {};
             const config = store.getters['configs/getChainConfigByChainOrNet'](chain, Ecosystem.EVM);
 
-            selectedDstNetwork.value = config;
-
-            selectedDstToken.value = currentOperation.value;
+            if (currentOpId.value.includes('deposit')) {
+                selectedDstNetwork.value = config;
+                selectedSrcNetwork.value = config;
+            } else {
+            }
         };
 
         watch(currentOpId, () => setSelectedDstInfo());

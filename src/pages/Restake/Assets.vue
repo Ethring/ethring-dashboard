@@ -1,9 +1,9 @@
 <template>
     <div class="dashboard">
-        <a-row :gutter="16" class="dashboard__stats-row">
+        <!-- <a-row :gutter="16" class="dashboard__stats-row">
             <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" />
             <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" />
-        </a-row>
+        </a-row> -->
 
         <a-row>
             <a-col :span="24">
@@ -74,8 +74,6 @@
 import { ref, onMounted, computed, shallowRef, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
-import StatisticalCard from '@/components/ui/StatisticalCard/index.vue';
-
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import BalancesDB from '@/services/indexed-db/balances';
 
@@ -87,8 +85,6 @@ import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 export default {
     name: 'RestakeAssets',
     components: {
-        StatisticalCard,
-
         DepositIcon,
         WithdrawIcon,
         AddedIcon,
@@ -183,7 +179,6 @@ export default {
 
         const stakeAssets = computed(() => {
             const assets = store.getters['stakeAssets/getStakeAssets'];
-            console.log('ASSETS', assets);
             return assets.map((asset) => {
                 const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
                 return {

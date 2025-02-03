@@ -83,7 +83,7 @@ import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 
 export default {
-    name: 'RestakeDeFi',
+    name: 'DashboardDeFi',
     components: {
         DepositIcon,
         WithdrawIcon,

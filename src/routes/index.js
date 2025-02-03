@@ -12,7 +12,18 @@ export const routes = [
     {
         path: '/dashboard',
         name: 'Dashboard',
-        component: () => import('@/pages/Dashboard/index.vue'),
+        children: [
+            {
+                path: 'assets',
+                name: 'Dashboard Assets',
+                component: () => import('@/pages/Dashboard/Assets.vue'),
+            },
+            {
+                path: 'defi',
+                name: 'Dashboard De-Fi assets',
+                component: () => import('@/pages/Dashboard/DeFi.vue'),
+            },
+        ],
     },
     {
         path: '/restake',
