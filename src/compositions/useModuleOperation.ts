@@ -1049,6 +1049,10 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
 
             if (!checkOpIsExist()) return;
 
+            const operationBagOp = store.getters['operationBag/getOperationInProgress'];
+
+            if (operationBagOp) store.dispatch('operationBag/removeOperationById', operationBagOp);
+
             const operation = operations.getOperationByKey(moduleIndex);
 
             const { txHash } = txInstance.getTransaction() || {};
@@ -1194,6 +1198,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
         printFlow(opsFullFlow); // TODO: Remove this after debug
 
         let txManager: TransactionList;
+
         try {
             txManager = await initTransactionsGroupForOps(operations);
         } catch (error) {

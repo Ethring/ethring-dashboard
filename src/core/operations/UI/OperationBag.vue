@@ -113,7 +113,7 @@
                 class="operation__bag--execute module-layout-view-btn"
                 data-qa="confirm"
                 size="large"
-                @click="handleOnConfirm"
+                @click="handleOnConfirmOperation"
             />
         </template>
     </a-drawer>
@@ -174,6 +174,8 @@ export default {
 
         const operations = computed(() => store.getters['operationBag/getOperations'](activeRadio.value));
         const currentOpId = computed(() => store.getters['operationBag/getCurrentOperationId']);
+        const operationInProgress = computed(() => store.getters['operationBag/getOperationInProgress']);
+
         const currentOperation = computed(() => store.getters['operationBag/getOperationById'](currentOpId.value));
 
         const radioOptions = [
@@ -299,12 +301,22 @@ export default {
             if (selectedDstToken.value?.id !== currentOperation.value?.id) selectedDstToken.value = currentOperation.value;
         });
 
+        const handleOnConfirmOperation = async () => {
+            if (!currentOperation.value) return;
+            await store.dispatch('operationBag/setCurrentProcessOperation', {
+                type: activeRadio.value,
+                id: currentOperation.value.id,
+            });
+            await handleOnConfirm();
+        };
+
         return {
             isOpen,
             currentStage,
             activeRadio,
             operations,
             currentOpId,
+            operationInProgress,
 
             depositOperationsCount,
             withdrawOperationsCount,
@@ -339,7 +351,7 @@ export default {
 
             // * Module methods
             handleOnSetAmount,
-            handleOnConfirm,
+            handleOnConfirmOperation,
 
             onSelectNetwork,
             onSelectToken,

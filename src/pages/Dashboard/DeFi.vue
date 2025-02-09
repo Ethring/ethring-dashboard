@@ -23,13 +23,14 @@
                                     class="asset-table__actions"
                                     type="link"
                                     :class="{
-                                        'asset-table__actions--added': isAlreadyExistInCart(record),
+                                        'asset-table__actions--added':
+                                            isAlreadyExistInCart(record) || isAlreadyExistInCart(record, 'withdraw'),
                                     }"
                                 >
                                     <div
                                         class="asset-table__action asset-table__action--deposit"
                                         :class="{
-                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record),
+                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record, 'deposit'),
                                             'asset-table__action--disabled': !isAllowToAddOps,
                                         }"
                                         @click="() => isAllowToAddOps && onClickToAction(record)"
@@ -40,9 +41,10 @@
                                     <div
                                         class="asset-table__action asset-table__action--withdraw"
                                         :class="{
-                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record),
+                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record, 'withdraw'),
                                             'asset-table__action--disabled': !isAllowToAddOps,
                                         }"
+                                        @click="() => isAllowToAddOps && onClickToAction(record, 'withdraw')"
                                     >
                                         <WithdrawIcon class="asset-table__action-icon" />
                                         <span> Withdraw </span>
@@ -51,9 +53,12 @@
                                     <div
                                         class="asset-table__action asset-table__action--added"
                                         :class="{
-                                            'asset-table__action--added-show': isAlreadyExistInCart(record),
+                                            'asset-table__action--added-show':
+                                                isAlreadyExistInCart(record) || isAlreadyExistInCart(record, 'withdraw'),
                                         }"
-                                        @click="() => onClickToAction(record)"
+                                        @click="
+                                            () => onClickToAction(record, isAlreadyExistInCart(record, 'deposit') ? 'deposit' : 'withdraw')
+                                        "
                                     >
                                         <AddedIcon class="asset-table__action-icon" />
                                         <RemoveIcon class="asset-table__action-icon asset-table__action-icon--remove" />
@@ -219,22 +224,20 @@ export default {
             }
         };
 
-        const onClickToAction = (record) => {
-            if (isAlreadyExistInCart(record))
+        const onClickToAction = (record, type = 'deposit') => {
+            if (isAlreadyExistInCart(record, type))
                 return store.dispatch('operationBag/removeOperation', {
-                    type: 'deposit',
+                    type,
                     id: record.id,
                 });
 
-            return store.dispatch('operationBag/setDepositOperation', {
-                type: 'deposit',
+            return store.dispatch('operationBag/setOperation', {
+                type,
                 operation: record,
             });
         };
 
-        const isAlreadyExistInCart = (record) => store.getters['operationBag/isOperationExist']('deposit', record.id);
-
-        const getActionTitle = (record) => (isAlreadyExistInCart(record) ? 'MinusCircleOutlined' : 'PlusCircleOutlined');
+        const isAlreadyExistInCart = (record, type = 'deposit') => store.getters['operationBag/isOperationExist'](type, record.id);
 
         const rowKey = (record) => record?.id || `assets-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`;
 
@@ -297,7 +300,6 @@ export default {
             rowKey,
             isAlreadyExistInCart,
             onClickToAction,
-            getActionTitle,
         };
     },
 };

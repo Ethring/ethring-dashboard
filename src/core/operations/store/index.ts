@@ -7,14 +7,18 @@ const TYPES = {
 
     SET_OPERATION: 'SET_OPERATION',
     REMOVE_OPERATION: 'REMOVE_OPERATION',
+    REMOVE_OPERATION_BY_ID: 'REMOVE_OPERATION_BY_ID',
 
     CLEAR_ALL_OPERATIONS: 'CLEAR_ALL_OPERATIONS',
+
+    SET_CURRENT_PROCESS_OPERATION: 'SET_CURRENT_PROCESS_OPERATION',
 };
 
 interface IState {
     isOpen: boolean;
     operations: Record<string, any>;
     currentOperationId: string;
+    operationInProgress: string;
 }
 
 export default {
@@ -24,6 +28,7 @@ export default {
         isOpen: false,
         operations: {},
         currentOperationId: '',
+        operationInProgress: '',
     }),
 
     getters: {
@@ -55,6 +60,8 @@ export default {
             Object.keys(state.operations).filter((key) => key.includes('withdraw')).length,
 
         isAllowToAddOps: (state: IState): boolean => Object.keys(state.operations).length < 5,
+
+        getOperationInProgress: (state: IState): string => state.operationInProgress,
     },
 
     mutations: {
@@ -99,11 +106,22 @@ export default {
             state.operations = {};
             state.currentOperationId = '';
         },
+
+        [TYPES.SET_CURRENT_PROCESS_OPERATION](state: IState, { id, type }: { id: string; type: string }): void {
+            state.operationInProgress = `${type}_${id}`;
+        },
+
+        [TYPES.REMOVE_OPERATION_BY_ID](state: IState, id: string): void {
+            if (state.operations[id]) delete state.operations[id];
+        },
     },
 
     actions: {
         setIsOpen({ commit }: { commit: Commit }, isOpen: boolean): void {
             commit(TYPES.SET_IS_OPEN, isOpen);
+        },
+        setOperation({ state, commit }: { state: IState; commit: Commit }, value: any): void {
+            commit(TYPES.SET_OPERATION, value);
         },
         setDepositOperation({ state, commit }: { state: IState; commit: Commit }, value: any): void {
             commit(TYPES.SET_OPERATION, value);
@@ -114,12 +132,18 @@ export default {
         removeOperation({ state, commit }: { state: IState; commit: Commit }, value: any): void {
             commit(TYPES.REMOVE_OPERATION, value);
         },
+        removeOperationById({ state, commit }: { state: IState; commit: Commit }, id: string): void {
+            commit(TYPES.REMOVE_OPERATION_BY_ID, id);
+        },
         setCurrentOperation({ commit }: { commit: Commit }, id: string): void {
             commit(TYPES.SET_CURRENT_OPERATION, id);
         },
 
         clearAllOperations({ state, commit }: { state: IState; commit: Commit }): void {
             commit(TYPES.CLEAR_ALL_OPERATIONS);
+        },
+        setCurrentProcessOperation({ commit }: { commit: Commit }, value: any): void {
+            commit(TYPES.SET_CURRENT_PROCESS_OPERATION, value);
         },
     },
 };
