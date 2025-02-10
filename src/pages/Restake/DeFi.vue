@@ -84,6 +84,7 @@ import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
+import { toLower } from 'lodash';
 
 export default {
     name: 'RestakeDeFi',
@@ -183,7 +184,7 @@ export default {
         const stakeAssets = computed(() => {
             const assets = store.getters['stakeAssets/getDeFiAssets'];
             return assets.map((asset) => {
-                const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
+                const balance = assetsForAccount.value.list.find((item) => toLower(item.id) === toLower(asset.id));
                 return {
                     ...asset,
                     balance: balance?.balance || 0,
@@ -197,12 +198,12 @@ export default {
         // * Request to IndexedDB
         // *********************************************************************************
 
-        const getAssetsForAccount = async () => {
+        const getPoolsForAccount = async () => {
             if (!walletAccount.value) return;
 
             try {
                 if (!isMounted.value) return console.log('Assets not mounted, skipping update');
-                const response = await BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                const response = await BalancesDB.getPoolsForAccount(walletAccount.value, minBalance.value, {
                     isAll: true,
                     assetIndex: assetIndex.value,
                 });
@@ -216,7 +217,7 @@ export default {
 
         const makeRequest = async () => {
             try {
-                await getAssetsForAccount();
+                await getPoolsForAccount();
             } catch (error) {
                 console.error('Error requesting assets', error);
             }

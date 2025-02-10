@@ -188,7 +188,6 @@ export default {
             if (!assets.length) return [];
             if (!assetsForAccount.value.list.length) return [];
 
-            console.log('assetsForAccount', assetsForAccount.value);
             // * get assets only with balance
             const balances = assets.reduce((acc, asset) => {
                 const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
