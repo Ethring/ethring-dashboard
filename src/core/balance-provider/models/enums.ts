@@ -3,6 +3,8 @@ export const TIME_TO_BLOCK = 20000; // 20 seconds in milliseconds
 export enum Providers {
     Pulsar = 'Pulsar',
     GoldRush = 'GoldRush',
+    LiFi = 'LiFi',
+    Alchemy = 'Alchemy',
 }
 
 export enum IntegrationBalanceType {
@@ -280,6 +282,7 @@ export const POOL_BALANCES_CHAINS = [
     DP_CHAINS.ARBITRUM,
     DP_CHAINS.BASE,
     DP_CHAINS.BSC,
+    DP_CHAINS.ETHEREUM,
     // DP_CHAINS.AVALANCHE,
     // DP_CHAINS.FANTOM,
     // DP_CHAINS.OPTIMISM,

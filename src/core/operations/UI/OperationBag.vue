@@ -293,6 +293,8 @@ export default {
                 selectedDstNetwork.value = config;
                 selectedSrcNetwork.value = config;
             } else {
+                // selectedSrcNetwork.value = config;
+                // selectedDstNetwork.value = config;
             }
         };
 

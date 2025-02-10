@@ -8,6 +8,7 @@ import { storeBalanceForAccount } from '../utils';
 import { BalanceType, BalanceResponse } from '../models/types';
 import { IAddressByNetwork } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import PortalFiApi from '@/modules/portal-fi/api';
+import { getBalancesByAddress } from '@/core/balance-provider/api';
 
 import logger from '@/shared/logger';
 import { loadBalancesFromContract } from '..';
@@ -104,20 +105,19 @@ class SocketInstance {
     async updateBalance(address: string, chain?: string) {
         this.socket.emit(SocketEvents.update_balance, address);
 
-        // Load pool balances
-        // const poolService = new PortalFiApi();
-        // const chains = chain ? [chain] : POOL_BALANCES_CHAINS;
+        const chains = chain ? [chain] : POOL_BALANCES_CHAINS;
 
-        // for (const net of chains) {
-        //     const chainInfo = this.addresses[net] || {};
+        for (const net of chains) {
+            const chainInfo = this.addresses[net] || {};
 
-        //     const response = await poolService.getUserBalancePoolList({ net, address });
-        //     await storeBalanceForAccount(Type.pools, address, net, address, response, {
-        //         store: this.store,
-        //         ...chainInfo,
-        //         provider: 'Portal',
-        //     });
-        // }
+            const response = await getBalancesByAddress(net as string, address, { provider: Providers.LiFi });
+            if (!response) continue;
+
+            await storeBalanceForAccount(Type.pools, address, net, address, response?.tokens, {
+                store: this.store,
+                ...chainInfo,
+            });
+        }
 
         if (chain !== 'berachain') return;
 

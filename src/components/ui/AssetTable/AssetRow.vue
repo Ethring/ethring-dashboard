@@ -14,17 +14,17 @@
             <TokenIcon :token="item.protocol" :width="20" :height="20" />
 
             <div class="asset__item--info">
-                <div class="name">{{ item.protocol.name }}</div>
+                <div class="name">{{ item?.protocol?.name }}</div>
             </div>
         </div>
     </template>
 
     <template v-if="column === 'chain'">
         <div class="asset__item--network asset__item--chain">
-            <TokenIcon :key="item.chainInfo.net" :token="item.chainInfo" width="20" height="20" />
+            <TokenIcon :key="item?.chainInfo?.net" :token="item?.chainInfo" width="20" height="20" />
 
             <div class="asset__item--info">
-                <div class="name">{{ item.chainInfo.name }}</div>
+                <div class="name">{{ item?.chainInfo?.name }}</div>
             </div>
         </div>
     </template>

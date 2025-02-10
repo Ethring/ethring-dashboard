@@ -239,6 +239,59 @@ class BalancesDB extends Dexie {
         }
     }
 
+    async getPoolsForAccount(
+        account: string,
+        minBalance: number,
+        { assetIndex = 0, isAll = false }: { assetIndex?: number; isAll?: boolean },
+    ): Promise<{
+        list: any[];
+        total: number;
+        totalBalance: string;
+    }> {
+        const accountLower = account.toLowerCase();
+
+        let assetsList = null;
+        const list = [];
+        let totalBalance = BigNumber(0);
+
+        try {
+            assetsList = await this.balances.where({ account: accountLower, dataType: Type.pools }).toArray();
+
+            if (!assetsList || !assetsList.length) return { list: [], total: 0, totalBalance: '0' };
+
+            for (const asset of assetsList) {
+                // if (!filterSmallBalances(asset, minBalance)) continue; // TODO: uncomment after adding balanceUsd to pools
+                list.push(asset);
+                totalBalance = totalBalance.plus(asset.balanceUsd || 0);
+            }
+
+            if (isAll)
+                return {
+                    list: orderBy(list, (asset) => Number(asset.balanceUsd) || 0, ['desc']),
+                    total: list.length,
+                    totalBalance: totalBalance.toFixed(6),
+                };
+
+            return {
+                list: orderBy(list, (asset) => Number(asset.balanceUsd) || 0, ['desc']).slice(0, assetIndex),
+                total: list.length,
+                totalBalance: totalBalance.toFixed(6),
+            };
+        } catch (error) {
+            console.error('getAssetsForAccount', error);
+
+            return {
+                list: [],
+                total: 0,
+                totalBalance: '0',
+            };
+        } finally {
+            if (assetsList) assetsList.length = 0;
+            if (list) list.length = 0;
+            if (totalBalance) totalBalance = BigNumber(0);
+        }
+    }
+
     /**
      * Update token image for account
      *
