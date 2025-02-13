@@ -237,8 +237,8 @@ const useBridgeDexQuote = (
         }
 
         // TODO: Optimize this
-        if (requestParams.fromNet === requestParams.toNet) requestParams.serviceId = 'lifiswap';
-        else requestParams.serviceId = 'lifibridge';
+        if (requestParams.fromNet !== requestParams.toNet) requestParams.serviceId = 'lifibridge';
+        else requestParams.serviceId = 'lifiswap';
 
         // !If the tokens & networks are the same, return
         if (isSameToken && isSameNetwork.value) {
