@@ -107,6 +107,7 @@
     background-color: var(--#{$prefix}card-active-bg-color);
 }
 
+.search-input.search-asset,
 .search-input.select-modal-search {
     padding: 12px 10px;
     border-color: var(--#{$prefix}default-border-color);
@@ -121,6 +122,7 @@
     }
 }
 
+.search-input.search-asset:not(.active) input,
 .search-input.select-modal-search:not(.active) input {
     color: var(--#{$prefix}input-placeholder-text);
 }

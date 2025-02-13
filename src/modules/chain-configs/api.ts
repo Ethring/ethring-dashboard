@@ -153,7 +153,8 @@ export const getLastUpdated = async () => {
 
 export const getStakeTokens = async () => {
     try {
-        const { data }: AxiosResponse = await axiosInstance.get('stake-assets?limit=100');
+        // TODO: Add pagination
+        const { data }: AxiosResponse = await axiosInstance.get('stake-assets?isAll=true');
         return data || {};
     } catch (error) {
         logger.error('Error while getting stake tokens from API', error);
@@ -163,7 +164,8 @@ export const getStakeTokens = async () => {
 
 export const getDefiAssets = async () => {
     try {
-        const { data }: AxiosResponse = await axiosInstance.get('defi-assets?limit=100');
+        // TODO: Add pagination
+        const { data }: AxiosResponse = await axiosInstance.get('defi-assets?isAll=true');
         return data || {};
     } catch (error) {
         logger.error('Error while getting stake tokens from API', error);

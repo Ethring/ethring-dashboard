@@ -4,6 +4,8 @@
         :style="{
             width: `${width}px`,
             height: `${height}px`,
+            minWidth: `${width}px`,
+            minHeight: `${height}px`,
         }"
         :data-qa="token?.name || token?.symbol"
     >

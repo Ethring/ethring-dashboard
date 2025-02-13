@@ -94,7 +94,7 @@
             </a-card>
         </div>
 
-        <template v-if="currentOpId && currentOpId.includes(activeRadio)" #footer>
+        <template v-if="currentOpId && currentOpId.includes(activeRadio) && currentOpId !== ''" #footer>
             <AmountAndTokenSelector
                 :asset="selectedSrcToken"
                 :chain="selectedSrcNetwork"
@@ -207,7 +207,7 @@ export default {
             });
         };
 
-        const onClickSelectCurrentOperation = (record) => store.dispatch('operationBag/setCurrentOperation', record.id);
+        const onClickSelectCurrentOperation = async (record) => await store.dispatch('operationBag/setCurrentOperation', record.id);
 
         const onClickClearAllOperations = () => store.dispatch('operationBag/clearAllOperations');
 
@@ -291,7 +291,7 @@ export default {
 
             if (currentOpId.value.includes('deposit')) {
                 selectedDstNetwork.value = config;
-                selectedSrcNetwork.value = config;
+                selectedDstToken.value = currentOperation.value;
             } else {
                 // selectedSrcNetwork.value = config;
                 // selectedDstNetwork.value = config;
@@ -311,6 +311,10 @@ export default {
             });
             await handleOnConfirm();
         };
+
+        watch(isOpen, () => {
+            if (!isOpen.value) store.dispatch('operationBag/clearCurrentOperation');
+        });
 
         return {
             isOpen,

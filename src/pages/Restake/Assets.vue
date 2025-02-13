@@ -1,9 +1,10 @@
 <template>
     <div class="dashboard">
-        <!-- <a-row :gutter="16" class="dashboard__stats-row">
-            <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" />
-            <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" />
-        </a-row> -->
+        <a-row :gutter="16" class="dashboard__stats-row">
+            <!-- <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" /> -->
+            <!-- <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" /> -->
+            <!-- <SearchInput placeholder="Search shortcut" class="mt-16 search-asset" @on-change="handleOnChangeSearch" /> -->
+        </a-row>
 
         <a-row>
             <a-col :span="24">
@@ -11,7 +12,10 @@
                     class="asset-table"
                     :columns="columns"
                     :data-source="stakeAssets"
-                    :pagination="false"
+                    :pagination="{
+                        position: ['bottomCenter'],
+                        pageSize: 20,
+                    }"
                     :bordered="false"
                     :scroll="{ x: 1000 }"
                     :row-key="(record) => rowKey(record)"
@@ -80,14 +84,19 @@ import { useStore } from 'vuex';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import BalancesDB from '@/services/indexed-db/balances';
 
+import SearchInput from '@/components/ui/SearchInput.vue';
+
 import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
+import { debounce } from 'lodash';
 
 export default {
     name: 'RestakeAssets',
     components: {
+        // SearchInput,
+
         DepositIcon,
         WithdrawIcon,
         AddedIcon,
@@ -95,61 +104,66 @@ export default {
     },
     setup() {
         const activeRadio = ref('assets');
+        const searchValue = ref('');
 
         const store = useStore();
         const isMounted = ref(false);
         const { walletAccount } = useAdapter();
 
-        const COLUMNS = [
-            {
-                title: 'Asset',
-                dataIndex: 'asset',
-                key: 'asset',
-                sorter: true,
-                sorter: (prev, next) => prev.name.localeCompare(next.name),
-            },
-            {
-                title: 'Protocol',
-                dataIndex: 'protocol',
-                key: 'protocol',
-                sorter: true,
-            },
-            {
-                title: 'Chain',
-                dataIndex: 'chain',
-                key: 'chain',
-            },
-            {
-                title: 'Value',
-                dataIndex: 'balanceUsd',
-                key: 'balanceUsd',
-                sorter: (prev, next) => prev.balanceUsd - next.balanceUsd,
-            },
-            {
-                title: 'Position',
-                dataIndex: 'balance',
-                key: 'balance',
-                sorter: (prev, next) => prev.balance - next.balance,
-            },
-            {
-                title: 'TVL',
-                dataIndex: 'tvl',
-                key: 'tvl',
-            },
-            {
-                title: 'APY',
-                dataIndex: 'apy',
-                key: 'apy',
-            },
-            {
-                title: 'Rewards',
-                dataIndex: 'rewards',
-                key: 'rewards',
-            },
-            {
-                dataIndex: 'actions',
-            },
-        ];
+        const COLUMNS = computed(() => {
+            console.log('Search computed', searchValue.value);
+            return [
+                {
+                    title: 'Asset',
+                    dataIndex: 'asset',
+                    key: 'asset',
+                    sorter: true,
+                    filteredValue: searchValue.value || null,
+                    sorter: (prev, next) => prev.name.localeCompare(next.name),
+                },
+                {
+                    title: 'Protocol',
+                    dataIndex: 'protocol',
+                    key: 'protocol',
+                    sorter: true,
+                },
+                {
+                    title: 'Chain',
+                    dataIndex: 'chain',
+                    key: 'chain',
+                },
+                {
+                    title: 'Value',
+                    dataIndex: 'balanceUsd',
+                    key: 'balanceUsd',
+                    sorter: (prev, next) => prev.balanceUsd - next.balanceUsd,
+                },
+                {
+                    title: 'Position',
+                    dataIndex: 'balance',
+                    key: 'balance',
+                    sorter: (prev, next) => prev.balance - next.balance,
+                },
+                {
+                    title: 'TVL',
+                    dataIndex: 'tvl',
+                    key: 'tvl',
+                },
+                {
+                    title: 'APY',
+                    dataIndex: 'apy',
+                    key: 'apy',
+                },
+                {
+                    title: 'Rewards',
+                    dataIndex: 'rewards',
+                    key: 'rewards',
+                },
+                {
+                    dataIndex: 'actions',
+                },
+            ];
+        });
 
         const radioOptions = [
             { key: 'Assets', value: 'assets' },
@@ -235,6 +249,11 @@ export default {
             });
         };
 
+        const handleOnChangeSearch = (value) => {
+            // set search value by debounce to avoid multiple requests
+            debounce(() => (searchValue.value = value), 1000)();
+        };
+
         const isAlreadyExistInCart = (record, type = 'deposit') => store.getters['operationBag/isOperationExist'](type, record.id);
 
         const rowKey = (record) => record?.id || `assets-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`;
@@ -256,6 +275,7 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
+            await store.dispatch('stakeAssets/setStakeTokens');
             isMounted.value = true;
             await makeRequest();
         });
@@ -283,6 +303,8 @@ export default {
             walletAccount,
 
             stakeAssets,
+            handleOnChangeSearch,
+            searchValue,
 
             // * Assets from IndexedDB
             assetsForAccount,

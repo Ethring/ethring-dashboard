@@ -1050,8 +1050,10 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             if (!checkOpIsExist()) return;
 
             const operationBagOp = store.getters['operationBag/getOperationInProgress'];
+            const currentOpId = store.getters['operationBag/getCurrentOperationId'];
 
-            if (operationBagOp) store.dispatch('operationBag/removeOperationById', operationBagOp);
+            if (currentOpId === operationBagOp) await store.dispatch('operationBag/clearCurrentOperation');
+            if (operationBagOp) await store.dispatch('operationBag/removeOperationById', operationBagOp);
 
             const operation = operations.getOperationByKey(moduleIndex);
 

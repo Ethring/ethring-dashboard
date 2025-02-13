@@ -1,9 +1,9 @@
 <template>
     <div class="dashboard">
-        <!-- <a-row :gutter="16" class="dashboard__stats-row">
-            <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" />
-            <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" />
-        </a-row> -->
+        <a-row :gutter="16" class="dashboard__stats-row">
+            <!-- <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" /> -->
+            <!-- <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" /> -->
+        </a-row>
 
         <a-row>
             <a-col :span="24">
@@ -11,7 +11,10 @@
                     class="asset-table"
                     :columns="columns"
                     :data-source="stakeAssets"
-                    :pagination="false"
+                    :pagination="{
+                        position: ['bottomCenter'],
+                        pageSize: 20,
+                    }"
                     :bordered="false"
                     :scroll="{ x: 1000 }"
                     :row-key="(record) => rowKey(record)"
@@ -261,6 +264,7 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
+            await store.dispatch('stakeAssets/setDefiAssets');
             isMounted.value = true;
             await makeRequest();
         });
