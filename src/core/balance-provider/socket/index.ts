@@ -116,6 +116,7 @@ class SocketInstance {
             await storeBalanceForAccount(Type.pools, address, net, address, response?.tokens, {
                 store: this.store,
                 ...chainInfo,
+                provider: Providers.Enso,
             });
         }
 

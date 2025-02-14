@@ -90,6 +90,7 @@ import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 import { toLower } from 'lodash';
+import BigNumber from 'bignumber.js';
 
 export default {
     name: 'DashboardDeFi',
@@ -194,7 +195,17 @@ export default {
             // * get assets only with balance
             const balances = assets.reduce((acc, asset) => {
                 const balance = assetsForAccount.value.list.find((item) => toLower(item.id) === toLower(asset.id));
-                if (balance) acc.push({ ...asset, balance: balance.balance, balanceUsd: balance.balanceUsd, apy: balance.apy });
+                if (balance) {
+                    const balanceUsd = balance.balanceUsd || balance.price ? BigNumber(balance.balance).times(balance.price).toNumber() : 0;
+
+                    acc.push({
+                        ...asset,
+                        balance: balance.balance,
+                        balanceUsd,
+                        apy: balance.apy,
+                    });
+                }
+
                 return acc;
             }, []);
 
