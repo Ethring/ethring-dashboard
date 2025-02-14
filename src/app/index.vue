@@ -6,6 +6,7 @@
         <BridgeDexRoutesModal />
         <SelectModal />
         <OperationBag />
+        <SettingsModal />
     </a-config-provider>
 </template>
 <script>
@@ -23,6 +24,7 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import OperationBag from '@/core/operations/UI/OperationBag';
 
 import SelectModal from '@/components/app/modals/SelectModal.vue';
+import SettingsModal from '@/core/operations/UI/components/SettingsModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 import { callTrackEvent, identify } from '@/app/modules/mixpanel/track';
 
@@ -37,6 +39,7 @@ export default {
     name: 'App',
     components: {
         AppLayout,
+        SettingsModal,
         SelectModal,
         BridgeDexRoutesModal,
         WalletsModal,

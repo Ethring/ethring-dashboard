@@ -34,8 +34,7 @@
 }
 
 .quote-preview__header__settings {
-    cursor: not-allowed;
-
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -43,6 +42,13 @@
 
     border-radius: 6px;
     padding: 6px;
+
+    transition: 0.2s;
+
+    &:hover {
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
+    }
 }
 
 .quote-preview__summary {

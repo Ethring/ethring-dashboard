@@ -134,3 +134,11 @@
 .select-modal-empty svg circle:not(:first-child) {
     fill: var(--#{$prefix}input-placeholder-text);
 }
+
+.select-modal.settings-modal .ant-modal-wrap {
+    z-index: 1001;
+}
+
+.select-modal.settings-modal .ant-modal-content {
+    min-height: 12vh;
+}

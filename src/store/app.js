@@ -47,6 +47,7 @@ export default {
             selectModal: false,
             routesModal: false,
             socialShare: false,
+            settingsModal: true,
         },
         selectModal: {
             type: 'network',

@@ -139,8 +139,8 @@ import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import ArrowIcon from '@/assets/icons/operations-bag/arrow.svg';
 
-import AmountAndTokenSelector from '@/components/ui/AmountAndTokenSelector/index.vue';
-import QuotePreview from '@/components/ui/QuotePreview/index.vue';
+import AmountAndTokenSelector from '@/core/operations/UI/components/AmountAndTokenSelector/index.vue';
+import QuotePreview from '@/core/operations/UI/components/QuotePreview/index.vue';
 
 export default {
     name: 'OperationBag',

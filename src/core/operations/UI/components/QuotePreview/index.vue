@@ -9,7 +9,7 @@
                     <div>{{ slippage }}%</div>
                 </div>
 
-                <div class="quote-preview__header__settings">
+                <div class="quote-preview__header__settings" @click="openSettingsModal">
                     <SettingsIcon />
                 </div>
             </div>
@@ -70,7 +70,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import Amount from '@/components/app/Amount.vue';
-import ServiceIcon from '../EstimatePanel/ServiceIcon.vue';
+import ServiceIcon from './ServiceIcon.vue';
 
 import SettingsIcon from '@/assets/icons/operations-bag/settings.svg';
 
@@ -115,12 +115,16 @@ export default {
 
         const minOutAmount = (amount) => calculateMinAmount(amount, slippage.value);
 
+        const openSettingsModal = () => store.dispatch('app/toggleModal', 'settingsModal');
+
         return {
             slippage,
             isQuoteLoading,
             service,
 
             minOutAmount,
+
+            openSettingsModal,
         };
     },
 };
