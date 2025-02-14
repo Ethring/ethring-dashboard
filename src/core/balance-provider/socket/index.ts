@@ -110,7 +110,7 @@ class SocketInstance {
         for (const net of chains) {
             const chainInfo = this.addresses[net] || {};
 
-            const response = await getBalancesByAddress(net as string, address, { provider: Providers.LiFi });
+            const response = await getBalancesByAddress(net as string, address, { provider: Providers.Enso });
             if (!response) continue;
 
             await storeBalanceForAccount(Type.pools, address, net, address, response?.tokens, {

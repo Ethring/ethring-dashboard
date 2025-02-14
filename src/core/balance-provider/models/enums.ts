@@ -4,6 +4,7 @@ export enum Providers {
     Pulsar = 'Pulsar',
     GoldRush = 'GoldRush',
     LiFi = 'LiFi',
+    Enso = 'Enso',
     Alchemy = 'Alchemy',
 }
 
