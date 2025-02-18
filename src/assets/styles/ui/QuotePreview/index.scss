@@ -93,3 +93,17 @@
     font-size: var(--#{$prefix}h1-fs);
     font-weight: 700;
 }
+
+.quote-preview__footer {
+    border: 1px solid var(--#{$prefix}danger);
+    background-color: var(--#{$prefix}danger-op-01);
+    padding: 6px;
+    border-radius: 6px;
+    color: var(--#{$prefix}danger);
+    height: 170px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

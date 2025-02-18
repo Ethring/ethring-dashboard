@@ -1,6 +1,6 @@
 <template>
     <div class="quote-preview">
-        <div class="quote-preview__header">
+        <div v-if="!error && !isLoading" class="quote-preview__header">
             <div>Summary</div>
 
             <div class="quote-preview__header__actions">
@@ -14,11 +14,18 @@
                 </div>
             </div>
         </div>
-        <div class="quote-preview__summary">
-            <div v-if="service" class="quote-preview__summary__item">
+
+        <div v-if="!error && !isLoading" class="quote-preview__summary">
+            <div class="quote-preview__summary__item">
                 <div>Route</div>
                 <div>
-                    <ServiceIcon v-bind="service" :show-title="true" />
+                    <QuoteServiceIcon v-if="!isQuoteLoading" v-bind="service" :show-title="true" />
+                    <template v-else>
+                        <a-space>
+                            <a-skeleton-avatar :size="24" />
+                            <a-skeleton-input active size="small" class="skeleton" />
+                        </a-space>
+                    </template>
                 </div>
             </div>
 
@@ -36,6 +43,7 @@
                     <template v-else> 0 </template>
                 </div>
             </div>
+
             <div class="quote-preview__summary__item">
                 <div>Estimate Fees</div>
                 <div>
@@ -63,6 +71,31 @@
                 </div>
             </div>
         </div>
+
+        <div v-if="error && !isLoading" class="quote-preview__footer">
+            <a-tooltip class="error" :title="!error ? $t('tokenOperations.noAvailableRoute') : error">
+                <template v-if="error.length <= MAX_LENGTH">
+                    <a-row align="middle" class="route-error">
+                        <RouteIcon />
+                        {{ error }}
+                    </a-row>
+                </template>
+                <template v-else>
+                    <a-tooltip placement="topLeft">
+                        <template #title>
+                            <a-row align="middle" class="route-error">
+                                <RouteIcon />
+                                {{ error }}
+                            </a-row>
+                        </template>
+                        <a-row align="middle" class="route-error">
+                            <RouteIcon />
+                            {{ error }}
+                        </a-row>
+                    </a-tooltip>
+                </template>
+            </a-tooltip>
+        </div>
     </div>
 </template>
 <script>
@@ -70,7 +103,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import Amount from '@/components/app/Amount.vue';
-import ServiceIcon from './ServiceIcon.vue';
+import QuoteServiceIcon from './QuoteServiceIcon.vue';
 
 import SettingsIcon from '@/assets/icons/operations-bag/settings.svg';
 
@@ -81,7 +114,7 @@ export default {
 
     components: {
         SettingsIcon,
-        ServiceIcon,
+        QuoteServiceIcon,
     },
     props: {
         isLoading: {
@@ -103,6 +136,10 @@ export default {
             type: Object,
             default: () => ({}),
         },
+        error: {
+            type: String,
+            default: '',
+        },
     },
 
     setup(props) {
@@ -121,6 +158,8 @@ export default {
             slippage,
             isQuoteLoading,
             service,
+
+            MAX_LENGTH: 55,
 
             minOutAmount,
 

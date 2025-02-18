@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <div class="operation-list">
+        <div v-if="operations.length" class="operation-list">
             <a-card
                 v-for="(operation, index) in operations"
                 :key="index"
@@ -94,6 +94,16 @@
             </a-card>
         </div>
 
+        <div v-else class="operation-bag__empty">
+            <router-link
+                :to="activeRadio === 'deposit' ? '/restake/assets' : '/dashboard/assets'"
+                class="operation-bag__empty__link"
+                @click="isOpen = false"
+            >
+                Start {{ activeRadio === 'deposit' ? 'deposit' : 'withdraw' }} operation
+            </router-link>
+        </div>
+
         <template v-if="currentOpId && currentOpId.includes(activeRadio) && currentOpId !== ''" #footer>
             <AmountAndTokenSelector
                 :asset="selectedSrcToken"
@@ -103,7 +113,7 @@
                 @set-amount="handleOnSetAmount"
             />
 
-            <QuotePreview :fees="fees" :quote="selectedRoute" />
+            <QuotePreview :fees="fees" :quote="selectedRoute" :error="quoteErrorMessage" />
 
             <UiButton
                 :title="$t(opTitle)"
@@ -274,6 +284,7 @@ export default {
         const onSelectNetwork = (direction) => handleOnSelectNetwork({ direction: DIRECTIONS[direction] });
 
         const onSelectToken = (withBalance = true, direction = DIRECTIONS.SOURCE) => {
+            handleOnSetAmount(null);
             handleOnSelectToken({
                 direction: DIRECTIONS[direction],
                 type: withBalance ? TOKEN_SELECT_TYPES.FROM : TOKEN_SELECT_TYPES.TO,

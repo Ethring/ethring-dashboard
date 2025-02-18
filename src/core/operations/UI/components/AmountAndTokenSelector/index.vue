@@ -49,6 +49,7 @@
                 :class="{
                     'token__balance--error': error,
                 }"
+                @click="onSetMax"
             >
                 Balance:
                 <Amount type="currency" :value="asset.balance" :symbol="null" class="token__balance__value" />
@@ -182,6 +183,13 @@ export default {
             if (value < 100) amount.value = BigNumber(value).dividedBy(100).multipliedBy(props.asset.balance).toNumber();
         };
 
+        const onSetMax = () => {
+            if (props.hideMax) return;
+
+            amount.value = props.asset?.balance;
+            emit('setAmount', BigNumber(props.asset?.balance).toFixed());
+        };
+
         watch(amount, (val) => {
             isInput.value = true;
 
@@ -219,6 +227,7 @@ export default {
             symbolForReplace,
             onChangeSlider,
 
+            onSetMax,
             onInputHandler,
             onFocusHandler,
             onBlurHandler,

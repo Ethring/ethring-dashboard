@@ -3,12 +3,16 @@
         <div class="service-info-container">
             <div
                 class="service-icon"
+                :class="{
+                    'service-icon--no-title': !name,
+                }"
                 :style="{
                     width: `${width}px`,
                     height: `${height}px`,
                 }"
             >
-                <img :src="icon" alt="service-icon" />
+                <a-avatar v-if="!icon" :size="width">?</a-avatar>
+                <img v-else :src="icon" alt="service-icon" />
             </div>
             <div v-if="showTitle" class="service-title">
                 {{ name }}
@@ -22,7 +26,7 @@
 </template>
 <script>
 export default {
-    name: 'ServiceIcon',
+    name: 'QuoteServiceIcon',
     props: {
         name: {
             type: String,
@@ -44,7 +48,6 @@ export default {
         },
         showTitle: {
             type: Boolean,
-            required: true,
             default: false,
         },
         showTooltip: {
@@ -99,6 +102,10 @@ export default {
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
         font-weight: 600;
+    }
+
+    &-icon--no-title {
+        margin-right: 0;
     }
 }
 </style>

@@ -111,38 +111,24 @@ export default {
         const { walletAccount } = useAdapter();
 
         const COLUMNS = computed(() => {
-            console.log('Search computed', searchValue.value);
             return [
                 {
                     title: 'Asset',
                     dataIndex: 'asset',
                     key: 'asset',
-                    sorter: true,
-                    filteredValue: searchValue.value || null,
                     sorter: (prev, next) => prev.name.localeCompare(next.name),
                 },
                 {
                     title: 'Protocol',
                     dataIndex: 'protocol',
                     key: 'protocol',
-                    sorter: true,
+                    sorter: (prev, next) => prev.name.localeCompare(next.name),
                 },
                 {
                     title: 'Chain',
                     dataIndex: 'chain',
                     key: 'chain',
-                },
-                {
-                    title: 'Value',
-                    dataIndex: 'balanceUsd',
-                    key: 'balanceUsd',
-                    sorter: (prev, next) => prev.balanceUsd - next.balanceUsd,
-                },
-                {
-                    title: 'Position',
-                    dataIndex: 'balance',
-                    key: 'balance',
-                    sorter: (prev, next) => prev.balance - next.balance,
+                    sorter: (prev, next) => prev.name.localeCompare(next.name),
                 },
                 {
                     title: 'TVL',
@@ -194,18 +180,7 @@ export default {
             totalBalance: 0,
         });
 
-        const stakeAssets = computed(() => {
-            const assets = store.getters['stakeAssets/getStakeAssets'];
-            return assets.map((asset) => {
-                const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
-                return {
-                    ...asset,
-                    balance: balance?.balance || 0,
-                    balanceUsd: balance?.balanceUsd || 0,
-                    apy: balance?.apy || 0,
-                };
-            });
-        });
+        const stakeAssets = computed(() => store.getters['stakeAssets/getStakeAssets']);
 
         // *********************************************************************************
         // * Request to IndexedDB

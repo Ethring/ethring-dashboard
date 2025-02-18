@@ -111,19 +111,19 @@ export default {
                 title: 'Asset',
                 dataIndex: 'asset',
                 key: 'asset',
-                sorter: true,
                 sorter: (prev, next) => prev.name.localeCompare(next.name),
             },
             {
                 title: 'Protocol',
                 dataIndex: 'protocol',
                 key: 'protocol',
-                sorter: true,
+                sorter: (prev, next) => prev.name.localeCompare(next.name),
             },
             {
                 title: 'Chain',
                 dataIndex: 'chain',
                 key: 'chain',
+                sorter: (prev, next) => prev.name.localeCompare(next.name),
             },
             {
                 title: 'Value',

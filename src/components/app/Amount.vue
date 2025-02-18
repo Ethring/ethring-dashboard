@@ -13,11 +13,11 @@
             </div>
 
             <template v-if="type === 'currency'">
-                &nbsp;<span class="symbol">{{ symbol }}</span>
+                &nbsp;<span class="symbol" :title="symbol">{{ symbol }}</span>
             </template>
 
             <template v-if="!['currency', 'usd'].includes(type)">
-                <span class="symbol">{{ symbol }}</span>
+                <span class="symbol" :title="symbol">{{ symbol }}</span>
             </template>
         </template>
         <template v-else>
@@ -98,7 +98,10 @@ export default {
     .symbol {
         font-weight: 400;
         color: var(--#{$prefix}secondary-text);
-        text-wrap: nowrap;
+        max-width: 100px;
+        text-wrap: nowrap !important;
+        text-overflow: ellipsis !important;
+        overflow: hidden;
     }
 
     .value {

@@ -301,3 +301,33 @@
     border-color: var(--#{$prefix}black);
     background-color: var(--#{$prefix}white) !important;
 }
+
+// **********************************************************
+// * Operation Bag Empty
+// **********************************************************
+
+.operation-bag__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.operation-bag__empty__link {
+    color: var(--#{$prefix}white);
+    font-size: var(--#{$prefix}default-fs);
+
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 8px;
+    padding: 10px 16px;
+    transition: 0.2s;
+    max-height: 36px;
+
+    background-color: var(--#{$prefix}black);
+
+    &:hover {
+        background-color: var(--#{$prefix}white);
+        color: var(--#{$prefix}black);
+    }
+}
