@@ -130,6 +130,7 @@ declare module 'vue' {
     TokenIcon: typeof import('./src/components/ui/Tokens/TokenIcon.vue')['default']
     TokenSelector: typeof import('./src/components/ui/AmountAndTokenSelector/TokenSelector.vue')['default']
     TokensList: typeof import('./src/components/app/TokensList.vue')['default']
+    TVL: typeof import('./src/components/app/TVL.vue')['default']
     UnsupportedResult: typeof import('./src/components/ui/UnsupportedResult.vue')['default']
     WalletInfoLarge: typeof import('./src/components/app/WalletInfoLarge.vue')['default']
   }

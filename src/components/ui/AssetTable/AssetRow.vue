@@ -29,7 +29,7 @@
         </div>
     </template>
     <template v-if="column === 'tvl'">
-        <Amount type="currency" :value="200" symbol="M" class="asset__item--amount asset__item--tvl" />
+        <TVL v-if="item.tvl" :value="item.tvl" />
     </template>
     <template v-if="column === 'apy'">
         <Amount type="currency" :value="2.5" symbol="%" class="asset__item--amount asset__item--apy" />
@@ -58,6 +58,7 @@ import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 import Amount from '@/components/app/Amount.vue';
+import TVL from '@/components/app/TVL.vue';
 
 import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
@@ -68,6 +69,7 @@ export default {
     name: 'AssetRow',
     components: {
         Amount,
+        TVL,
         RewardsIcons,
     },
     props: {
