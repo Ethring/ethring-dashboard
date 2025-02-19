@@ -141,6 +141,7 @@ export default {
                 title: 'TVL',
                 dataIndex: 'tvl',
                 key: 'tvl',
+                sorter: (prev, next) => prev.tvl - next.tvl,
             },
             {
                 title: 'APY',
