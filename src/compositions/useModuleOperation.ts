@@ -1052,10 +1052,12 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             const operationBagOp = store.getters['operationBag/getOperationInProgress'];
             const currentOpId = store.getters['operationBag/getCurrentOperationId'];
 
-            if (currentOpId === operationBagOp) await store.dispatch('operationBag/clearCurrentOperation');
-            if (operationBagOp) await store.dispatch('operationBag/removeOperationById', operationBagOp);
-
             const operation = operations.getOperationByKey(moduleIndex);
+
+            const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
+
+            if (!isApprove && currentOpId === operationBagOp) await store.dispatch('operationBag/clearCurrentOperation');
+            if (!isApprove && operationBagOp) await store.dispatch('operationBag/removeOperationById', operationBagOp);
 
             const { txHash } = txInstance.getTransaction() || {};
 
