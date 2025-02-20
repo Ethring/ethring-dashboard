@@ -33,7 +33,7 @@
     </template>
     <template v-if="column === 'apy'">
         <Amount
-            v-if="item.apy?.length > 0"
+            v-if="item.apy?.length > 0 && item?.apy[0].apy > 0"
             type="currency"
             :value="item.apy[0].apy"
             symbol="%"
