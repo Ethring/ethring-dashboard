@@ -2,9 +2,7 @@
     <div class="tvl">
         <a-tooltip>
             <template #title> TVL: {{ value }} </template>
-            <div class="tvl__value">
-                {{ tvlAmount }}
-            </div>
+            <div class="tvl__value">${{ tvlAmount }}</div>
         </a-tooltip>
     </div>
 </template>
