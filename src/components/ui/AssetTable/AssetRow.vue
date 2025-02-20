@@ -32,7 +32,13 @@
         <TVL v-if="item.tvl" :value="item.tvl" />
     </template>
     <template v-if="column === 'apy'">
-        <Amount type="currency" :value="2.5" symbol="%" class="asset__item--amount asset__item--apy" />
+        <Amount
+            v-if="item.apy?.length > 0"
+            type="currency"
+            :value="item.apy[0].apy"
+            symbol="%"
+            class="asset__item--amount asset__item--apy"
+        />
     </template>
     <template v-if="column === 'rewards'">
         <RewardsIcons style="transform: translateY(15%)" />
