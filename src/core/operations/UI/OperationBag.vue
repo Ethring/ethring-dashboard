@@ -119,7 +119,7 @@
                 @set-amount="handleOnSetAmount"
             />
 
-            <a-card hoverable class="operation-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
+            <a-card v-else hoverable class="operation-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
                 <a-card-meta>
                     <template #title>
                         <div class="operation-card__content">
