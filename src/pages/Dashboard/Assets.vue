@@ -195,7 +195,7 @@ export default {
             // * get assets only with balance
             const balances = assets.reduce((acc, asset) => {
                 const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
-                if (balance) acc.push({ ...asset, balance: balance.balance, balanceUsd: balance.balanceUsd, apy: balance.apy });
+                if (balance) acc.push({ ...asset, balance: balance.balance, balanceUsd: balance.balanceUsd });
                 return acc;
             }, []);
 

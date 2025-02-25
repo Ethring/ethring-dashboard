@@ -203,7 +203,6 @@ export default {
                         ...asset,
                         balance: balance.balance,
                         balanceUsd,
-                        apy: balance.apy,
                     });
                 }
 

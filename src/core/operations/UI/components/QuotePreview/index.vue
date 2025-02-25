@@ -76,7 +76,6 @@
             <a-tooltip class="error" :title="!error ? $t('tokenOperations.noAvailableRoute') : error">
                 <template v-if="error.length <= MAX_LENGTH">
                     <a-row align="middle" class="route-error">
-                        <RouteIcon />
                         {{ error }}
                     </a-row>
                 </template>
@@ -84,12 +83,10 @@
                     <a-tooltip placement="topLeft">
                         <template #title>
                             <a-row align="middle" class="route-error">
-                                <RouteIcon />
                                 {{ error }}
                             </a-row>
                         </template>
                         <a-row align="middle" class="route-error">
-                            <RouteIcon />
                             {{ error }}
                         </a-row>
                     </a-tooltip>

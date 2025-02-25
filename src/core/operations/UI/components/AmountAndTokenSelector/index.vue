@@ -27,7 +27,7 @@
             </div>
         </div>
         <div class="token__selector-container">
-            <div class="token__selector" @click="onSelectToken">
+            <div v-if="!hideTokenSelector" class="token__selector" @click="onSelectToken">
                 <div class="token__selector__content">
                     <AssetWithChain class="token__selector__icon" :asset="asset" :chain="chain" :width="28" :height="28" />
 
@@ -115,6 +115,11 @@ export default {
             required: true,
         },
         disabled: {
+            type: Boolean,
+            default: false,
+        },
+
+        hideTokenSelector: {
             type: Boolean,
             default: false,
         },

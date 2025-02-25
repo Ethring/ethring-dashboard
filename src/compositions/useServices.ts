@@ -272,7 +272,7 @@ export default function useModule(moduleType: ModuleType, { tmpStore }: { tmpSto
         direction && (targetDirection.value = direction);
         type && (selectType.value = type);
 
-        return store.dispatch('app/toggleSelectModal', { type: selectFor, module: moduleType });
+        return store.dispatch('app/toggleSelectModal', { type: selectFor, direction: targetDirection.value, module: moduleType });
     };
 
     const handleOnSelectNetwork = ({ direction, type }: any) => {

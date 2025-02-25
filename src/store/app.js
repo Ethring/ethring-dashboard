@@ -53,6 +53,7 @@ export default {
             type: 'network',
             isOpen: false,
             module: null,
+            direction: 'SOURCE',
         },
         lastVersion: appVersionStorage.value,
         collapsedAssets: collapsedAssetsStorage.value || [],
@@ -96,10 +97,11 @@ export default {
 
             state.modals[modalName] = !state.modals[modalName];
         },
-        [TYPES.TOGGLE_SELECT_MODAL](state, { type, module }) {
+        [TYPES.TOGGLE_SELECT_MODAL](state, { type, module, direction }) {
             state.selectModal.type = type;
             state.selectModal.module = module;
             state.selectModal.isOpen = !state.selectModal.isOpen;
+            state.selectModal.direction = direction;
         },
         [TYPES.SET_LAST_VERSION](state, version) {
             state.lastVersion = version;

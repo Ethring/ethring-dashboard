@@ -93,6 +93,12 @@
     flex-direction: column;
 }
 
+.operation-card__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .operation-card {
     border-radius: 12px;
     &:hover {
@@ -134,6 +140,7 @@
     gap: 10px;
     align-items: center;
     justify-content: space-between;
+    width: 85%;
 }
 
 .operation-bag__title {

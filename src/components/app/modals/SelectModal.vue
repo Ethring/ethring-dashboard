@@ -14,7 +14,7 @@
                     :key="chain.id"
                     class="select-record__chain"
                     :class="{
-                        'select-record__chain--selected': selectedSrcNetwork?.id === chain.id,
+                        'select-record__chain--selected': network?.id === chain.id,
                     }"
                     @click="handleOnSelectNetwork(chain)"
                 >
@@ -95,6 +95,7 @@ export default {
             network: 'tokenOperations.searchNetwork',
             token: 'tokenOperations.searchToken',
         };
+
         const scrollComponent = ref(null);
 
         const store = useStore();
@@ -119,6 +120,7 @@ export default {
             options,
             chains,
             selectedSrcNetwork,
+            selectedDstNetwork,
 
             // Methods
             handleOnSelectNetwork,
@@ -133,6 +135,11 @@ export default {
         const optionList = computed(() => (isModalOpen.value ? options.value : []));
 
         const searchInput = ref(null);
+
+        const network = computed(() => {
+            if (selectModal.value.direction === 'SOURCE') return selectedSrcNetwork.value;
+            return selectedDstNetwork.value;
+        });
 
         onUpdated(() => {
             nextTick(() => {
@@ -165,6 +172,7 @@ export default {
             searchValue,
             optionList,
             scrollComponent,
+            network,
 
             handleOnSelectNetwork,
             handleScroll,

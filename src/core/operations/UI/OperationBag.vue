@@ -36,14 +36,7 @@
             </div>
         </template>
 
-        <div v-if="operations.length" class="operation-bag__header">
-            <div class="operation-bag__header__title">
-                <span> Bag </span>
-            </div>
-            <div class="operation-bag__header__clear" @click="onClickClearAllOperations">
-                <span> Clear All </span>
-            </div>
-        </div>
+        <OperationBagHeader v-if="operations.length" />
 
         <div v-if="operations.length" class="operation-list">
             <a-card
@@ -58,36 +51,48 @@
             >
                 <a-card-meta>
                     <template #title>
-                        <div class="operation-card__info">
-                            <div class="operation-card__title">
-                                <span> {{ operation.symbol }} </span>
-                                <div class="operation-card__protocol">
-                                    <TokenIcon :token="operation.protocol" :width="18" :height="18" />
-                                    <span class="operation-card__protocol-name">
-                                        {{ operation.protocol.name }}
-                                    </span>
+                        <div class="operation-card__content">
+                            <AssetWithChain
+                                type="asset"
+                                :chain="operation.chainInfo"
+                                :asset="operation"
+                                :width="40"
+                                :height="40"
+                                :divider="2"
+                            />
+
+                            <div class="operation-card__info">
+                                <div class="operation-card__title">
+                                    <span> {{ operation.symbol }} </span>
+                                    <div class="operation-card__protocol">
+                                        <TokenIcon :token="operation.protocol" :width="18" :height="18" />
+                                        <span class="operation-card__protocol-name">
+                                            {{ operation.protocol.name }}
+                                        </span>
+                                    </div>
                                 </div>
+
+                                <RemoveIcon
+                                    class="operation-card__action operation-card__action--remove"
+                                    @click="onClickRemoveOperation(operation)"
+                                />
+
+                                <ArrowIcon
+                                    class="operation-card__action operation-card__action--start"
+                                    @click="onClickSelectCurrentOperation(operation)"
+                                />
                             </div>
-
-                            <RemoveIcon
-                                class="operation-card__action operation-card__action--remove"
-                                @click="onClickRemoveOperation(operation)"
-                            />
-
-                            <ArrowIcon
-                                class="operation-card__action operation-card__action--start"
-                                @click="onClickSelectCurrentOperation(operation)"
-                            />
                         </div>
                     </template>
-                    <template #avatar>
-                        <AssetWithChain
-                            type="asset"
-                            :chain="operation.chainInfo"
-                            :asset="operation"
-                            :width="40"
-                            :height="40"
-                            :divider="2"
+
+                    <template #description>
+                        <AmountAndTokenSelector
+                            v-if="currentOpId.includes(operation.id) && activeRadio === 'withdraw'"
+                            :asset="selectedSrcToken"
+                            :chain="selectedSrcNetwork"
+                            :value="srcAmount"
+                            :hide-token-selector="true"
+                            @set-amount="handleOnSetAmount"
                         />
                     </template>
                 </a-card-meta>
@@ -106,12 +111,36 @@
 
         <template v-if="currentOpId && currentOpId.includes(activeRadio) && currentOpId !== ''" #footer>
             <AmountAndTokenSelector
+                v-if="activeRadio === 'deposit'"
                 :asset="selectedSrcToken"
                 :chain="selectedSrcNetwork"
                 :value="srcAmount"
                 :on-select-token="() => onSelectToken(true, DIRECTIONS.SOURCE)"
                 @set-amount="handleOnSetAmount"
             />
+
+            <a-card hoverable class="operation-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
+                <a-card-meta>
+                    <template #title>
+                        <div class="operation-card__content">
+                            <AssetWithChain
+                                type="asset"
+                                :chain="selectedDstNetwork"
+                                :asset="selectedDstToken"
+                                :width="40"
+                                :height="40"
+                                :divider="2"
+                            />
+
+                            <div class="operation-card__info">
+                                <div class="operation-card__title">
+                                    <span> {{ selectedDstToken?.symbol }} </span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </a-card-meta>
+            </a-card>
 
             <QuotePreview :fees="fees" :quote="selectedRoute" :error="quoteErrorMessage" />
 
@@ -132,8 +161,6 @@
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
-
 import useModuleOperations from '@/compositions/useModuleOperation';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
@@ -151,21 +178,23 @@ import ArrowIcon from '@/assets/icons/operations-bag/arrow.svg';
 
 import AmountAndTokenSelector from '@/core/operations/UI/components/AmountAndTokenSelector/index.vue';
 import QuotePreview from '@/core/operations/UI/components/QuotePreview/index.vue';
+import OperationBagHeader from '@/core/operations/UI/components/OperationBag/Header.vue';
 
 export default {
     name: 'OperationBag',
     components: {
-        TokenIcon,
         AssetWithChain,
         UiButton,
 
         AmountAndTokenSelector,
         QuotePreview,
 
-        DepositIcon,
-        WithdrawIcon,
-        RemoveIcon,
+        OperationBagHeader,
+
         ArrowIcon,
+        DepositIcon,
+        RemoveIcon,
+        WithdrawIcon,
     },
     setup() {
         const TITLES = {
@@ -218,8 +247,6 @@ export default {
         };
 
         const onClickSelectCurrentOperation = async (record) => await store.dispatch('operationBag/setCurrentOperation', record.id);
-
-        const onClickClearAllOperations = () => store.dispatch('operationBag/clearAllOperations');
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
             ModuleType.superSwap,
@@ -304,15 +331,10 @@ export default {
                 selectedDstNetwork.value = config;
                 selectedDstToken.value = currentOperation.value;
             } else {
-                // selectedSrcNetwork.value = config;
-                // selectedDstNetwork.value = config;
+                selectedSrcNetwork.value = config;
+                selectedSrcToken.value = currentOperation.value;
             }
         };
-
-        watch(currentOpId, () => setSelectedDstInfo());
-        watch(selectedDstToken, () => {
-            if (selectedDstToken.value?.id !== currentOperation.value?.id) selectedDstToken.value = currentOperation.value;
-        });
 
         const handleOnConfirmOperation = async () => {
             if (!currentOperation.value) return;
@@ -325,6 +347,15 @@ export default {
 
         watch(isOpen, () => {
             if (!isOpen.value) store.dispatch('operationBag/clearCurrentOperation');
+
+            if (isOpen.value && depositOperationsCount.value > 0) activeRadio.value = 'deposit';
+            else if (isOpen.value && withdrawOperationsCount.value > 0) activeRadio.value = 'withdraw';
+        });
+
+        watch(currentOpId, () => setSelectedDstInfo());
+        watch(selectedDstToken, () => {
+            if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id)
+                selectedDstToken.value = currentOperation.value;
         });
 
         return {
@@ -374,7 +405,6 @@ export default {
             onSelectToken,
 
             onClickRemoveOperation,
-            onClickClearAllOperations,
             onClickSelectCurrentOperation,
         };
     },
