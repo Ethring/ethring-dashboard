@@ -155,7 +155,7 @@
     justify-content: space-between;
     width: 85%;
 }
-
+.operation-card__token,
 .operation-card__title {
     color: var(--#{$prefix}primary-text);
     font-weight: 600;
@@ -171,12 +171,17 @@
     }
 }
 
+.operation-card__token-info {
+    display: flex;
+    flex-direction: column;
+}
+
 .operation-card__protocol {
     display: flex;
     align-items: center;
     gap: 5px;
 }
-
+.operation-card__chain,
 .operation-card__protocol-name {
     font-size: var(--#{$prefix}small-md-fs);
     color: var(--#{$prefix}mute-text);

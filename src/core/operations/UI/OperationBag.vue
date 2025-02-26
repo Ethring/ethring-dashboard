@@ -135,7 +135,14 @@
                             <div class="operation-card__info">
                                 <div class="operation-card__title">
                                     <span v-if="!selectedDstToken" class="operation-card__placeholder"> Select Chain and Token </span>
-                                    <span v-else> {{ selectedDstToken?.symbol }} </span>
+                                    <div v-else class="operation-card__token-info">
+                                        <span class="operation-card__token">
+                                            {{ selectedDstToken?.symbol }}
+                                        </span>
+                                        <span class="operation-card__chain">
+                                            {{ selectedDstNetwork?.name }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

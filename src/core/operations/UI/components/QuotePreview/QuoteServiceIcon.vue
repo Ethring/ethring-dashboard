@@ -11,7 +11,7 @@
                     height: `${height}px`,
                 }"
             >
-                <a-avatar v-if="!icon" :size="width">?</a-avatar>
+                <a-avatar v-if="!icon" :size="width"></a-avatar>
                 <img v-else :src="icon" alt="service-icon" />
             </div>
             <div v-if="showTitle" class="service-title">
