@@ -21,6 +21,15 @@
     }
 }
 
+.asset__item--network > .asset-with-chain {
+    margin-right: 8px;
+}
+
+.asset__item--asset > .name {
+    font-weight: 500;
+    font-size: var(--#{$prefix}small-lg-fs);
+}
+
 .asset__item--info {
     display: flex;
     align-items: center;
@@ -30,16 +39,36 @@
 
     div:not(:first-child) {
         &::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
     }
 }
 
+.asset__item--group {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: -4px;
+}
+
+.asset__item--protocol .asset__item--info {
+    font-size: var(--#{$prefix}small-sm-fs);
+}
+
+.asset__item--network.asset__item--protocol {
+    gap: 4px;
+}
+
+.asset__item--protocol {
+    margin-top: -6px;
+}
+
 .asset__item--chain .asset__item--info,
 .asset__item--protocol .asset__item--info {
     font-size: var(--#{$prefix}small-sm-fs);
+    font-weight: 400;
 
     .name {
         text-wrap: nowrap;
@@ -66,7 +95,10 @@
 
 .asset__item--amount.asset__item--apy,
 .asset__item--amount.asset__item--tvl {
-    font-size: var(--#{$prefix}default-fs);
+    font-size: var(--#{$prefix}h6-fs);
+    font-weight: 500;
+
+    color: var(--#{$prefix}primary-text);
 
     .symbol {
         margin-left: -4px;
@@ -76,4 +108,12 @@
 .asset__item--amount.asset__item--value,
 .asset__item--amount.asset__item--balance {
     transform: translateY(-5%);
+}
+
+.asset__item--yield {
+    border: 1px solid var(--#{$prefix}default-border-color);
+    width: fit-content;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: var(--#{$prefix}small-sm-fs);
 }

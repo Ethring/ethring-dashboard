@@ -119,7 +119,7 @@
                 @set-amount="handleOnSetAmount"
             />
 
-            <a-card v-else hoverable class="operation-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
+            <a-card v-else hoverable class="operation-card withdraw-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
                 <a-card-meta>
                     <template #title>
                         <div class="operation-card__content">
@@ -134,7 +134,8 @@
 
                             <div class="operation-card__info">
                                 <div class="operation-card__title">
-                                    <span> {{ selectedDstToken?.symbol }} </span>
+                                    <span v-if="!selectedDstToken" class="operation-card__placeholder"> Select Chain and Token </span>
+                                    <span v-else> {{ selectedDstToken?.symbol }} </span>
                                 </div>
                             </div>
                         </div>

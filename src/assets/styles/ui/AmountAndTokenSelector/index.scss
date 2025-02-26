@@ -1,8 +1,16 @@
 .amount-and-token-selector--label {
     font-size: var(--#{$prefix}h6-fs);
-    font-weight: 500;
+    font-weight: 600;
     color: var(--#{$prefix}primary-text);
     margin: 10px 0;
+}
+
+.amount-and-token-selector input {
+    font-weight: 600;
+}
+
+.amount-and-token-selector .amount__in-usd {
+    font-weight: 400;
 }
 
 .amount-and-token-selector {
@@ -88,6 +96,8 @@
     display: flex;
     align-items: center;
 
+    color: var(--#{$prefix}primary-text);
+
     gap: 4px;
 }
 
@@ -98,7 +108,7 @@
 
 .token__selector__symbol {
     font-size: var(--#{$prefix}small-lg-fs);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .token__selector__chain {

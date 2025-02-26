@@ -119,16 +119,10 @@ export default {
                     sorter: (prev, next) => prev.name.localeCompare(next.name),
                 },
                 {
-                    title: 'Protocol',
-                    dataIndex: 'protocol',
-                    key: 'protocol',
-                    sorter: (prev, next) => prev.name.localeCompare(next.name),
-                },
-                {
-                    title: 'Chain',
-                    dataIndex: 'chain',
-                    key: 'chain',
-                    sorter: (prev, next) => prev.name.localeCompare(next.name),
+                    title: 'Type',
+                    dataIndex: 'category',
+                    key: 'category',
+                    sorter: (prev, next) => prev.category?.name.localeCompare(next.category?.name),
                 },
                 {
                     title: 'TVL',

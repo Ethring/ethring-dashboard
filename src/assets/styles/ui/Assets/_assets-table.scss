@@ -120,7 +120,7 @@
         }
 
         .name::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -191,6 +191,7 @@
 .asset-table.ant-table-wrapper .ant-table-thead th.ant-table-cell {
     background-color: var(--#{$prefix}assets-header-bg-color);
     color: var(--#{$prefix}primary);
+    font-weight: 400;
 }
 
 .asset-table.ant-table-wrapper .ant-table-cell {
@@ -239,7 +240,7 @@
 }
 
 .asset-table__actions {
-    border-color: var(--#{$prefix}assets-added-bg-color);
+    border-color: var(--#{$prefix}deposit-btn-bg-color);
 }
 
 .asset-table__action {
@@ -255,6 +256,8 @@
     width: 100%;
     transition: 0.4s;
 
+    font-weight: 700;
+
     &--added-to-bag {
         transform: translateY(-100%);
     }
@@ -266,7 +269,7 @@
 }
 
 .asset-table__action--deposit {
-    background-color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
     color: var(--#{$prefix}white);
     &:not(.asset-table__action--disabled):hover {
         opacity: 0.6;
@@ -334,4 +337,22 @@
 
 .asset-table .ant-table-column-sorters .ant-table-column-title {
     flex: 0;
+}
+
+.asset-table.ant-table-wrapper .ant-table .ant-table-tbody > tr:last-child > td {
+    border-bottom: none;
+}
+
+.asset-table.ant-table-wrapper
+    .ant-table-thead
+    > tr
+    > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before,
+.ant-table-thead
+    > tr
+    > td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+    background-color: var(--#{$prefix}assets-header-divider-color);
+}
+
+.asset-table.ant-table-wrapper .ant-table-column-sort {
+    background-color: transparent;
 }

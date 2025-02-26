@@ -1,10 +1,18 @@
 <template>
     <template v-if="column === 'asset'">
         <div class="asset__item--network">
-            <TokenIcon :token="item" :width="20" :height="20" />
+            <AssetWithChain :asset="item" :chain="item.chainInfo" :width="30" :height="30" />
 
-            <div class="asset__item--info">
+            <div class="asset__item--group asset__item--asset">
                 <div class="name">{{ item.symbol }}</div>
+
+                <div class="asset__item--network asset__item--protocol">
+                    <TokenIcon :token="item.protocol" :width="18" :height="18" />
+
+                    <div class="asset__item--info">
+                        <div class="name">{{ item?.protocol?.name }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -16,6 +24,11 @@
             <div class="asset__item--info">
                 <div class="name">{{ item?.protocol?.name }}</div>
             </div>
+        </div>
+    </template>
+    <template v-if="column === 'category'">
+        <div v-if="item?.category?.name" class="asset__item--yield">
+            <div class="name">{{ item?.category?.name }}</div>
         </div>
     </template>
 
@@ -70,6 +83,8 @@ import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
 
 import RewardsIcons from '@/assets/icons/dashboard/rewards.svg';
+import AssetWithChain from '@/components/app/assets/AssetWithChain.vue';
+import { Height } from 'osmojs/dist/codegen/ibc/core/client/v1/client';
 
 export default {
     name: 'AssetRow',

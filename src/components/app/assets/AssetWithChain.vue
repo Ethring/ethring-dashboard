@@ -1,5 +1,5 @@
 <template>
-    <div class="asset-with-chain">
+    <div class="asset-with-chain" :style="{ width: `${width}px`, height: `${height}px` }">
         <a-image
             v-if="type === 'NFTS'"
             :preview="false"
