@@ -354,7 +354,18 @@ export default {
         };
 
         watch(isOpen, () => {
-            if (!isOpen.value) store.dispatch('operationBag/clearCurrentOperation');
+            if (!isOpen.value) {
+                store.dispatch('operationBag/clearCurrentOperation');
+                quoteRoutes.value = [];
+                selectedRoute.value = null;
+                srcAmount.value = 0;
+                dstAmount.value = 0;
+                quoteErrorMessage.value = '';
+                selectedDstToken.value = null;
+                selectedDstNetwork.value = null;
+                selectedSrcNetwork.value = null;
+                selectedSrcToken.value = null;
+            }
 
             if (isOpen.value && depositOperationsCount.value > 0) activeRadio.value = 'deposit';
             else if (isOpen.value && withdrawOperationsCount.value > 0) activeRadio.value = 'withdraw';
