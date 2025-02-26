@@ -8,9 +8,15 @@
     justify-content: space-between;
 
     color: var(--#{$prefix}primary-text);
+
     & > div {
         display: flex;
         align-items: center;
+    }
+
+    & > div:first-child {
+        font-weight: 500;
+        font-size: var(--#{$prefix}h6-fs);
     }
 }
 
@@ -65,6 +71,11 @@
     justify-content: space-between;
     align-items: center;
     height: 24px;
+}
+
+.quote-preview__summary__item > div:first-child {
+    font-weight: 500;
+    font-size: var(--#{$prefix}default-fs);
 }
 
 .quote-preview .skeleton span {
