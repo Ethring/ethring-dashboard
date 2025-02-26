@@ -120,7 +120,7 @@
         }
 
         .name::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -154,7 +154,7 @@
 }
 
 .ant-spin-dot.ant-spin-dot-spin i {
-    background-color: var(--#{$prefix}banner-logo-color) !important;
+    background-color: var(--#{$prefix}deposit-btn-bg-color) !important;
 }
 
 .ant-table-column-sorter-up.active,
@@ -347,7 +347,9 @@
     .ant-table-thead
     > tr
     > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before,
-.ant-table-thead > tr > td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+.ant-table-thead
+    > tr
+    > td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
     background-color: var(--#{$prefix}assets-header-divider-color);
 }
 
