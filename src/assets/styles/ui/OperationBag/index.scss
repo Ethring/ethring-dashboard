@@ -80,6 +80,7 @@
     margin-bottom: 16px;
     font-weight: 500;
     color: var(--#{$prefix}primary-text);
+    font-size: var(--#{$prefix}h6-fs);
 }
 
 .operation-bag__header__clear {
@@ -155,6 +156,11 @@
     width: 85%;
 }
 
+.operation-card__title {
+    color: var(--#{$prefix}primary-text);
+    font-weight: 600;
+}
+
 .operation-bag__title {
     font-size: var(--#{$prefix}default-fs);
     color: var(--#{$prefix}primary-text);
@@ -174,6 +180,7 @@
 .operation-card__protocol-name {
     font-size: var(--#{$prefix}small-md-fs);
     color: var(--#{$prefix}mute-text);
+    font-weight: 400;
 }
 
 .operation-card__action {
