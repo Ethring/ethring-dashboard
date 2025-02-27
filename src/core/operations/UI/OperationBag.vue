@@ -56,9 +56,9 @@
                                 type="asset"
                                 :chain="operation.chainInfo"
                                 :asset="operation"
-                                :width="40"
-                                :height="40"
-                                :divider="2"
+                                :width="30"
+                                :height="30"
+                                :divider="1.88"
                             />
 
                             <div class="operation-card__info">

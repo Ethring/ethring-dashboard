@@ -39,7 +39,7 @@
 
     div:not(:first-child) {
         &::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -116,4 +116,13 @@
     padding: 8px 12px;
     border-radius: 12px;
     font-size: var(--#{$prefix}small-sm-fs);
+}
+
+.asset__item--rewards {
+    display: flex;
+    align-items: center;
+}
+
+.asset__item--reward:not(:first-child) {
+    margin-left: -4px;
 }

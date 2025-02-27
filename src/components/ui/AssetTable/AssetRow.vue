@@ -54,7 +54,14 @@
         />
     </template>
     <template v-if="column === 'rewards'">
-        <RewardsIcons style="transform: translateY(15%)" />
+        <div v-if="item.rewards" class="asset__item--rewards">
+            <a-tooltip v-for="record in item.rewards" :key="record.id" placement="topLeft">
+                <template #title> {{ `${record.pointCount} - ${record.reward.name}` }} </template>
+                <a :href="record.reward.url" target="_blank" class="asset__item--reward" :title="record.reward.name">
+                    <TokenIcon :token="record.reward" :width="20" :height="20" />
+                </a>
+            </a-tooltip>
+        </div>
     </template>
 
     <template v-if="balanceKeys.includes(column)">
@@ -82,16 +89,14 @@ import TVL from '@/components/app/TVL.vue';
 import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
 
-import RewardsIcons from '@/assets/icons/dashboard/rewards.svg';
 import AssetWithChain from '@/components/app/assets/AssetWithChain.vue';
-import { Height } from 'osmojs/dist/codegen/ibc/core/client/v1/client';
+import TokenIcon from '../Tokens/TokenIcon.vue';
 
 export default {
     name: 'AssetRow',
     components: {
         Amount,
         TVL,
-        RewardsIcons,
     },
     props: {
         item: {
