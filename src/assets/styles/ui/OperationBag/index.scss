@@ -53,6 +53,8 @@
     max-height: 48px;
 
     font-size: var(--#{$prefix}small-lg-fs);
+
+    border-right: 1px solid red;
 }
 
 .operation-bag-trigger {
@@ -60,7 +62,7 @@
 
     background-color: var(--#{$prefix}white);
 
-    border: 1px solid var(--#{$prefix}default-border-color);
+    border: 1px solid transparent;
 
     transition: all 0.3s;
 
@@ -232,6 +234,7 @@
     gap: 2px;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 .operations-count-badge {
@@ -253,8 +256,8 @@
 
 .operations-count-badge--deposit .ant-badge-count {
     color: var(--#{$prefix}white);
-    background-color: var(--#{$prefix}black);
-    border-color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
+    border-color: var(--#{$prefix}deposit-btn-bg-color);
 }
 
 // **********************************************************

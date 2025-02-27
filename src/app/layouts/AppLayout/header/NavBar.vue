@@ -12,7 +12,6 @@
                         @click="onClickBagTrigger"
                     >
                         <ShoppingCart class="operation-bag-icon" />
-                        Bag
                         <div class="operations-count">
                             <a-badge
                                 show-zero
@@ -26,6 +25,7 @@
                             />
                         </div>
                     </div>
+                    <div class="divider"></div>
                     <Adapter />
                 </div>
             </div>

@@ -92,3 +92,14 @@
 .not-connected:hover .icon-container svg path {
     fill: var(--#{$prefix}black);
 }
+
+.nav-bar-row__right .divider {
+    width: 1px;
+    height: 32px;
+    background-color: var(--#{$prefix}assets-header-divider-color);
+    margin: 0 12px 0 0;
+}
+
+.nav-bar-row__right {
+    gap: 0;
+}
