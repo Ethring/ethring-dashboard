@@ -108,11 +108,11 @@
 }
 
 .quote-preview__footer {
-    border: 1px solid var(--#{$prefix}danger);
-    background-color: var(--#{$prefix}danger-op-01);
+    border: 1px dashed #d0c4f1;
+    background-color: #fbf9ff;
     padding: 6px;
-    border-radius: 6px;
-    color: var(--#{$prefix}danger);
+    border-radius: 16px;
+    color: var(--#{$prefix}primary-text);
     height: 170px;
 
     display: flex;
