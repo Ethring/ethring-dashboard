@@ -19,8 +19,8 @@
             <div class="quote-preview__summary__item">
                 <div>Route</div>
                 <div>
-                    <QuoteServiceIcon v-if="!isQuoteLoading" v-bind="service" :show-title="true" />
-                    <template v-else>
+                    <QuoteServiceIcon v-if="!isQuoteLoading && service" v-bind="service" :show-title="true" />
+                    <template v-else-if="isQuoteLoading">
                         <a-space>
                             <a-skeleton-avatar :size="24" />
                             <a-skeleton-input active size="small" class="skeleton" />
@@ -40,7 +40,6 @@
                         {{ fees.RATE.symbolBetween }}
                         <Amount :value="fees.RATE.toAmount" :decimals="2" :symbol="fees.RATE.toSymbol" type="currency" />
                     </template>
-                    <template v-else> 0 </template>
                 </div>
             </div>
 
@@ -67,7 +66,6 @@
                     <template v-else-if="!isQuoteLoading && fees.RATE && quote?.toAmount">
                         <Amount :value="minOutAmount(quote.toAmount)" :decimals="2" :symbol="fees.RATE.toSymbol" type="currency" />
                     </template>
-                    <template v-else> 0 </template>
                 </div>
             </div>
         </div>
