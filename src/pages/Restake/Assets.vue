@@ -119,7 +119,7 @@ export default {
                     sorter: (prev, next) => prev.name.localeCompare(next.name),
                 },
                 {
-                    title: 'Type',
+                    title: 'Yield Type',
                     dataIndex: 'category',
                     key: 'category',
                     sorter: (prev, next) => prev.category?.name.localeCompare(next.category?.name),
