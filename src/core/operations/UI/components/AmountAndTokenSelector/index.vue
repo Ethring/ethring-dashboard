@@ -29,7 +29,7 @@
         <div class="token__selector-container">
             <div v-if="!hideTokenSelector" class="token__selector" @click="onSelectToken">
                 <div class="token__selector__content">
-                    <AssetWithChain class="token__selector__icon" :asset="asset" :chain="chain" :width="28" :height="28" />
+                    <AssetWithChain class="token__selector__icon" :asset="asset" :chain="chain" :width="30" :height="30" :divider="1.875" />
 
                     <div class="token__selector__info">
                         <div class="token__selector__symbol">

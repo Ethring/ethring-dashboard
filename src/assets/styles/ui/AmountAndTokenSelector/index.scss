@@ -108,12 +108,13 @@
 
 .token__selector__symbol {
     font-size: var(--#{$prefix}small-lg-fs);
+    color: var(--#{$prefix}primary-text);
     font-weight: 600;
 }
 
 .token__selector__chain {
     font-size: var(--#{$prefix}small-sm-fs);
-    color: var(--#{$prefix}mute-text);
+    color: var(--#{$prefix}primary-text);
     font-weight: 400;
 }
 
