@@ -1,13 +1,13 @@
 <template>
     <template v-if="column === 'asset'">
         <div class="asset__item--network">
-            <AssetWithChain :asset="item" :chain="item.chainInfo" :width="30" :height="30" />
+            <AssetWithChain :asset="item" :chain="item.chainInfo" :width="30" :height="30" :divider="1.88" />
 
             <div class="asset__item--group asset__item--asset">
                 <div class="name">{{ item.symbol }}</div>
 
                 <div class="asset__item--network asset__item--protocol">
-                    <TokenIcon :token="item.protocol" :width="18" :height="18" />
+                    <TokenIcon :token="item.protocol" :width="16" :height="16" />
 
                     <div class="asset__item--info">
                         <div class="name">{{ item?.protocol?.name }}</div>

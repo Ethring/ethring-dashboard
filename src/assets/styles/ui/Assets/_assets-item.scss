@@ -28,6 +28,7 @@
 .asset__item--asset > .name {
     font-weight: 500;
     font-size: var(--#{$prefix}small-lg-fs);
+    color: var(--#{$prefix}primary-text);
 }
 
 .asset__item--info {
@@ -36,6 +37,7 @@
 
     font-weight: 500;
     font-size: var(--#{$prefix}small-lg-fs);
+    color: var(--#{$prefix}primary-text);
 
     div:not(:first-child) {
         &::before {
@@ -111,7 +113,7 @@
 }
 
 .asset__item--yield {
-    border: 1px solid var(--#{$prefix}default-border-color);
+    border: 1px solid var(--#{$prefix}yield-border-color);
     width: fit-content;
     padding: 8px 12px;
     border-radius: 12px;
