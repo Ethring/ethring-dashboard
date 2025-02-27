@@ -184,6 +184,7 @@
 .sidebar-footer {
     margin-top: auto;
     padding: 0 24px;
+    color: var(--#{$prefix}primary-text);
 }
 
 .sidebar-footer-copyright {
@@ -200,7 +201,7 @@
     gap: 8px;
 
     & > a {
-        color: var(--#{$prefix}mute-text);
+        color: #808080;
         font-size: var(--#{$prefix}small-sm-fs);
     }
 
