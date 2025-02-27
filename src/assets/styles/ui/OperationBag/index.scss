@@ -294,18 +294,26 @@
     }
 }
 
-.operation-bag__radio--active {
-    background-color: var(--#{$prefix}deposit-btn-bg-color);
-    border-color: var(--#{$prefix}deposit-btn-bg-color);
-    color: var(--#{$prefix}white);
+.operation-bag__radio--active.operation-bag__radio--withdraw {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
-    svg path {
-        fill: var(--#{$prefix}white);
-    }
+.operation-bag__radio--active.operation-bag__radio--deposit {
+    box-shadow: 0 4px 12px rgba(133, 100, 209, 0.4);
+}
+
+.operation-bag__radio--active {
+    transform: translateY(-1px);
 }
 
 .operation-bag__radio--deposit {
     border-radius: 8px 0 0 8px;
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
+    color: var(--#{$prefix}white);
+    svg path {
+        fill: var(--#{$prefix}white);
+    }
+    border-color: var(--#{$prefix}deposit-btn-bg-color);
     border-right: none;
 }
 
