@@ -63,9 +63,9 @@
 
                             <div class="operation-card__info">
                                 <div class="operation-card__title">
-                                    <span> {{ operation.symbol }} </span>
+                                    <div>{{ operation.symbol }}</div>
                                     <div class="operation-card__protocol">
-                                        <TokenIcon :token="operation.protocol" :width="18" :height="18" />
+                                        <TokenIcon :token="operation.protocol" :width="16" :height="16" />
                                         <span class="operation-card__protocol-name">
                                             {{ operation.protocol.name }}
                                         </span>

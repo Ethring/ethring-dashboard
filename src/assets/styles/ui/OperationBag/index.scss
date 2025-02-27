@@ -128,7 +128,7 @@
 }
 
 .operation-card .ant-card-body {
-    padding: 12px 16px;
+    padding: 10px 16px;
 }
 
 .operation-bag .ant-card-meta-avatar {
@@ -155,16 +155,17 @@
     gap: 10px;
     align-items: center;
     justify-content: space-between;
-    width: 85%;
+    width: 88%;
 }
 .operation-card__token,
 .operation-card__title {
     color: var(--#{$prefix}primary-text);
     font-weight: 600;
+    font-size: var(--#{$prefix}small-lg-fs);
 }
 
 .operation-bag__title {
-    font-size: var(--#{$prefix}default-fs);
+    font-size: var(--#{$prefix}small-lg-fs);
     color: var(--#{$prefix}primary-text);
 
     & > span {
@@ -182,12 +183,17 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-top: -6px;
 }
 .operation-card__chain,
 .operation-card__protocol-name {
-    font-size: var(--#{$prefix}small-md-fs);
-    color: var(--#{$prefix}mute-text);
+    font-size: var(--#{$prefix}small-sm-fs);
+    color: var(--#{$prefix}primary-text);
     font-weight: 400;
+}
+
+.operation-card.ant-card .ant-card-meta-detail > div:not(:last-child) {
+    margin-bottom: 0;
 }
 
 .operation-card__action {
