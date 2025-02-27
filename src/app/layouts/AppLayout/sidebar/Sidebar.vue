@@ -80,7 +80,7 @@
 
             <div class="sidebar-footer-socials">
                 <a href="https://mirror.xyz/ethring.eth" target="_blank" title="Miro Ethring"> <MirrorIcon /> </a>
-                <a href="https://x.com/Ethring_io https://mirror.xyz/ethring.eth" target="_blank" title="X.com/Twitter Ethring">
+                <a href="https://x.com/Ethring_io" target="_blank" title="X.com/Twitter Ethring">
                     <XTwitterIcon />
                 </a>
                 <a href="https://discord.gg/jujUmHVg5Q" target="_blank" title="Discord Ethring"> <DiscordIcon /> </a>
