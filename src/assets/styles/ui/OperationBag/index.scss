@@ -24,7 +24,8 @@
 
 .operation-card__placeholder {
     font-size: var(--#{$prefix}default-fs);
-    color: var(--#{$prefix}mute-text);
+    color: var(--#{$prefix}primary-text);
+    font-weight: 400;
 }
 
 .operation-bag .ant-drawer-header {

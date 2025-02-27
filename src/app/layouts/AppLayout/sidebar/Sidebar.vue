@@ -79,13 +79,13 @@
             </div>
 
             <div class="sidebar-footer-socials">
-                <a href="#" class="disabled" @click.prevent=""> <MirrorIcon /> </a>
-                <a href="https://x.com/Ethring_io https://mirror.xyz/ethring.eth" target="_blank" title="X.com/Twitter Ethrin">
+                <a href="https://mirror.xyz/ethring.eth" target="_blank" title="Miro Ethring"> <MirrorIcon /> </a>
+                <a href="https://x.com/Ethring_io https://mirror.xyz/ethring.eth" target="_blank" title="X.com/Twitter Ethring">
                     <XTwitterIcon />
                 </a>
-                <a href="#" class="disabled" @click.prevent=""> <DiscordIcon /> </a>
-                <a href="https://warpcast.com/ethring.eth" target="_blank" title="Warpcast Ethrin"> <WarpcastIcon /> </a>
-                <a href="https://hey.xyz/u/ethring" target="_blank" title="Lens Ethrin"> <LensIcon /> </a>
+                <a href="https://discord.gg/jujUmHVg5Q" target="_blank" title="Discord Ethring"> <DiscordIcon /> </a>
+                <a href="https://warpcast.com/ethring.eth" target="_blank" title="Warpcast Ethring"> <WarpcastIcon /> </a>
+                <a href="https://hey.xyz/u/ethring" target="_blank" title="Lens Ethring"> <LensIcon /> </a>
             </div>
         </div>
     </a-layout-sider>

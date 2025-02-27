@@ -1,6 +1,6 @@
 .amount-and-token-selector--label {
     font-size: var(--#{$prefix}h6-fs);
-    font-weight: 600;
+    font-weight: 500;
     color: var(--#{$prefix}primary-text);
     margin: 10px 0;
 }
@@ -149,6 +149,7 @@
 
     font-size: var(--#{$prefix}small-lg-fs);
     font-weight: 500;
+    color: var(--#{$prefix}primary-text);
 }
 
 .token__balance--error .token__balance__value .value,
