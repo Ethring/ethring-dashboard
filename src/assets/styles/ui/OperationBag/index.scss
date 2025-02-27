@@ -272,7 +272,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px;
-    border: 1px solid black;
+    border: 1px solid var(--#{$prefix}black);
     max-height: 36px;
 
     font-weight: 700;
@@ -294,7 +294,8 @@
 }
 
 .operation-bag__radio--active {
-    background-color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
+    border-color: var(--#{$prefix}deposit-btn-bg-color);
     color: var(--#{$prefix}white);
 
     svg path {
@@ -309,7 +310,6 @@
 
 .operation-bag__radio--withdraw {
     border-radius: 0 8px 8px 0;
-    border-color: var(--#{$prefix}black);
 }
 
 .operation__bag--execute.disabled {
