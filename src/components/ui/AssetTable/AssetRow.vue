@@ -1,7 +1,7 @@
 <template>
     <template v-if="column === 'asset'">
         <div class="asset__item--network">
-            <AssetWithChain :asset="item" :chain="item.chainInfo" :width="30" :height="30" :divider="1.88" />
+            <AssetWithChain :asset="item" :chain="item.chainInfo" :width="30" :height="30" :divider="1.875" />
 
             <div class="asset__item--group asset__item--asset">
                 <div class="name">{{ item.symbol }}</div>
