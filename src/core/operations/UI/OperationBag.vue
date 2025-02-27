@@ -127,9 +127,9 @@
                                 type="asset"
                                 :chain="selectedDstNetwork"
                                 :asset="selectedDstToken"
-                                :width="40"
-                                :height="40"
-                                :divider="2"
+                                :width="30"
+                                :height="30"
+                                :divider="1.875"
                             />
 
                             <div class="operation-card__info">
