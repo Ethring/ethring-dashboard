@@ -65,19 +65,27 @@
         <div class="sidebar-footer">
             <span class="sidebar-footer-copyright">© Ethring 2025</span>
             <div class="sidebar-footer-links">
-                <a href="#" @click.prevent=""> Privacy Policy </a>
-                <a href="#" @click.prevent="">T&Cs </a>
-                <a href="#" @click.prevent=""> Docs </a>
-                <a href="#" @click.prevent=""> Send Feedback </a>
-                <a href="#" @click.prevent=""> Partnership </a>
+                <a href="#" class="disabled" @click.prevent=""> Privacy Policy </a>
+                <a href="#" class="disabled" @click.prevent="">T&Cs </a>
+                <a href="#" class="disabled" @click.prevent=""> Docs </a>
+                <a href="#" class="disabled" @click.prevent=""> Send Feedback </a>
+                <a
+                    href="https://docs.google.com/forms/d/1apiOuHXF2t_SHvulN4MG8_jdPYDrGNcFg74DBsZrZsc/edit"
+                    target="_blank"
+                    title="Partnership Ethring"
+                >
+                    Partnership
+                </a>
             </div>
 
             <div class="sidebar-footer-socials">
-                <a href="#" @click.prevent=""> <MirrorIcon /> </a>
-                <a href="#" @click.prevent=""> <XTwitterIcon /> </a>
-                <a href="#" @click.prevent=""> <DiscordIcon /> </a>
-                <a href="#" @click.prevent=""> <WarpcastIcon /> </a>
-                <a href="#" @click.prevent=""> <LensIcon /> </a>
+                <a href="#" class="disabled" @click.prevent=""> <MirrorIcon /> </a>
+                <a href="https://x.com/Ethring_io https://mirror.xyz/ethring.eth" target="_blank" title="X.com/Twitter Ethrin">
+                    <XTwitterIcon />
+                </a>
+                <a href="#" class="disabled" @click.prevent=""> <DiscordIcon /> </a>
+                <a href="https://warpcast.com/ethring.eth" target="_blank" title="Warpcast Ethrin"> <WarpcastIcon /> </a>
+                <a href="https://hey.xyz/u/ethring" target="_blank" title="Lens Ethrin"> <LensIcon /> </a>
             </div>
         </div>
     </a-layout-sider>

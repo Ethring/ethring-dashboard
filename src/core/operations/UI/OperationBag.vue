@@ -119,37 +119,42 @@
                 @set-amount="handleOnSetAmount"
             />
 
-            <a-card v-else hoverable class="operation-card withdraw-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
-                <a-card-meta>
-                    <template #title>
-                        <div class="operation-card__content">
-                            <AssetWithChain
-                                type="asset"
-                                :chain="selectedDstNetwork"
-                                :asset="selectedDstToken"
-                                :width="30"
-                                :height="30"
-                                :divider="1.875"
-                            />
+            <template v-else>
+                <div class="amount-and-token-selector--label">
+                    <span>Target token</span>
+                </div>
 
-                            <div class="operation-card__info">
-                                <div class="operation-card__title">
-                                    <span v-if="!selectedDstToken" class="operation-card__placeholder"> Select Chain and Token </span>
-                                    <div v-else class="operation-card__token-info">
-                                        <span class="operation-card__token">
-                                            {{ selectedDstToken?.symbol }}
-                                        </span>
-                                        <span class="operation-card__chain">
-                                            {{ selectedDstNetwork?.name }}
-                                        </span>
+                <a-card hoverable class="operation-card withdraw-card" @click="onSelectToken(false, DIRECTIONS.DESTINATION)">
+                    <a-card-meta>
+                        <template #title>
+                            <div class="operation-card__content">
+                                <AssetWithChain
+                                    type="asset"
+                                    :chain="selectedDstNetwork"
+                                    :asset="selectedDstToken"
+                                    :width="30"
+                                    :height="30"
+                                    :divider="1.875"
+                                />
+
+                                <div class="operation-card__info">
+                                    <div class="operation-card__title">
+                                        <span v-if="!selectedDstToken" class="operation-card__placeholder"> Select Chain and Token </span>
+                                        <div v-else class="operation-card__token-info">
+                                            <span class="operation-card__token">
+                                                {{ selectedDstToken?.symbol }}
+                                            </span>
+                                            <span class="operation-card__chain">
+                                                {{ selectedDstNetwork?.name }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </template>
-                </a-card-meta>
-            </a-card>
-
+                        </template>
+                    </a-card-meta>
+                </a-card>
+            </template>
             <QuotePreview :fees="fees" :quote="selectedRoute" :error="quoteErrorMessage" />
 
             <UiButton

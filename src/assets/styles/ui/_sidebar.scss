@@ -200,9 +200,16 @@
     gap: 8px;
 
     & > a {
-        cursor: not-allowed;
         color: var(--#{$prefix}mute-text);
         font-size: var(--#{$prefix}small-sm-fs);
+    }
+
+    & > a:not(.disabled):hover {
+        color: var(--#{$prefix}deposit-btn-bg-color);
+    }
+
+    & > a.disabled {
+        cursor: not-allowed;
     }
 
     & > a:not(:first-child) {
@@ -221,7 +228,7 @@
     align-items: center;
     gap: 16px;
 
-    & > a {
+    & > a.disabled {
         cursor: not-allowed;
     }
 }
