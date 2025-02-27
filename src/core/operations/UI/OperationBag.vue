@@ -58,7 +58,7 @@
                                 :asset="operation"
                                 :width="30"
                                 :height="30"
-                                :divider="1.88"
+                                :divider="1.875"
                             />
 
                             <div class="operation-card__info">
