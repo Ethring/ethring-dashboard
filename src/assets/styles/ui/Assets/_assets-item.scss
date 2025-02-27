@@ -41,7 +41,7 @@
 
     div:not(:first-child) {
         &::before {
-            content: "\2022";
+            content: '\2022';
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -95,9 +95,9 @@
     }
 }
 
-.asset__item--amount.asset__item--apy,
-.asset__item--amount.asset__item--tvl {
-    font-size: var(--#{$prefix}h6-fs);
+.tvl__value,
+.asset__item--amount.asset__item--apy {
+    font-size: var(--#{$prefix}small-lg-fs);
     font-weight: 500;
 
     color: var(--#{$prefix}primary-text);

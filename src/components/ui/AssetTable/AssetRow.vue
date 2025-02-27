@@ -58,7 +58,7 @@
             <a-tooltip v-for="record in item.rewards" :key="record.id" placement="topLeft">
                 <template #title> {{ `${record.pointCount} - ${record.reward.name}` }} </template>
                 <a :href="record.reward.url" target="_blank" class="asset__item--reward" :title="record.reward.name">
-                    <TokenIcon :token="record.reward" :width="20" :height="20" />
+                    <TokenIcon :token="record.reward" :width="16" :height="16" />
                 </a>
             </a-tooltip>
         </div>
