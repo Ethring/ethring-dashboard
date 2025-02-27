@@ -8,9 +8,13 @@
 .amount-and-token-selector input {
     font-weight: 600;
 }
+.operation-card__withdraw .amount-and-token-selector .amount__in-usd {
+    margin-top: -6px;
+}
 
 .amount-and-token-selector .amount__in-usd {
     font-weight: 400;
+    margin-top: -2px;
 }
 
 .amount-and-token-selector {

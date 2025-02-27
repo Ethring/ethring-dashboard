@@ -86,14 +86,17 @@
                     </template>
 
                     <template #description>
-                        <AmountAndTokenSelector
-                            v-if="currentOpId.includes(operation.id) && activeRadio === 'withdraw'"
-                            :asset="selectedSrcToken"
-                            :chain="selectedSrcNetwork"
-                            :value="srcAmount"
-                            :hide-token-selector="true"
-                            @set-amount="handleOnSetAmount"
-                        />
+                        <div class="operation-card__withdraw">
+                            <AmountAndTokenSelector
+                                v-if="currentOpId.includes(operation.id) && activeRadio === 'withdraw'"
+                                :asset="selectedSrcToken"
+                                :chain="selectedSrcNetwork"
+                                :value="srcAmount"
+                                :hide-token-selector="true"
+                                class="operation-card__withdraw-selec"
+                                @set-amount="handleOnSetAmount"
+                            />
+                        </div>
                     </template>
                 </a-card-meta>
             </a-card>
