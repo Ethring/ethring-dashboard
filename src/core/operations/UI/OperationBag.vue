@@ -357,13 +357,13 @@ export default {
                     break;
                 case 'withdraw':
                     selectedSrcNetwork.value = config;
-                    const dateType = currentOpId.value.includes('tokens') ? 'tokens' : 'pools';
-                    assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value.id);
+                    const dateType = currentOperation.value.id.includes('tokens') ? 'tokens' : 'pools';
+                    assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value);
+                    console.log('assetBalance', dateType, currentOperation.value.id, assetBalance.value);
                     selectedSrcToken.value = {
                         ...currentOperation.value,
                         balance: assetBalance.value?.balance || 0,
                         price: assetBalance.value?.price || 0,
-                        balanceUsd: assetBalance.value?.balanceUsd || 0,
                     };
                     break;
             }

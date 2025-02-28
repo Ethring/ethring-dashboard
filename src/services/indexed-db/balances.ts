@@ -239,8 +239,10 @@ class BalancesDB extends Dexie {
         }
     }
 
-    async getBalanceById(account: string, dataType: string, id: string): Promise<object> {
+    async getBalanceById(account: string, dataType: string, asset: any): Promise<object> {
         const accountLower = account.toLowerCase();
+
+        const id = `${asset.chain}:${dataType}__${asset.address}:${asset.symbol.toUpperCase()}`;
 
         try {
             const asset = (await this.balances.where({ account: accountLower, dataType, id }).first()) || {};
