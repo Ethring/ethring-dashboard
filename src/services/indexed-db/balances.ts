@@ -239,6 +239,20 @@ class BalancesDB extends Dexie {
         }
     }
 
+    async getBalanceById(account: string, dataType: string, id: string): Promise<object> {
+        const accountLower = account.toLowerCase();
+
+        try {
+            const asset = (await this.balances.where({ account: accountLower, dataType, id }).first()) || {};
+
+            return asset;
+        } catch (error) {
+            console.error('getAssetsForAccount', error);
+
+            return {};
+        }
+    }
+
     async getPoolsForAccount(
         account: string,
         minBalance: number,

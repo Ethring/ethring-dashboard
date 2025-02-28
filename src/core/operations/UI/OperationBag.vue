@@ -174,7 +174,7 @@
     </a-drawer>
 </template>
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, shallowRef } from 'vue';
 import { useStore } from 'vuex';
 
 import useModuleOperations from '@/compositions/useModuleOperation';
@@ -195,6 +195,9 @@ import ArrowIcon from '@/assets/icons/operations-bag/arrow.svg';
 import AmountAndTokenSelector from '@/core/operations/UI/components/AmountAndTokenSelector/index.vue';
 import QuotePreview from '@/core/operations/UI/components/QuotePreview/index.vue';
 import OperationBagHeader from '@/core/operations/UI/components/OperationBag/Header.vue';
+import BalancesDB from '@/services/indexed-db/balances';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { ConsoleSqlOutlined } from '@ant-design/icons-vue';
 
 export default {
     name: 'OperationBag',
@@ -218,7 +221,11 @@ export default {
             withdraw: 'Withdraw',
         };
 
+        const assetBalance = shallowRef({});
+
         const store = useStore();
+
+        const { walletAddress } = useAdapter();
 
         const activeRadio = ref('deposit');
         const currentStage = ref('1');
@@ -334,7 +341,7 @@ export default {
             });
         };
 
-        const setSelectedDstInfo = () => {
+        const setSelectedDstInfo = async () => {
             srcAmount.value = 0;
             dstAmount.value = 0;
 
@@ -343,12 +350,22 @@ export default {
             const { chain } = currentOperation.value || {};
             const config = store.getters['configs/getChainConfigByChainOrNet'](chain, Ecosystem.EVM);
 
-            if (currentOpId.value.includes('deposit')) {
-                selectedDstNetwork.value = config;
-                selectedDstToken.value = currentOperation.value;
-            } else {
-                selectedSrcNetwork.value = config;
-                selectedSrcToken.value = currentOperation.value;
+            switch (activeRadio.value) {
+                case 'deposit':
+                    selectedDstNetwork.value = config;
+                    selectedDstToken.value = currentOperation.value;
+                    break;
+                case 'withdraw':
+                    selectedSrcNetwork.value = config;
+                    const dateType = currentOpId.value.includes('tokens') ? 'tokens' : 'pools';
+                    assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value.id);
+                    selectedSrcToken.value = {
+                        ...currentOperation.value,
+                        balance: assetBalance.value?.balance || 0,
+                        price: assetBalance.value?.price || 0,
+                        balanceUsd: assetBalance.value?.balanceUsd || 0,
+                    };
+                    break;
             }
         };
 
@@ -364,7 +381,6 @@ export default {
         watch(isOpen, () => {
             if (!isOpen.value) {
                 store.dispatch('operationBag/clearCurrentOperation');
-                quoteRoutes.value = [];
                 selectedRoute.value = null;
                 srcAmount.value = 0;
                 dstAmount.value = 0;
@@ -379,10 +395,13 @@ export default {
             else if (isOpen.value && withdrawOperationsCount.value > 0) activeRadio.value = 'withdraw';
         });
 
-        watch(currentOpId, () => setSelectedDstInfo());
-        watch(selectedDstToken, () => {
-            if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id)
-                selectedDstToken.value = currentOperation.value;
+        watch(currentOpId, async () => await setSelectedDstInfo(), { immediate: true });
+        watch(selectedDstToken, async () => {
+            if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id) await setSelectedDstInfo();
+        });
+
+        watch(selectedSrcToken, async () => {
+            if (activeRadio.value === 'withdraw' && selectedSrcToken.value?.id !== currentOperation.value?.id) await setSelectedDstInfo();
         });
 
         return {

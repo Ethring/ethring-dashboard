@@ -112,7 +112,6 @@ export default {
         },
         onSelectToken: {
             type: Function,
-            required: true,
         },
         disabled: {
             type: Boolean,
