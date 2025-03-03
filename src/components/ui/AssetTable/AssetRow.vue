@@ -44,15 +44,34 @@
     <template v-if="column === 'tvl'">
         <TVL v-if="item.tvl" :value="item.tvl" />
     </template>
-    <template v-if="column === 'apy'">
+    <template v-if="column === 'apy24h'">
         <Amount
-            v-if="item.apy?.length > 0 && item?.apy[0].apy > 0"
+            v-if="item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === 'base')"
             type="currency"
-            :value="item.apy[0].apy"
+            :value="item.apy.find((apy) => apy.apyType === 'base').apy"
             symbol="%"
             class="asset__item--amount asset__item--apy"
         />
     </template>
+    <template v-if="column === 'apy7d'">
+        <Amount
+            v-if="item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === '7d')"
+            type="currency"
+            :value="item.apy.find((apy) => apy.apyType === '7d').apy"
+            symbol="%"
+            class="asset__item--amount asset__item--apy"
+        />
+    </template>
+    <template v-if="column === 'apy30d'">
+        <Amount
+            v-if="item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === '30d')"
+            type="currency"
+            :value="item.apy.find((apy) => apy.apyType === '30d').apy"
+            symbol="%"
+            class="asset__item--amount asset__item--apy"
+        />
+    </template>
+    <template v-if="column === 'apy'"> </template>
     <template v-if="column === 'rewards'">
         <div v-if="item.rewards" class="asset__item--rewards">
             <a-tooltip v-for="record in item.rewards" :key="record.id" placement="topLeft">

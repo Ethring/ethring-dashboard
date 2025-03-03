@@ -139,8 +139,18 @@ export default {
                 sorter: (prev, next) => prev.tvl - next.tvl,
             },
             {
-                title: 'APY',
-                dataIndex: 'apy',
+                title: '24H APY',
+                dataIndex: 'apy24h',
+                key: 'apy',
+            },
+            {
+                title: '7D APY',
+                dataIndex: 'apy7d',
+                key: 'apy',
+            },
+            {
+                title: '30D APY',
+                dataIndex: 'apy30d',
                 key: 'apy',
             },
             {
