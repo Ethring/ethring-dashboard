@@ -46,7 +46,11 @@
     </template>
     <template v-if="column === 'apy24h'">
         <Amount
-            v-if="item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === 'base')"
+            v-if="
+                item.apy?.length > 0 &&
+                item.apy.find((apy) => apy.apyType === 'base') &&
+                item.apy.find((apy) => apy.apyType === 'base').apy > 0
+            "
             type="currency"
             :value="item.apy.find((apy) => apy.apyType === 'base').apy"
             symbol="%"
@@ -55,7 +59,9 @@
     </template>
     <template v-if="column === 'apy7d'">
         <Amount
-            v-if="item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === '7d')"
+            v-if="
+                item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === '7d') && item.apy.find((apy) => apy.apyType === '7d').apy > 0
+            "
             type="currency"
             :value="item.apy.find((apy) => apy.apyType === '7d').apy"
             symbol="%"
@@ -64,7 +70,11 @@
     </template>
     <template v-if="column === 'apy30d'">
         <Amount
-            v-if="item.apy?.length > 0 && item.apy.find((apy) => apy.apyType === '30d')"
+            v-if="
+                item.apy?.length > 0 &&
+                item.apy.find((apy) => apy.apyType === '30d') &&
+                item.apy.find((apy) => apy.apyType === '30d').apy > 0
+            "
             type="currency"
             :value="item.apy.find((apy) => apy.apyType === '30d').apy"
             symbol="%"
