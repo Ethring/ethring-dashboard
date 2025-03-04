@@ -185,20 +185,18 @@ export default {
         // * This is done to avoid reactivity issues with the IndexedDB
         // *********************************************************************************
 
-        const assetsForAccount = shallowRef({
+        const allBalances = shallowRef({
             list: [],
-            total: 0,
-            totalBalance: 0,
         });
 
         const stakeAssets = computed(() => {
             const assets = store.getters['stakeAssets/getStakeAssets'];
             if (!assets.length) return [];
-            if (!assetsForAccount.value.list.length) return [];
+            if (!allBalances.value.list.length) return [];
 
             // * get assets only with balance
             const balances = assets.reduce((acc, asset) => {
-                const balance = assetsForAccount.value.list.find((item) => item.id === asset.id);
+                const balance = allBalances.value.list.find((item) => item.id === asset.id);
                 if (balance) acc.push({ ...asset, balance: balance.balance, balanceUsd: balance.balanceUsd });
                 return acc;
             }, []);
@@ -215,11 +213,17 @@ export default {
 
             try {
                 if (!isMounted.value) return console.log('Assets not mounted, skipping update');
-                const response = await BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
-                    isAll: true,
-                    assetIndex: assetIndex.value,
-                });
-                assetsForAccount.value = response;
+                const [assets, poolAssets] = await Promise.all([
+                    BalancesDB.getAssetsForAccount(walletAccount.value, minBalance.value, {
+                        isAll: true,
+                        assetIndex: assetIndex.value,
+                    }),
+                    BalancesDB.getPoolsForAccount(walletAccount.value, minBalance.value, {
+                        isAll: true,
+                        assetIndex: assetIndex.value,
+                    }),
+                ]);
+                allBalances.value = { list: [...assets.list, ...poolAssets.list] };
             } catch (error) {
                 console.error('Error getting assets for account', error);
             }
@@ -297,9 +301,6 @@ export default {
             walletAccount,
 
             stakeAssets,
-
-            // * Assets from IndexedDB
-            assetsForAccount,
 
             // * Columns for the table
             columns: COLUMNS,

@@ -12,39 +12,17 @@ export const routes = [
     {
         path: '/dashboard',
         name: 'Dashboard',
-        children: [
-            {
-                path: 'assets',
-                name: 'Dashboard Assets',
-                component: () => import('@/pages/Dashboard/Assets.vue'),
-            },
-            {
-                path: 'defi',
-                name: 'Dashboard De-Fi assets',
-                component: () => import('@/pages/Dashboard/DeFi.vue'),
-            },
-        ],
+        component: () => import('@/pages/Dashboard/Assets.vue'),
     },
     {
         path: '/restake',
         name: 'Restake',
-        children: [
-            {
-                path: 'assets',
-                name: 'Restake Assets',
-                component: () => import('@/pages/Restake/Assets.vue'),
-            },
-            {
-                path: 'defi',
-                name: 'Restake De-Fi assets',
-                component: () => import('@/pages/Restake/DeFi.vue'),
-            },
-        ],
+        component: () => import('@/pages/Restake/Assets.vue'),
     },
     {
         path: '/connect-wallet',
         name: 'Connect wallet',
-        component: () => import('@/pages/Dashboard/index.vue'),
+        component: () => import('@/pages/Dashboard/Assets.vue'),
     },
     {
         path: '/:pathMatch(.*)*',

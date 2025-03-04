@@ -10,38 +10,22 @@
         </a-menu>
 
         <a-menu mode="inline" :default-selected-keys="['1']" class="sidebar-menu">
-            <a-sub-menu key="dashboard-menu">
-                <template #icon>
-                    <DashboardIcon />
-                </template>
-                <template #title>
-                    <span>
-                        <span>Dashboard</span>
-                    </span>
-                </template>
-                <a-menu-item key="dashboard-assets">
-                    <router-link to="/dashboard/assets">Assets</router-link>
+            <router-link to="/dashboard">
+                <a-menu-item key="dashboard">
+                    <template #icon>
+                        <DashboardIcon />
+                    </template>
+                    <span>Dashboard</span>
                 </a-menu-item>
-                <a-menu-item key="dashboard-defi">
-                    <router-link to="/dashboard/defi">DeFi</router-link>
+            </router-link>
+            <router-link to="/restake">
+                <a-menu-item key="restake">
+                    <template #icon>
+                        <RestakeIcon class="stroke-icons" />
+                    </template>
+                    <span>Restake</span>
                 </a-menu-item>
-            </a-sub-menu>
-            <a-sub-menu key="restake-menu">
-                <template #icon>
-                    <RestakeIcon class="stroke-icons" />
-                </template>
-                <template #title>
-                    <span>
-                        <span>Restake</span>
-                    </span>
-                </template>
-                <a-menu-item key="restake-assets">
-                    <router-link to="/restake/assets">Assets</router-link>
-                </a-menu-item>
-                <a-menu-item key="restake-defi">
-                    <router-link to="/restake/defi">DeFi</router-link>
-                </a-menu-item>
-            </a-sub-menu>
+            </router-link>
             <a-menu-item key="2" disabled>
                 <template #icon>
                     <ProtocolsIcon class="stroke-icons" />
