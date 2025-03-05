@@ -124,8 +124,8 @@ const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions =
     record.chainLogo = logo as string;
 
     record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol?.toUpperCase()}`;
-    record.balanceUsd = record.balanceUSD;
-    record.net = record.network;
+    record.balanceUsd = record.balanceUSD || record.balanceUsd;
+    record.net = record.network || record.chain || record.net;
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
