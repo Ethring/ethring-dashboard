@@ -15,6 +15,7 @@
                     :pagination="{
                         position: ['bottomCenter'],
                         pageSize: 20,
+                        showSizeChanger: false,
                     }"
                     :bordered="false"
                     :scroll="{ x: 1000 }"
