@@ -195,16 +195,12 @@ export default {
             if (!assets.length) return [];
             if (!allBalances.value.list.length) return [];
 
-            console.log('allBalances', allBalances.value);
-
             // * get assets only with balance
             const balances = assets.reduce((acc, asset) => {
                 const balance = allBalances.value.list.find((item) => item.id === asset.id);
                 if (balance) acc.push({ ...asset, balance: balance.balance, balanceUsd: balance.balanceUsd });
                 return acc;
             }, []);
-
-            console.log('balances', balances);
 
             return balances;
         });
