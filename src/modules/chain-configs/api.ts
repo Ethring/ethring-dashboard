@@ -134,7 +134,7 @@ export const getBlocknativeConfig = async () => {
 
         if (!data.length) return [];
 
-        return data.filter((chain: any) => EVM_CHAIN_IDS.includes(chain?.id)) || [];
+        return data.filter((chain: any) => EVM_CHAIN_IDS.includes(chain?.id) && chain.rpcUrl) || [];
     } catch (error) {
         logger.error('Error while getting blocknative config from API', error);
         return [];
