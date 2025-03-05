@@ -123,7 +123,7 @@ const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions =
     record.chain = chain as string;
     record.chainLogo = logo as string;
 
-    record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol?.toUpperCase()}`;
+    if (!record.id) record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol?.toUpperCase()}`;
     record.balanceUsd = record.balanceUSD || record.balanceUsd;
     record.net = record.network || record.chain || record.net;
 
