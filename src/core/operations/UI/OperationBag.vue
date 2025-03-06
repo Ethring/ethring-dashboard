@@ -197,7 +197,7 @@ import QuotePreview from '@/core/operations/UI/components/QuotePreview/index.vue
 import OperationBagHeader from '@/core/operations/UI/components/OperationBag/Header.vue';
 import BalancesDB from '@/services/indexed-db/balances';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import { ConsoleSqlOutlined } from '@ant-design/icons-vue';
+import { getTokenPriceFromProvider } from '@/core/balance-provider';
 
 export default {
     name: 'OperationBag',
@@ -353,13 +353,21 @@ export default {
             switch (activeRadio.value) {
                 case 'deposit':
                     selectedDstNetwork.value = config;
-                    selectedDstToken.value = currentOperation.value;
+
+                    const price = !currentOperation.value?.price
+                        ? await getTokenPriceFromProvider(currentOperation.value.chain, currentOperation.value.address)
+                        : currentOperation.value?.price;
+
+                    selectedDstToken.value = {
+                        ...currentOperation.value,
+                        price: price || 0,
+                    };
+
                     break;
                 case 'withdraw':
                     selectedSrcNetwork.value = config;
                     const dateType = currentOperation.value.id.includes('tokens') ? 'tokens' : 'pools';
                     assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value);
-                    console.log('assetBalance', dateType, currentOperation.value.id, assetBalance.value);
                     selectedSrcToken.value = {
                         ...currentOperation.value,
                         balance: assetBalance.value?.balance || 0,

@@ -66,14 +66,14 @@
                     <template v-else-if="!isQuoteLoading && fees.RATE && quote?.toAmount">
                         <div class="quote-preview__receive">
                             <Amount
-                                v-if="isShowCurrency || !asset.price"
+                                v-if="isShowCurrency"
                                 :value="minOutAmount(quote.toAmount)"
                                 :decimals="2"
                                 :symbol="fees.RATE.toSymbol"
                                 type="currency"
                             />
                             <Amount v-else :value="usdAmount(minOutAmount(quote.toAmount))" :decimals="2" symbol="$" type="usd" />
-                            <div v-if="asset.price" class="quote-preview__receive_switcher" @click="isShowCurrency = !isShowCurrency">
+                            <div class="quote-preview__receive_switcher" @click="isShowCurrency = !isShowCurrency">
                                 <ArrowUpDown />
                             </div>
                         </div>
@@ -106,7 +106,7 @@
     </div>
 </template>
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import Amount from '@/components/app/Amount.vue';
@@ -172,6 +172,13 @@ export default {
         const usdAmount = (amount) => BigNumber(amount).multipliedBy(props.asset.price).toString();
 
         const openSettingsModal = () => store.dispatch('app/toggleModal', 'settingsModal');
+
+        watch(
+            () => props.asset,
+            () => {
+                console.log('asset changed', props.asset);
+            },
+        );
 
         return {
             isShowCurrency,

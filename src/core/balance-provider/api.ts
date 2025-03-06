@@ -43,9 +43,30 @@ export const getBalancesByAddress = async (
             tokens,
             integrations,
             nfts,
-        };
+        } as any;
     } catch (e) {
         console.error('Error while fetching balances from provider:', e);
+        return null;
+    }
+};
+
+export const getTokenPrice = async (chain: string, address: string): Promise<number | null> => {
+    if (!process.env.DATA_PROVIDER_API) return null;
+
+    if (!chain || !address) return null;
+
+    try {
+        const { data, status }: AxiosResponse = await axiosInstance.get(`/tokenPrice?net=${chain}&address=${address}`);
+
+        if (status !== HttpStatusCode.Ok) return null;
+
+        const { data: response, ok = false } = data as DataProviderResponse;
+
+        if (!ok) return null;
+
+        return response?.price || 0;
+    } catch (e) {
+        console.error('Error while fetching price from provider:', e);
         return null;
     }
 };

@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import store from '@/app/providers/store.provider';
 
 import { storeBalanceForAccount, checkIfBalanceIsUpdated } from '@/core/balance-provider/utils';
-import { getBalancesByAddress } from '@/core/balance-provider/api';
+import { getBalancesByAddress, getTokenPrice } from '@/core/balance-provider/api';
 
 import RequestQueue from '@/core/balance-provider/queue';
 import { Type, BaseType, POOL_BALANCES_CHAINS, TIME_TO_BLOCK } from '@/core/balance-provider/models/enums';
@@ -194,5 +194,14 @@ export const loadBalancesFromContract = async (chain: string, account: string, o
         await storeBalanceForAccount(Type.tokens, account, chain, account, [...berachainTokens, nativeToken], options);
     } catch (error) {
         console.error('Error getting berachain balances', error);
+    }
+};
+
+export const getTokenPriceFromProvider = async (chain: string, address: string) => {
+    try {
+        return await getTokenPrice(chain, address);
+    } catch (error) {
+        console.error('Error getting token price', error);
+        return { price: 0, priceChange: 0 };
     }
 };

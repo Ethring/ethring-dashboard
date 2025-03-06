@@ -120,7 +120,7 @@ export type ChainAddresses = {
 
 export type DataProviderResponse = {
     ok: boolean;
-    data: BalanceResponse;
+    data: BalanceResponse | any;
     error: any;
 };
 
