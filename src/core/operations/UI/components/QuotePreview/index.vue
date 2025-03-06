@@ -66,14 +66,14 @@
                     <template v-else-if="!isQuoteLoading && fees.RATE && quote?.toAmount">
                         <div class="quote-preview__receive">
                             <Amount
-                                v-if="isShowCurrency"
+                                v-if="isShowCurrency || !asset.price"
                                 :value="minOutAmount(quote.toAmount)"
                                 :decimals="2"
                                 :symbol="fees.RATE.toSymbol"
                                 type="currency"
                             />
                             <Amount v-else :value="usdAmount(minOutAmount(quote.toAmount))" :decimals="2" symbol="$" type="usd" />
-                            <div class="quote-preview__receive_switcher" @click="isShowCurrency = !isShowCurrency">
+                            <div v-if="asset.price" class="quote-preview__receive_switcher" @click="isShowCurrency = !isShowCurrency">
                                 <ArrowUpDown />
                             </div>
                         </div>
