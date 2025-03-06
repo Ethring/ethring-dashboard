@@ -64,7 +64,19 @@
                     </template>
 
                     <template v-else-if="!isQuoteLoading && fees.RATE && quote?.toAmount">
-                        <Amount :value="minOutAmount(quote.toAmount)" :decimals="2" :symbol="fees.RATE.toSymbol" type="currency" />
+                        <div class="quote-preview__receive">
+                            <Amount
+                                v-if="isShowCurrency"
+                                :value="minOutAmount(quote.toAmount)"
+                                :decimals="2"
+                                :symbol="fees.RATE.toSymbol"
+                                type="currency"
+                            />
+                            <Amount v-else :value="usdAmount(minOutAmount(quote.toAmount))" :decimals="2" symbol="$" type="usd" />
+                            <div class="quote-preview__receive_switcher" @click="isShowCurrency = !isShowCurrency">
+                                <ArrowUpDown />
+                            </div>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -94,21 +106,24 @@
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import Amount from '@/components/app/Amount.vue';
 import QuoteServiceIcon from './QuoteServiceIcon.vue';
 
 import SettingsIcon from '@/assets/icons/operations-bag/settings.svg';
+import ArrowUpDown from '@/assets/icons/operations-bag/arrowUpDown.svg';
 
 import { calculateMinAmount } from '@/shared/calculations/calculate-fee';
+import BigNumber from 'bignumber.js';
 
 export default {
     name: 'QuotePreview',
 
     components: {
         SettingsIcon,
+        ArrowUpDown,
         QuoteServiceIcon,
     },
     props: {
@@ -118,6 +133,11 @@ export default {
         },
 
         quote: {
+            type: Object,
+            default: () => ({}),
+        },
+
+        asset: {
             type: Object,
             default: () => ({}),
         },
@@ -138,6 +158,8 @@ export default {
     },
 
     setup(props) {
+        const isShowCurrency = ref(false);
+
         const store = useStore();
 
         const slippage = computed(() => store.getters['tokenOps/slippage']);
@@ -147,9 +169,13 @@ export default {
 
         const minOutAmount = (amount) => calculateMinAmount(amount, slippage.value);
 
+        const usdAmount = (amount) => BigNumber(amount).multipliedBy(props.asset.price).toString();
+
         const openSettingsModal = () => store.dispatch('app/toggleModal', 'settingsModal');
 
         return {
+            isShowCurrency,
+
             slippage,
             isQuoteLoading,
             service,
@@ -157,6 +183,7 @@ export default {
             MAX_LENGTH: 55,
 
             minOutAmount,
+            usdAmount,
 
             openSettingsModal,
         };

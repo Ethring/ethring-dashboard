@@ -107,6 +107,27 @@
     font-weight: 700;
 }
 
+.quote-preview__receive {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quote-preview__receive_switcher {
+    cursor: pointer;
+    padding: 6px;
+    border: 1px solid #efebfa;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+
+    &:hover {
+        background-color: #f7f4ff;
+    }
+}
+
 .quote-preview__footer {
     border: 1px dashed #d0c4f1;
     background-color: #fbf9ff;

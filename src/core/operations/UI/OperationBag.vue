@@ -158,7 +158,7 @@
                     </a-card-meta>
                 </a-card>
             </template>
-            <QuotePreview :fees="fees" :quote="selectedRoute" :error="quoteErrorMessage" />
+            <QuotePreview :fees="fees" :quote="selectedRoute" :error="quoteErrorMessage" :asset="selectedDstToken" />
 
             <UiButton
                 :title="$t(opTitle)"
