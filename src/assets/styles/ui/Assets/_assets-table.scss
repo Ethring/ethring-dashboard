@@ -276,6 +276,10 @@
     }
 }
 
+.asset-table__action--deposit-only {
+    justify-content: center;
+}
+
 .asset-table__action--withdraw {
     background-color: var(--#{$prefix}white);
     color: var(--#{$prefix}black);

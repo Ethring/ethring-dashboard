@@ -33,7 +33,7 @@
                                     }"
                                 >
                                     <div
-                                        class="asset-table__action asset-table__action--deposit"
+                                        class="asset-table__action asset-table__action--deposit asset-table__action--deposit-only"
                                         :class="{
                                             'asset-table__action--added-to-bag': isAlreadyExistInCart(record),
                                             'asset-table__action--disabled': !isAllowToAddOps,
@@ -42,17 +42,6 @@
                                     >
                                         <DepositIcon class="asset-table__action-icon" />
                                         <span> Deposit </span>
-                                    </div>
-                                    <div
-                                        class="asset-table__action asset-table__action--withdraw"
-                                        :class="{
-                                            'asset-table__action--added-to-bag': isAlreadyExistInCart(record, 'withdraw'),
-                                            'asset-table__action--disabled': !isAllowToAddOps,
-                                        }"
-                                        @click="() => isAllowToAddOps && onClickToAction(record, 'withdraw')"
-                                    >
-                                        <WithdrawIcon class="asset-table__action-icon" />
-                                        <span> Withdraw </span>
                                     </div>
 
                                     <div
@@ -88,7 +77,6 @@ import BalancesDB from '@/services/indexed-db/balances';
 import SearchInput from '@/components/ui/SearchInput.vue';
 
 import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
-import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 import { debounce } from 'lodash';
@@ -99,7 +87,6 @@ export default {
         // SearchInput,
 
         DepositIcon,
-        WithdrawIcon,
         AddedIcon,
         RemoveIcon,
     },
