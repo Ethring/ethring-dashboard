@@ -248,9 +248,15 @@ class BalancesDB extends Dexie {
         else id = `${asset.chain}:${dataType}__${asset.address}:${asset.symbol.toUpperCase()}`;
 
         try {
-            const asset = (await this.balances.where({ account: accountLower, dataType, id }).first()) || {};
+            const [assetByGenId, assetById] = await Promise.all([
+                this.balances.where({ account: accountLower, dataType, id }).first(),
+                this.balances.where({ account: accountLower, dataType, id: asset.id }).first(),
+            ]);
 
-            return asset;
+            if (assetByGenId) return assetByGenId;
+            if (assetById) return assetById;
+
+            return {};
         } catch (error) {
             console.error('getAssetsForAccount', error);
 
