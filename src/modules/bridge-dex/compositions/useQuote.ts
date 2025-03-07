@@ -104,6 +104,7 @@ const useBridgeDexQuote = (
     const selectedSrcToken = computed(() => store.getters['tokenOps/srcToken']);
     const selectedDstToken = computed(() => store.getters['tokenOps/dstToken']);
     const srcAmount = computed(() => store.getters['tokenOps/srcAmount']);
+    const slippage = computed(() => store.getters['tokenOps/slippage']);
 
     const shortcutServiceId = computed(() => store.getters['tokenOps/getServiceId'](ModuleType.shortcut));
 
@@ -375,10 +376,18 @@ const useBridgeDexQuote = (
     // 2. Check if the selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken, srcAmount are set
     // 3. If they are set, make a quote request
     const unWatchChanges = watch(
-        [isReloadRoutes, srcAmount, selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken],
+        [isReloadRoutes, slippage, srcAmount, selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken],
         async (
             [],
-            [oldIsReloadRoutes, oldSrcAmount, oldSelectedSrcNetwork, oldSelectedDstNetwork, oldSelectedSrcToken, oldSelectedDstToken],
+            [
+                oldIsReloadRoutes,
+                oldSlippage,
+                oldSrcAmount,
+                oldSelectedSrcNetwork,
+                oldSelectedDstNetwork,
+                oldSelectedSrcToken,
+                oldSelectedDstToken,
+            ],
         ) => {
             // Return if the module is send or the selected destination token is not set or the request is not allowed
             if (!isAllowToMakeRequest()) {
@@ -403,6 +412,8 @@ const useBridgeDexQuote = (
                 ownerAddresses: addressByChain.value,
 
                 amount: srcAmount.value,
+
+                // slippageTolerance: slippage.value,
             } as AllQuoteParams;
 
             const oldParams = {
@@ -420,6 +431,8 @@ const useBridgeDexQuote = (
                 ownerAddresses: addressByChain.value,
 
                 amount: oldSrcAmount,
+
+                // slippageTolerance: oldSlippage,
             } as AllQuoteParams;
 
             // * If the params are not changed, return
@@ -431,6 +444,7 @@ const useBridgeDexQuote = (
                         toToken: selectedDstToken.value?.id,
                         isReloadRoutes: isReloadRoutes.value,
                         ownerAddresses: {},
+                        slippageTolerance: slippage.value,
                     },
                     {
                         ...oldParams,
@@ -438,6 +452,7 @@ const useBridgeDexQuote = (
                         toToken: oldSelectedDstToken?.id,
                         isReloadRoutes: oldIsReloadRoutes,
                         ownerAddresses: {},
+                        slippageTolerance: oldSlippage,
                     },
                 )
             )

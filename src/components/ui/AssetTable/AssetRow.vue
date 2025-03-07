@@ -81,7 +81,6 @@
             class="asset__item--amount asset__item--apy"
         />
     </template>
-    <template v-if="column === 'apy'"> </template>
     <template v-if="column === 'rewards'">
         <div v-if="item.rewards" class="asset__item--rewards">
             <a-tooltip v-for="record in item.rewards" :key="record.id" placement="topLeft">

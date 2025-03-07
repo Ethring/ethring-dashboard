@@ -136,22 +136,41 @@ export default {
                 title: 'TVL',
                 dataIndex: 'tvl',
                 key: 'tvl',
+                defaultSortOrder: 'descend',
                 sorter: (prev, next) => prev.tvl - next.tvl,
             },
             {
                 title: '24H APY',
                 dataIndex: 'apy24h',
-                key: 'apy',
+                key: 'apy24h',
+                sorter: (prev, next) => {
+                    const prevApy = prev.apy.find((p) => p.apyType === 'base')?.apy ?? 0;
+                    const nextApy = next?.apy.find((n) => n.apyType === 'base')?.apy ?? 0;
+
+                    return prevApy - nextApy;
+                },
             },
             {
                 title: '7D APY',
                 dataIndex: 'apy7d',
-                key: 'apy',
+                key: 'apy7d',
+                sorter: (prev, next) => {
+                    const prevApy = prev.apy.find((p) => p.apyType === '7d')?.apy ?? 0;
+                    const nextApy = next?.apy.find((n) => n.apyType === '7d')?.apy ?? 0;
+
+                    return prevApy - nextApy;
+                },
             },
             {
                 title: '30D APY',
                 dataIndex: 'apy30d',
-                key: 'apy',
+                key: 'apy30d',
+                sorter: (prev, next) => {
+                    const prevApy = prev.apy.find((p) => p.apyType === '30d')?.apy ?? 0;
+                    const nextApy = next?.apy.find((n) => n.apyType === '30d')?.apy ?? 0;
+
+                    return prevApy - nextApy;
+                },
             },
             {
                 title: 'Rewards',

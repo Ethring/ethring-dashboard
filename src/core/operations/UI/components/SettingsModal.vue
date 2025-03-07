@@ -39,7 +39,6 @@ export default {
 
         // Format the slippage value and set it
         watch(slippage, (val) => {
-            console.log('val', val);
             if (symbolForReplace.value) val = val?.replace(symbolForReplace.value, '.');
 
             slippage.value = formatInputNumber(val);
