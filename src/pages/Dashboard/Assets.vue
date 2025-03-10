@@ -1,8 +1,8 @@
 <template>
     <div class="dashboard">
         <a-row :gutter="16" class="dashboard__stats-row">
-            <!-- <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" />
-            <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" /> -->
+            <StatisticalCard title="Portfolio Value" :value="totalBalance" :precision="2" prefix="$" />
+            <!-- <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" /> -->
         </a-row>
 
         <a-row>
@@ -91,6 +91,7 @@ import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
+import BigNumber from 'bignumber.js';
 
 export default {
     name: 'DashboardAssets',
@@ -224,6 +225,22 @@ export default {
             return balances;
         });
 
+        const totalBalance = computed(() => {
+            if (!stakeAssets.value.length) return 0;
+            const sum = stakeAssets.value.reduce((acc, item) => {
+                const balance = new BigNumber(item.balanceUsd);
+                return acc.plus(balance);
+            }, new BigNumber(0));
+
+            const formatter = new Intl.NumberFormat('en-US', {
+                notation: 'compact',
+                compactDisplay: 'short',
+                maximumFractionDigits: 1,
+            });
+
+            return formatter.format(sum.toNumber());
+        });
+
         // *********************************************************************************
         // * Request to IndexedDB
         // *********************************************************************************
@@ -320,6 +337,7 @@ export default {
             isLoadingBalances,
             walletAccount,
 
+            totalBalance,
             stakeAssets,
 
             // * Columns for the table

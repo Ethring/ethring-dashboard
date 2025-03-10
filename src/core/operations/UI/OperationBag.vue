@@ -104,7 +104,7 @@
 
         <div v-else class="operation-bag__empty">
             <router-link
-                :to="activeRadio === 'deposit' ? '/restake/assets' : '/dashboard/assets'"
+                :to="activeRadio === 'deposit' ? '/restake' : '/dashboard'"
                 class="operation-bag__empty__link"
                 @click="isOpen = false"
             >
