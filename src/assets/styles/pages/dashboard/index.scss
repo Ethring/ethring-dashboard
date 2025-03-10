@@ -16,11 +16,11 @@
     margin-left: 0 !important;
     margin-right: 0 !important;
 
-    max-width: 545px;
+    max-width: 100%;
 
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 24px;
 }

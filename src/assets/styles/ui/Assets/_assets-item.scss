@@ -41,7 +41,7 @@
 
     div:not(:first-child) {
         &::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -114,10 +114,20 @@
 
 .asset__item--yield {
     border: 1px solid var(--#{$prefix}yield-border-color);
-    width: fit-content;
+    width: 100%;
+    text-align: center;
     padding: 8px 12px;
     border-radius: 12px;
     font-size: var(--#{$prefix}small-sm-fs);
+    max-width: 85px;
+
+    .name {
+        max-width: 85px;
+        text-wrap: nowrap !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap;
+        overflow: hidden;
+    }
 }
 
 .asset__item--rewards {

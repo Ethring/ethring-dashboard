@@ -27,9 +27,19 @@
         </div>
     </template>
     <template v-if="column === 'category'">
-        <div v-if="item?.category?.name" class="asset__item--yield">
-            <div class="name">{{ item?.category?.name }}</div>
-        </div>
+        <template v-if="item?.category?.name.length < 8">
+            <div class="asset__item--yield">
+                <div class="name">{{ item?.category?.name }}</div>
+            </div>
+        </template>
+        <a-tooltip v-else-if="item?.category?.name && item?.category?.name.length >= 8" placement="top">
+            <template #title>
+                {{ item?.category?.name }}
+            </template>
+            <div v-if="item?.category?.name" class="asset__item--yield">
+                <div class="name">{{ item?.category?.name }}</div>
+            </div>
+        </a-tooltip>
     </template>
 
     <template v-if="column === 'chain'">
