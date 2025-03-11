@@ -88,9 +88,6 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
 
         withServiceId && this.serviceId && (requestParams.serviceId = this.serviceId);
 
-        if (requestParams?.fromNet !== requestParams?.toNet) requestParams.serviceId = 'lifibridge';
-        if (requestParams?.fromNet === requestParams?.toNet) requestParams.serviceId = 'lifiswap';
-
         try {
             const routes = (await this.api.getQuote(requestParams, this.abortController)) as IQuoteRoutes;
 
