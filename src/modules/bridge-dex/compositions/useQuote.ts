@@ -214,6 +214,8 @@ const useBridgeDexQuote = (
     // ===========================================================================================
 
     const makeQuoteRoutes = async (requestParams: AllQuoteParams) => {
+        const SERVICES = ['lifibridge', 'lifiswap', 'ensoswap'];
+
         // !If the route is shortcuts, return because the request is not needed, the shortcuts has own logic for making a quote request
         if (route.path.startsWith('/shortcuts')) return;
 
@@ -265,16 +267,18 @@ const useBridgeDexQuote = (
             const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
             // let routeFromAPI = routes.find(({ serviceId }) => serviceId === best) as IQuoteRoute;
-            let routeFromAPI = routes.find(({ serviceId }) => serviceId === requestParams.serviceId) as IQuoteRoute;
+            const routesFiltered = routes.filter(({ serviceId }) => SERVICES.includes(serviceId));
+
+            let routeFromAPI = routesFiltered.find(({ serviceId }) => serviceId === requestParams.serviceId) as IQuoteRoute;
 
             if (!routeFromAPI) return resetQuoteRoutes();
 
             if (+routeFromAPI.toAmount <= 0) throw new Error('Failed to get route, try again');
 
-            if (!routes.length) return resetQuoteRoutes();
+            if (!routesFiltered.length) return resetQuoteRoutes();
 
             // * If there is only one route, set it as selected
-            if (routes.length === 1 && !routeFromAPI) routeFromAPI = routes[0];
+            if (routesFiltered.length === 1 && !routeFromAPI) routeFromAPI = routesFiltered[0];
 
             store.dispatch('bridgeDexAPI/setRouteTimer', { type: serviceType, routeId: routeFromAPI.routeId });
 
@@ -285,12 +289,12 @@ const useBridgeDexQuote = (
 
             store.dispatch('bridgeDexAPI/setQuoteRoutes', {
                 serviceType: targetType,
-                value: routes,
+                value: routesFiltered,
             });
 
             return {
                 best,
-                routes,
+                routes: routesFiltered,
             };
         } catch (error: any) {
             if (error.code === 'ERR_CANCELED') return;
