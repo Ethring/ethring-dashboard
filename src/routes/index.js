@@ -3,11 +3,11 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 export const routes = [
     {
         path: '',
-        redirect: '/dashboard/assets',
+        redirect: '/dashboard',
     },
     {
         path: '/',
-        redirect: '/dashboard/assets',
+        redirect: '/dashboard',
     },
     {
         path: '/dashboard',
