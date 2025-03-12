@@ -100,6 +100,129 @@
     margin: 0 12px 0 0;
 }
 
+// * Nav Bar Menu
+
 .nav-bar-row__right {
     gap: 0;
+}
+
+.nav-bar-menu {
+    width: 100%;
+    display: flex;
+    gap: 24px;
+}
+
+.nav-bar-row__left {
+    width: 100%;
+}
+
+.nav-bar-logo-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .nav-bar-logo {
+        width: 36px;
+        height: 36px;
+    }
+
+    span {
+        color: var(--#{$prefix}sidebar-logo-color);
+        font-weight: 700;
+        font-size: var(--#{$prefix}h4-fs);
+    }
+}
+
+.nav-bar-menu .ant-menu-item.ant-menu-item-selected:not(.link) {
+    background: none !important;
+
+    .sidebar-item__title {
+        color: var(--#{$prefix}white);
+    }
+
+    .sidebar-item__icon svg,
+    .sidebar-item__icon svg * {
+        fill: var(--#{$prefix}sidebar-active-color);
+    }
+}
+
+// * Default Menu Item
+.nav-bar-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    height: 40px;
+    padding: 10px 16px;
+    transition: 0.2s;
+}
+
+.nav-bar-menu .nav-bar-menu__item-title {
+    color: var(--#{$prefix}neutral-gray);
+    font-size: var(--#{$prefix}small-lg-fs);
+}
+
+.nav-bar-menu .nav-bar-menu__item-icon,
+.nav-bar-menu .nav-bar-menu__item-icon.stroke-icons {
+    width: 20px;
+    height: 20px;
+}
+
+.nav-bar-menu .nav-bar-menu__item-icon path,
+.nav-bar-menu .nav-bar-menu__item-icon.stroke-icons path {
+    transition: 0.2s;
+}
+
+.nav-bar-menu .nav-bar-menu__item-icon.stroke-icons path {
+    stroke: var(--#{$prefix}neutral-gray);
+}
+
+.nav-bar-menu .nav-bar-menu__item-icon:not(.stroke-icons) path {
+    fill: var(--#{$prefix}neutral-gray);
+}
+
+// * Active Menu Item
+
+.nav-bar-menu .nav-bar-menu__item--active {
+    background-color: #faf8ff;
+    border-radius: 8px;
+}
+
+.nav-bar-menu .nav-bar-menu__item--active .nav-bar-menu__item-title {
+    color: var(--#{$prefix}sidebar-menu-active);
+}
+
+.nav-bar-menu .nav-bar-menu__item--active .nav-bar-menu__item-icon:not(.stroke-icons) path,
+.nav-bar-menu .nav-bar-menu__item--active > .nav-bar-menu__item-icon:not(.stroke-icons) path {
+    fill: var(--#{$prefix}sidebar-menu-active);
+}
+
+.nav-bar-menu .nav-bar-menu__item--active .nav-bar-menu__item-icon.stroke-icons path,
+.nav-bar-menu .nav-bar-menu__item--active > .nav-bar-menu__item-icon.stroke-icons path {
+    stroke: var(--#{$prefix}sidebar-menu-active);
+}
+
+// * Disabled Menu Item
+
+.nav-bar-menu .nav-bar-menu__item--disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.nav-bar-menu .nav-bar-menu__item--disabled {
+    color: var(--#{$prefix}neutral-gray-100);
+}
+
+.nav-bar-menu .nav-bar-menu__item--disabled .nav-bar-menu__item-icon.stroke-icons path {
+    stroke: var(--#{$prefix}neutral-gray-100);
+}
+
+.nav-bar-menu .nav-bar-menu__item--disabled .nav-bar-menu__item-icon:not(.stroke-icons) path {
+    fill: var(--#{$prefix}neutral-gray-100);
+}
+
+@media (max-width: 1024px) {
+    .nav-bar-menu__item--disabled {
+        display: none;
+    }
 }

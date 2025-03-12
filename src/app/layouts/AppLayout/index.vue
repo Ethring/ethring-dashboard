@@ -1,9 +1,8 @@
 <template>
     <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
 
-    <a-layout has-sider>
+    <a-layout>
         <NavBar />
-        <SideBar />
 
         <a-layout class="layout main-layout">
             <a-layout-content class="content-container content main-layout-content" data-qa="content">
@@ -11,6 +10,10 @@
                     <component :is="Component" />
                 </router-view>
             </a-layout-content>
+
+            <a-layout-footer class="footer">
+                <AppFooter />
+            </a-layout-footer>
         </a-layout>
     </a-layout>
 </template>
@@ -21,14 +24,14 @@ import { useStore } from 'vuex';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 import NavBar from './header/NavBar.vue';
-import SideBar from '@/app/layouts/AppLayout/sidebar/Sidebar.vue';
+import AppFooter from '@/app/layouts/AppLayout/footer/index.vue';
 
 export default {
     name: 'DefaultLayout',
     components: {
         NavBar,
 
-        SideBar,
+        AppFooter,
         LoadingOverlay,
     },
 

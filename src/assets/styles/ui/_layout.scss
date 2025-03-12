@@ -8,7 +8,7 @@ $sidebar-size-collapse: 64px;
 $top-bar-spacing: 63px;
 
 .main-layout {
-    margin-left: 230px;
+    margin-top: 20px;
     transition: margin-left 0.2s ease-in-out;
 
     background: var(--#{$prefix}main-background);
@@ -20,6 +20,17 @@ $top-bar-spacing: 63px;
     }
 }
 
+.footer {
+    background-color: transparent !important;
+    width: $layout-width;
+    max-width: $layout-max-width;
+
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    margin: 0 auto;
+}
+
 .header-layout {
     position: fixed;
     top: 0;
@@ -27,6 +38,8 @@ $top-bar-spacing: 63px;
     right: 0;
 
     z-index: 999;
+
+    line-height: normal !important;
 
     height: auto !important;
 
@@ -37,7 +50,7 @@ $top-bar-spacing: 63px;
 
     .nav-bar-container {
         width: $layout-width;
-        max-width: $layout-nav-bar-width;
+        max-width: $layout-max-width;
         margin: 20px auto;
     }
 }
@@ -374,7 +387,7 @@ $top-bar-spacing: 63px;
     margin: auto;
     width: 16px;
     height: 16px;
-    content: '';
+    content: "";
     display: block;
     border-radius: 50%;
     z-index: 1;
