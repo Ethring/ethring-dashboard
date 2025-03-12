@@ -38,7 +38,7 @@
 }
 
 .amount__input {
-    font-size: var(--#{$prefix}h4-fs);
+    font-size: var(--#{$prefix}h5-fs);
     font-weight: 500;
     color: var(--#{$prefix}primary-text);
     padding: 0;
@@ -63,7 +63,7 @@
     flex-direction: column;
 
     flex: 1 50%;
-    height: 75px;
+    height: 65px;
 
     border-left: 1px solid var(--#{$prefix}default-border-color);
 }
@@ -149,9 +149,9 @@
 
     margin: auto 0;
 
-    padding: 10px;
+    padding: 6px 8px;
 
-    font-size: var(--#{$prefix}small-lg-fs);
+    font-size: var(--#{$prefix}small-sm-fs);
     font-weight: 500;
     color: var(--#{$prefix}primary-text);
 }
@@ -163,5 +163,5 @@
 
 .token__balance__value.amount-block .value {
     font-weight: 500;
-    font-size: var(--#{$prefix}small-lg-fs);
+    font-size: var(--#{$prefix}small-sm-fs);
 }

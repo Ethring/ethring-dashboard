@@ -16,7 +16,7 @@
 
     & > div:first-child {
         font-weight: 500;
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}default-fs);
     }
 }
 
@@ -36,7 +36,12 @@
     }
 
     & > div {
-        padding: 8px;
+        font-size: var(--#{$prefix}small-xs-fs);
+        padding: 6px 8px;
+    }
+
+    & > div:last-child {
+        font-weight: 700;
     }
 }
 
@@ -48,7 +53,7 @@
     border: 1px solid var(--#{$prefix}default-border-color);
 
     border-radius: 6px;
-    padding: 6px;
+    padding: 5px;
 
     transition: 0.2s;
 
@@ -56,13 +61,17 @@
         border-color: var(--#{$prefix}active-border-color);
         background-color: var(--#{$prefix}card-active-bg-color);
     }
+    svg {
+        width: 13px;
+        height: 13px;
+    }
 }
 
 .quote-preview__summary {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 6px;
+    margin-top: 6px;
     color: var(--#{$prefix}primary-text);
 }
 
@@ -70,12 +79,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 24px;
+    height: 18px;
 }
 
 .quote-preview__summary__item > div:first-child {
     font-weight: 500;
-    font-size: var(--#{$prefix}default-fs);
+    font-size: var(--#{$prefix}small-sm-fs);
 }
 
 .quote-preview .skeleton span {
@@ -92,7 +101,7 @@
 
 .quote-preview__summary__item.quote-preview__summary__item--receive div:not(:first-child) {
     color: var(--#{$prefix}quote-receive-color);
-    font-size: var(--#{$prefix}h1-fs);
+    font-size: var(--#{$prefix}h5-fs);
     font-weight: 700;
 }
 
