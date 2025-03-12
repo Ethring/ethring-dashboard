@@ -8,7 +8,6 @@ $sidebar-size-collapse: 64px;
 $top-bar-spacing: 63px;
 
 .main-layout {
-    margin-top: 20px;
     transition: margin-left 0.2s ease-in-out;
 
     background: var(--#{$prefix}main-background);
