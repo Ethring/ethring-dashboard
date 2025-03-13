@@ -162,10 +162,29 @@ export const getStakeTokens = async () => {
     }
 };
 
-export const getDefiAssets = async () => {
+export const getChains = async () => {
     try {
-        // TODO: Add pagination
-        const { data }: AxiosResponse = await axiosInstance.get('defi-assets?isAll=true');
+        const { data }: AxiosResponse = await axiosInstance.get('stake-assets/chains');
+        return data || {};
+    } catch (error) {
+        logger.error('Error while getting stake tokens from API', error);
+        return [];
+    }
+};
+
+export const getCategories = async () => {
+    try {
+        const { data }: AxiosResponse = await axiosInstance.get('stake-assets/categories');
+        return data || {};
+    } catch (error) {
+        logger.error('Error while getting stake tokens from API', error);
+        return [];
+    }
+};
+
+export const getProtocols = async () => {
+    try {
+        const { data }: AxiosResponse = await axiosInstance.get('stake-assets/protocols');
         return data || {};
     } catch (error) {
         logger.error('Error while getting stake tokens from API', error);

@@ -1,9 +1,16 @@
 <template>
     <div class="dashboard">
-        <a-row :gutter="16" class="dashboard__stats-row">
-            <!-- <StatisticalCard title="Portfolio Value" :value="0" :precision="2" prefix="$" /> -->
-            <!-- <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" /> -->
-            <!-- <SearchInput placeholder="Search shortcut" class="mt-16 search-asset" @on-change="handleOnChangeSearch" /> -->
+        <a-row :gutter="16" class="dashboard__filters-row">
+            <div class="dashboard__filters" @click="(e) => openFiltersModal(e)">
+                <FiltersIcon />
+                Filters
+
+                <div v-if="totalCountOfFilters > 0" class="dashboard__filters-count">
+                    <a-badge :count="totalCountOfFilters" class="filters-badge-count" color="#969696" />
+                    <CloseOutlined class="dashboard__filters-close" @click="resetFilters" />
+                </div>
+            </div>
+            <!-- <div class="dashboard__filters">Select Chain</div> -->
         </a-row>
 
         <a-row>
@@ -74,21 +81,23 @@ import { useStore } from 'vuex';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import BalancesDB from '@/services/indexed-db/balances';
 
-import SearchInput from '@/components/ui/SearchInput.vue';
-
 import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 import { debounce } from 'lodash';
+import FiltersIcon from '@/assets/icons/dashboard/filters.svg';
+import { CloseOutlined } from '@ant-design/icons-vue';
 
 export default {
     name: 'RestakeAssets',
     components: {
-        // SearchInput,
+        FiltersIcon,
 
         DepositIcon,
         AddedIcon,
         RemoveIcon,
+
+        CloseOutlined,
     },
     setup() {
         const activeRadio = ref('assets');
@@ -97,6 +106,16 @@ export default {
         const store = useStore();
         const isMounted = ref(false);
         const { walletAccount } = useAdapter();
+
+        const openFiltersModal = (e) => {
+            const { target } = e;
+            const isFilterButton = target.closest('.dashboard__filters');
+            if (!isFilterButton) return;
+            return store.dispatch('app/toggleModal', 'filtersModal');
+        };
+
+        const totalCountOfFilters = computed(() => store.getters['stakeAssets/getTotalCountOfFilters']);
+        const resetFilters = () => store.dispatch('stakeAssets/resetFilters');
 
         const COLUMNS = computed(() => {
             return [
@@ -305,8 +324,12 @@ export default {
             activeRadio,
 
             rowKey,
+            openFiltersModal,
             isAlreadyExistInCart,
             onClickToAction,
+
+            totalCountOfFilters,
+            resetFilters,
         };
     },
 };

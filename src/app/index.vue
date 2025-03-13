@@ -7,6 +7,7 @@
         <SelectModal />
         <OperationBag />
         <SettingsModal />
+        <FiltersModal />
     </a-config-provider>
 </template>
 <script>
@@ -25,6 +26,7 @@ import OperationBag from '@/core/operations/UI/OperationBag';
 
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 import SettingsModal from '@/core/operations/UI/components/SettingsModal.vue';
+import FiltersModal from '@/core/operations/UI/components/FiltersModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 import { callTrackEvent, identify } from '@/app/modules/mixpanel/track';
 
@@ -41,6 +43,7 @@ export default {
         AppLayout,
         SettingsModal,
         SelectModal,
+        FiltersModal,
         BridgeDexRoutesModal,
         WalletsModal,
         OperationBag,
