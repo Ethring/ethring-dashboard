@@ -4,8 +4,6 @@ import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 export const formatRecord = (ecosystem: Ecosystems, chain: string, token: any) => {
     if (![Ecosystem.COSMOS as string].includes(ecosystem?.toUpperCase())) token.address = toLower(token.address);
 
-    console.log('symbolUpperCase', chain, ecosystem, token.name, token?.symbol);
-
     const symbolUpperCase = token.symbol?.toUpperCase();
     token.id = !token?.id ? `${chain}:tokens__${token.address}:${symbolUpperCase}` : token.id;
     token.chain = chain;

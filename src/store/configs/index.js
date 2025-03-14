@@ -102,7 +102,7 @@ export default {
         async initConfigs({ dispatch }) {
             try {
                 await Promise.all([
-                    dispatch('initChainsByEcosystems', Ecosystem.COSMOS),
+                    // dispatch('initChainsByEcosystems', Ecosystem.COSMOS),
                     dispatch('initChainsByEcosystems', Ecosystem.EVM),
                 ]);
             } catch (error) {

@@ -96,7 +96,7 @@ export default {
             default: 'Amount',
         },
         value: {
-            type: [String, Number],
+            type: [String, Number, null],
             required: true,
             default: 0,
         },
