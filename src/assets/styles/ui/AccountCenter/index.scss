@@ -1,0 +1,83 @@
+.wallet-adapter-container {
+    position: relative;
+    max-width: 220px;
+
+    width: 100%;
+
+    @media (max-width: 1024px) {
+        width: fit-content;
+    }
+}
+
+.adapter__dropdown {
+    padding-top: 16px;
+    padding-bottom: 16px;
+
+    background: var(--#{$prefix}secondary-background);
+
+    max-width: 220px;
+    min-width: 220px;
+    width: 100%;
+
+    border-radius: 12px;
+
+    box-shadow: 0px 4px 40px 0px $black-op-02;
+
+    @media (max-width: 1024px) {
+        width: fit-content;
+    }
+}
+
+.connected-wallets {
+    padding: 16px;
+}
+
+.connected-wallets .divider {
+    margin: 8px 0;
+}
+
+.connected-wallets__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #808080;
+}
+
+.connected-wallets__header svg {
+    width: 20px;
+    height: 20px;
+}
+
+.connected-wallets__header svg path {
+    fill: #fff;
+    stroke: #808080;
+}
+
+.connected-wallets__item {
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-radius: 8px;
+
+    transition: 0.2s;
+}
+
+.connected-wallets__item:hover {
+    background-color: #f1f1f1;
+    border-radius: 8px;
+}
+
+.connected-wallets__item-icon {
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

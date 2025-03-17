@@ -360,6 +360,18 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+    gap: 10px;
+}
+
+.operation-bag__empty svg {
+    margin-left: 15px;
+}
+
+.operation-bag__empty__title {
+    color: #999999;
+    font-size: 12px;
+    font-weight: 400;
+    margin: 10px 0;
 }
 
 .operation-bag__empty__link {

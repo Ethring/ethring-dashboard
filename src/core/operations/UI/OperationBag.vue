@@ -103,12 +103,15 @@
         </div>
 
         <div v-else class="operation-bag__empty">
+            <EmptyBagIcon />
+
+            <span class="operation-bag__empty__title"> Bag is empty </span>
             <router-link
                 :to="activeRadio === 'deposit' ? '/restake' : '/dashboard'"
                 class="operation-bag__empty__link"
                 @click="isOpen = false"
             >
-                Start {{ activeRadio === 'deposit' ? 'deposit' : 'withdraw' }} operation
+                Start {{ activeRadio === 'deposit' ? 'earn' : 'withdraw' }}
             </router-link>
         </div>
 
@@ -191,6 +194,7 @@ import RemoveIcon from '@/assets/icons/operations-bag/remove.svg';
 import DepositIcon from '@/assets/icons/dashboard/deposit.svg';
 import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import ArrowIcon from '@/assets/icons/operations-bag/arrow.svg';
+import EmptyBagIcon from '@/assets/icons/operations-bag/empty-bag.svg';
 
 import AmountAndTokenSelector from '@/core/operations/UI/components/AmountAndTokenSelector/index.vue';
 import QuotePreview from '@/core/operations/UI/components/QuotePreview/index.vue';
@@ -214,6 +218,7 @@ export default {
         DepositIcon,
         RemoveIcon,
         WithdrawIcon,
+        EmptyBagIcon,
     },
     setup() {
         const TITLES = {

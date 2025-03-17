@@ -40,33 +40,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-.wallet-adapter-container {
-    position: relative;
-    max-width: 300px;
-
-    width: 100%;
-
-    @media (max-width: 1024px) {
-        width: fit-content;
-    }
-}
-
-.adapter__dropdown {
-    padding-top: 16px;
-    padding-bottom: 16px;
-
-    background: var(--#{$prefix}secondary-background);
-
-    border-radius: 16px;
-    max-width: 360px;
-    min-width: 360px;
-    width: 100%;
-
-    box-shadow: 0px 4px 40px 0px $black-op-02;
-
-    @media (max-width: 1024px) {
-        width: fit-content;
-    }
-}
-</style>

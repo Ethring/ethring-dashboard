@@ -1,6 +1,42 @@
 <template>
     <div class="dashboard">
         <a-row :gutter="16" class="dashboard__filters-row">
+            <a-dropdown placement="bottom" arrow class="chains-menu dashboard__filters">
+                <div class="ant-dropdown-link">
+                    Select Chain
+                    <DownOutlined />
+                </div>
+                <template #overlay>
+                    <a-menu class="chains-menu__dropdown">
+                        <a-checkbox v-model:checked="isAllChains" class="check-all-chains" @change="onCheckAllChains">
+                            All Chains
+                        </a-checkbox>
+                        <a-divider class="divider" />
+                        <a-checkbox-group
+                            v-model:value="filters.chains"
+                            name="checkboxgroup"
+                            :options="chainsOptions"
+                            class="chains-checkbox"
+                        >
+                            <template #label="{ label, logo }">
+                                <div class="filters-checkbox-with-icon">
+                                    <TokenIcon
+                                        :token="{
+                                            logo,
+                                            symbol: label,
+                                        }"
+                                        width="24"
+                                        height="24"
+                                    />
+
+                                    <span>{{ label }}</span>
+                                </div>
+                            </template>
+                        </a-checkbox-group>
+                    </a-menu>
+                </template>
+            </a-dropdown>
+
             <div class="dashboard__filters" @click="(e) => openFiltersModal(e)">
                 <FiltersIcon />
                 Filters
@@ -10,7 +46,6 @@
                     <CloseOutlined class="dashboard__filters-close" @click="resetFilters" />
                 </div>
             </div>
-            <!-- <div class="dashboard__filters">Select Chain</div> -->
         </a-row>
 
         <a-row>
@@ -86,7 +121,8 @@ import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 import { debounce } from 'lodash';
 import FiltersIcon from '@/assets/icons/dashboard/filters.svg';
-import { CloseOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined, DownOutlined } from '@ant-design/icons-vue';
+import { useAssetFilters } from '@/compositions/useAssetFilters';
 
 export default {
     name: 'RestakeAssets',
@@ -98,6 +134,7 @@ export default {
         RemoveIcon,
 
         CloseOutlined,
+        DownOutlined,
     },
     setup() {
         const activeRadio = ref('assets');
@@ -107,15 +144,8 @@ export default {
         const isMounted = ref(false);
         const { walletAccount } = useAdapter();
 
-        const openFiltersModal = (e) => {
-            const { target } = e;
-            const isFilterButton = target.closest('.dashboard__filters');
-            if (!isFilterButton) return;
-            return store.dispatch('app/toggleModal', 'filtersModal');
-        };
-
-        const totalCountOfFilters = computed(() => store.getters['stakeAssets/getTotalCountOfFilters']);
-        const resetFilters = () => store.dispatch('stakeAssets/resetFilters');
+        const { openFiltersModal, resetFilters, onCheckAllChains, isAllChains, totalCountOfFilters, chainsOptions, filters } =
+            useAssetFilters();
 
         const COLUMNS = computed(() => {
             return [
@@ -123,12 +153,14 @@ export default {
                     title: 'Asset',
                     dataIndex: 'asset',
                     key: 'asset',
+                    width: 300,
                     sorter: (prev, next) => prev.name.localeCompare(next.name),
                 },
                 {
                     title: 'Yield Type',
                     dataIndex: 'category',
                     key: 'category',
+                    width: 180,
                     sorter: (prev, next) => prev.category?.name.localeCompare(next.category?.name),
                 },
                 {
@@ -175,6 +207,7 @@ export default {
                     title: 'Rewards',
                     dataIndex: 'rewards',
                     key: 'rewards',
+                    sorter: (prev, next) => prev.rewards.length - next.rewards.length,
                 },
                 {
                     dataIndex: 'actions',
@@ -328,8 +361,14 @@ export default {
             isAlreadyExistInCart,
             onClickToAction,
 
+            // * Filters
+
+            filters,
             totalCountOfFilters,
             resetFilters,
+            onCheckAllChains,
+            isAllChains,
+            chainsOptions,
         };
     },
 };

@@ -41,7 +41,7 @@
 
     div:not(:first-child) {
         &::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -114,15 +114,15 @@
 
 .asset__item--yield {
     border: 1px solid var(--#{$prefix}yield-border-color);
-    width: 100%;
+    width: fit-content;
     text-align: center;
     padding: 8px 12px;
     border-radius: 12px;
     font-size: var(--#{$prefix}small-sm-fs);
-    max-width: 85px;
+    // max-width: 120px;
 
     .name {
-        max-width: 85px;
+        // max-width: 120px;
         text-wrap: nowrap !important;
         text-overflow: ellipsis !important;
         white-space: nowrap;

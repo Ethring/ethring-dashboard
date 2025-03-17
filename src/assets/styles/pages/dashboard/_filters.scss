@@ -18,6 +18,8 @@
     padding: 14px;
     border-radius: 10px;
 
+    height: 50px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,6 +60,34 @@
 }
 
 // *************************************
+// * Chains menu
+// *************************************
+
+.chains-menu__dropdown {
+    padding: 16px;
+}
+
+.chains-menu__dropdown > label {
+    padding: 10px 8px 0;
+}
+
+.chains-menu__dropdown .chains-checkbox > label:first-child {
+    padding: 0 8px;
+}
+
+.chains-menu__dropdown .chains-checkbox > label:not(:first-child) {
+    padding: 10px 8px 0;
+}
+
+.chains-menu__dropdown .chains-checkbox > label:last-child {
+    padding: 10px 8px;
+}
+
+.chains-menu__dropdown .divider {
+    margin: 8px 0;
+}
+
+// *************************************
 // * Check Box
 // *************************************
 
@@ -68,23 +98,43 @@
     font-size: 14px;
 }
 
+.chains-checkbox {
+    flex-direction: column;
+}
+
 .filters-modal .ant-checkbox-group {
     flex-direction: column;
 }
 
+.check-all-chains
+    .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover
+    .ant-checkbox-checked:not(.ant-checkbox-disabled)
+    .ant-checkbox-inner,
 .filters-modal
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover
     .ant-checkbox-checked:not(.ant-checkbox-disabled)
     .ant-checkbox-inner,
+.check-all-chains .ant-checkbox-checked .ant-checkbox-inner,
 .filters-modal .ant-checkbox-checked .ant-checkbox-inner {
     background-color: var(--#{$prefix}primary-text);
     border-color: var(--#{$prefix}primary-text);
 }
 
+.chains-checkbox
+    .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover
+    .ant-checkbox-checked:not(.ant-checkbox-disabled)
+    .ant-checkbox-inner,
+.chains-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: var(--#{$prefix}primary-text);
+    border-color: var(--#{$prefix}primary-text);
+}
+
+.chains-checkbox,
 .filters-modal .ant-checkbox-checked:after {
     border-color: var(--#{$prefix}primary-text);
 }
 
+.chains-checkbox,
 .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled):hover .ant-checkbox-inner,
 .ant-checkbox:not(.ant-checkbox-disabled):hover .ant-checkbox-inner {
     border-color: var(--#{$prefix}primary-text);

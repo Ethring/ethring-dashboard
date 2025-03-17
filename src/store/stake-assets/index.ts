@@ -9,6 +9,8 @@ const TYPES = {
 
     // FILTERS
 
+    SET_IS_ALL_CHAINS: 'SET_IS_ALL_CHAINS',
+
     SET_CATEGORIES: 'SET_CATEGORIES',
     SET_CHAINS: 'SET_CHAINS',
     SET_PROTOCOLS: 'SET_PROTOCOLS',
@@ -26,18 +28,13 @@ interface IState {
     protocols: any[];
 
     filters: {
+        isAllChains: boolean;
         onlyWithRewards: boolean;
         categories: string[];
         chains: string[];
         protocols: string[];
-        tvl: {
-            min: number;
-            max: number;
-        };
-        apy: {
-            min: number;
-            max: number;
-        };
+        tvl: number[];
+        apy: number[];
     };
 }
 
@@ -62,36 +59,40 @@ export default {
         protocols: [],
 
         filters: {
+            isAllChains: false,
             onlyWithRewards: false,
 
             categories: [],
             chains: [],
             protocols: [],
 
-            tvl: {
-                min: 0,
-                max: 0,
-            },
-
-            apy: {
-                min: 0,
-                max: 0,
-            },
+            tvl: [0, 0],
+            apy: [0, 0],
         },
     }),
 
     getters: {
         getTotalCountOfFilters: (state: IState) => {
             let count = 0;
+
+            const [minTvl, maxTvl] = state.filters.tvl || [];
+            const [minApy, maxApy] = state.filters.apy || [];
+
             if (state.filters.onlyWithRewards) count += 1;
-            if (state.filters.tvl.min || state.filters.tvl.max) count += 1;
-            if (state.filters.apy.min || state.filters.apy.max) count += 1;
+
+            if (minTvl && maxTvl) count += 1;
+            if (minApy && maxApy) count += 1;
 
             count += state.filters.chains.length;
             count += state.filters.protocols.length;
             count += state.filters.categories.length;
 
             return count;
+        },
+
+        getMaxTvl: (state: IState) => {
+            console.log('MAX TVL', Math.max(...state.stakeAssets.map((asset) => asset.tvl)));
+            return Math.max(...state.stakeAssets.map((asset) => asset.tvl));
         },
         getStakeAssets: (state: IState) => {
             if (state.filters) {
@@ -140,6 +141,11 @@ export default {
         [TYPES.SET_FILTERS](state: IState, filters: any) {
             state.filters = filters;
         },
+
+        [TYPES.SET_IS_ALL_CHAINS](state: IState, value: boolean) {
+            state.filters.isAllChains = value;
+            state.filters.chains = value ? state.chains.map((chain: any) => chain.net) : [];
+        },
     },
 
     actions: {
@@ -181,25 +187,23 @@ export default {
         },
 
         setFilters({ commit }: { commit: Commit }, filters: any) {
-            console.log('filters', filters);
             commit(TYPES.SET_FILTERS, filters);
         },
 
         resetFilters({ commit }: { commit: Commit }) {
             commit(TYPES.SET_FILTERS, {
                 onlyWithRewards: false,
+                isAllChains: false,
                 categories: [],
                 chains: [],
                 protocols: [],
-                tvl: {
-                    min: 0,
-                    max: 0,
-                },
-                apy: {
-                    min: 0,
-                    max: 0,
-                },
+                tvl: [0, 0],
+                apy: [0, 0],
             });
+        },
+
+        setIsAllChains({ commit }: { commit: Commit }, value: boolean) {
+            commit(TYPES.SET_IS_ALL_CHAINS, value);
         },
     },
 };

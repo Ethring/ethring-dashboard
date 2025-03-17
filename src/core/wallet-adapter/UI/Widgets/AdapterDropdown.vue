@@ -1,64 +1,47 @@
 <template>
     <div key="accounts" class="connected-wallets">
-        <div class="connected-wallets-label">
-            <p>
-                {{ $t('adapter.accountsGroup') }}
+        <div class="connected-wallets__header">
+            <WalletIcon />
+            <p class="connected-wallets-label">
+                {{ cutAddress(walletAccount) }}
             </p>
-            <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
-        <div v-for="account in connectedWallets" :key="account" class="connected-wallets-item">
-            <ConnectedWallet :wallet="account" />
+
+        <a-divider class="divider" />
+        <div class="connected-wallets__item" @click="disconnectAll">
+            <div class="connected-wallets__item-icon">
+                <LogOutIcon />
+            </div>
+            <span>Logout</span>
         </div>
     </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { cutAddress } from '@/shared/utils/address';
+import WalletIcon from '@/assets/icons/wallets/wallet.svg';
 
-import ConnectedWallet from '@/core/wallet-adapter/UI/Widgets/ConnectedWallet';
-
-import DisconnectAll from '@/core/wallet-adapter/UI/Entities/DisconnectAll';
+import LogOutIcon from '@/assets/icons/wallets/log-out.svg';
 
 export default {
     name: 'AdapterDropdown',
     components: {
-        DisconnectAll,
-        ConnectedWallet,
+        WalletIcon,
+        LogOutIcon,
     },
     setup() {
-        const accountsModal = ref(false);
-
-        const addressesWithChains = ref([]);
-        const chainList = ref([]);
-
-        const { disconnectAllWallets, connectedWallets = [] } = useAdapter();
+        const { walletAccount, disconnectAllWallets, connectedWallets = [] } = useAdapter();
 
         return {
-            accountsModal,
-            connectedWallets,
+            walletAccount,
 
-            addressesWithChains,
-            chainList,
+            cutAddress,
+
+            connectedWallets,
 
             disconnectAll: disconnectAllWallets,
         };
     },
 };
 </script>
-<style lang="scss">
-.connected-wallets {
-    margin: 0 16px 16px;
-
-    &-label {
-        @include pageFlexRow;
-        justify-content: space-between;
-        p {
-            color: var(--#{$prefix}adapter-label-text);
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
-        }
-    }
-}
-</style>

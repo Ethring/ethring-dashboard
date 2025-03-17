@@ -1,43 +1,45 @@
-@import './button';
-@import './layout';
-@import './nav-bar';
-@import './sidebar';
-@import './footer';
+@import "./button";
+@import "./layout";
+@import "./nav-bar";
+@import "./sidebar";
+@import "./footer";
 
-@import './Assets/assets-table';
-@import './Assets/assets-item';
-@import './Assets/assets-group';
-@import './Assets/assets-nft';
+@import "./AccountCenter";
 
-@import './Modal/base';
-@import './Modal/select-modal';
-@import './Modal/supported-networks';
+@import "./Assets/assets-table";
+@import "./Assets/assets-item";
+@import "./Assets/assets-group";
+@import "./Assets/assets-nft";
 
-@import './Select/select-panel';
-@import './Select/select-network';
-@import './Select/select-token-option';
+@import "./Modal/base";
+@import "./Modal/select-modal";
+@import "./Modal/supported-networks";
 
-@import './Input/base';
-@import './Input/hide-balances';
+@import "./Select/select-panel";
+@import "./Select/select-network";
+@import "./Select/select-token-option";
 
-@import './notification';
+@import "./Input/base";
+@import "./Input/hide-balances";
 
-@import './Shortcuts/shortcut-item';
-@import './Shortcuts/shortcut-group';
-@import './Shortcuts/shortcut-details';
-@import './Shortcuts/shortcut-step-item';
-@import './Shortcuts/shortcut-profile';
-@import './Shortcuts/shortcut-modal';
-@import './Shortcuts/shortcut-table';
-@import './Shortcuts/shortcut-icon';
+@import "./notification";
 
-@import './slippage';
+@import "./Shortcuts/shortcut-item";
+@import "./Shortcuts/shortcut-group";
+@import "./Shortcuts/shortcut-details";
+@import "./Shortcuts/shortcut-step-item";
+@import "./Shortcuts/shortcut-profile";
+@import "./Shortcuts/shortcut-modal";
+@import "./Shortcuts/shortcut-table";
+@import "./Shortcuts/shortcut-icon";
 
-@import './SocialShare/share';
+@import "./slippage";
 
-@import './_portfolio.scss';
+@import "./SocialShare/share";
 
-@import './OperationBag';
-@import './StatisticalCard';
-@import './AmountAndTokenSelector';
-@import './QuotePreview';
+@import "./_portfolio.scss";
+
+@import "./OperationBag";
+@import "./StatisticalCard";
+@import "./AmountAndTokenSelector";
+@import "./QuotePreview";

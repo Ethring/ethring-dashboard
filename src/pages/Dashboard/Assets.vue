@@ -1,6 +1,42 @@
 <template>
     <div class="dashboard">
         <a-row :gutter="16" class="dashboard__stats-row">
+            <a-dropdown placement="bottom" arrow class="chains-menu dashboard__filters">
+                <div class="ant-dropdown-link">
+                    Select Chain
+                    <DownOutlined />
+                </div>
+                <template #overlay>
+                    <a-menu class="chains-menu__dropdown">
+                        <a-checkbox v-model:checked="isAllChains" class="check-all-chains" @change="onCheckAllChains">
+                            All Chains
+                        </a-checkbox>
+                        <a-divider class="divider" />
+                        <a-checkbox-group
+                            v-model:value="filters.chains"
+                            name="checkboxgroup"
+                            :options="chainsOptions"
+                            class="chains-checkbox"
+                        >
+                            <template #label="{ label, logo }">
+                                <div class="filters-checkbox-with-icon">
+                                    <TokenIcon
+                                        :token="{
+                                            logo,
+                                            symbol: label,
+                                        }"
+                                        width="24"
+                                        height="24"
+                                    />
+
+                                    <span>{{ label }}</span>
+                                </div>
+                            </template>
+                        </a-checkbox-group>
+                    </a-menu>
+                </template>
+            </a-dropdown>
+
             <div class="dashboard__filters" @click="(e) => openFiltersModal(e)">
                 <FiltersIcon />
                 Filters
@@ -11,7 +47,7 @@
                 </div>
             </div>
 
-            <StatisticalCard title="Portfolio Value" :value="totalBalance" :precision="2" prefix="$" />
+            <StatisticalCard class="dashboard__stats" title="Portfolio Value" :value="totalBalance" :precision="2" prefix="$" />
             <!-- <StatisticalCard title="Average APR" :value="0" :precision="2" suffix="%" class="demo-class" /> -->
         </a-row>
 
@@ -85,6 +121,20 @@
                             </template>
                         </AssetRow>
                     </template>
+
+                    <template #emptyText>
+                        <div class="asset-table__empty">
+                            <AssetsNotFoundIcon />
+                            <p>No assets found</p>
+
+                            <router-link to="/restake">
+                                <a-button type="primary" class="go-to-page">
+                                    <RestakeIcon />
+                                    Go to restake
+                                </a-button>
+                            </router-link>
+                        </div>
+                    </template>
                 </a-table>
             </a-col>
         </a-row>
@@ -103,8 +153,11 @@ import WithdrawIcon from '@/assets/icons/dashboard/withdraw.svg';
 import AddedIcon from '@/assets/icons/dashboard/added.svg';
 import RemoveIcon from '@/assets/icons/dashboard/remove.svg';
 import FiltersIcon from '@/assets/icons/dashboard/filters.svg';
+import AssetsNotFoundIcon from '@/assets/icons/dashboard/assets-not-found.svg';
+import RestakeIcon from '@/assets/icons/dashboard/restake.svg';
 
-import { CloseOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined, DownOutlined } from '@ant-design/icons-vue';
+import { useAssetFilters } from '@/compositions/useAssetFilters';
 
 export default {
     name: 'DashboardAssets',
@@ -114,22 +167,18 @@ export default {
         AddedIcon,
         RemoveIcon,
         FiltersIcon,
-
         CloseOutlined,
+        AssetsNotFoundIcon,
+        RestakeIcon,
+        DownOutlined,
     },
     setup() {
         const activeRadio = ref('assets');
 
         const store = useStore();
 
-        const openFiltersModal = (e) => {
-            const { target } = e;
-            const isFilterButton = target.closest('.dashboard__filters');
-            if (!isFilterButton) return;
-            return store.dispatch('app/toggleModal', 'filtersModal');
-        };
-        const totalCountOfFilters = computed(() => store.getters['stakeAssets/getTotalCountOfFilters']);
-        const resetFilters = () => store.dispatch('stakeAssets/resetFilters');
+        const { openFiltersModal, resetFilters, onCheckAllChains, isAllChains, totalCountOfFilters, chainsOptions, filters } =
+            useAssetFilters();
 
         const isMounted = ref(false);
         const { walletAccount } = useAdapter();
@@ -203,6 +252,7 @@ export default {
                 title: 'Rewards',
                 dataIndex: 'rewards',
                 key: 'rewards',
+                sorter: (prev, next) => prev.rewards.length - next.rewards.length,
             },
             {
                 dataIndex: 'actions',
@@ -220,10 +270,9 @@ export default {
             walletAccount.value ? store.getters['tokens/loadingByAccount'](walletAccount.value) : false,
         );
 
-        const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
         const minBalance = computed(() => store.getters['tokens/minBalance']);
         const assetIndex = computed(() => store.getters['tokens/assetIndex']);
-        const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](targetAccount.value));
+        const isNeedToLoadFromIndexedDB = computed(() => store.getters['tokens/isNeedToLoadFromIndexedDB'](walletAccount.value));
 
         // *********************************************************************************
         // * Assets from IndexedDB
@@ -326,6 +375,10 @@ export default {
             [account, minBalance, assetIndex, isNeedToLoadFromIndexedDB],
             [oldAccount, oldMinBalance, oldAssetIndex, oldIsNeedToLoadFromIndexedDB],
         ) => {
+            if (!account) {
+                allBalances.value = { list: [] };
+                return;
+            }
             if (isNeedToLoadFromIndexedDB) return await makeRequest();
 
             return await makeRequest();
@@ -345,7 +398,7 @@ export default {
         // * Watchers
         // *********************************************************************************
 
-        const unWatchKeysToRequest = watch([targetAccount, minBalance, assetIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
+        const unWatchKeysToRequest = watch([walletAccount, minBalance, assetIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
 
         // *********************************************************************************
         // * OnUnmounted
@@ -381,6 +434,10 @@ export default {
             openFiltersModal,
             totalCountOfFilters,
             resetFilters,
+            chainsOptions,
+            isAllChains,
+            filters,
+            onCheckAllChains,
         };
     },
 };
