@@ -13,7 +13,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import Logo from '@/assets/icons/sidebar/logo.svg';
+import Logo from '@/assets/icons/sidebar/sidebar-logo.svg';
 
 export default {
     name: 'LogoLoading',
