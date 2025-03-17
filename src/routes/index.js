@@ -16,7 +16,7 @@ export const routes = [
     },
     {
         path: '/earn',
-        name: 'Restake',
+        name: 'Earn',
         component: () => import('@/pages/Restake/Assets.vue'),
     },
     {
