@@ -3,11 +3,11 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 export const routes = [
     {
         path: '',
-        redirect: '/restake',
+        redirect: '/earn',
     },
     {
         path: '/',
-        redirect: '/restake',
+        redirect: '/earn',
     },
     {
         path: '/dashboard',
@@ -15,7 +15,7 @@ export const routes = [
         component: () => import('@/pages/Dashboard/Assets.vue'),
     },
     {
-        path: '/restake',
+        path: '/earn',
         name: 'Restake',
         component: () => import('@/pages/Restake/Assets.vue'),
     },

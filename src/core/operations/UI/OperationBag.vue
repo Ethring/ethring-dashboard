@@ -107,11 +107,11 @@
 
             <span class="operation-bag__empty__title"> Bag is empty </span>
             <router-link
-                :to="activeRadio === 'deposit' ? '/restake' : '/dashboard'"
+                :to="activeRadio === 'deposit' ? '/earn' : '/dashboard'"
                 class="operation-bag__empty__link"
                 @click="isOpen = false"
             >
-                Start {{ activeRadio === 'deposit' ? 'earn' : 'withdraw' }}
+                {{ activeRadio === 'deposit' ? 'Start earn' : 'Withdraw Liquidity' }}
             </router-link>
         </div>
 

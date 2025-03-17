@@ -18,7 +18,7 @@
                     <span>Dashboard</span>
                 </a-menu-item>
             </router-link>
-            <router-link to="/restake">
+            <router-link to="/earn">
                 <a-menu-item key="restake">
                     <template #icon>
                         <RestakeIcon class="stroke-icons" />

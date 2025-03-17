@@ -121,7 +121,7 @@ export default {
                 title: 'Earn',
                 icon: RestakeIcon,
                 iconClass: 'stroke-icons',
-                to: '/restake',
+                to: '/earn',
                 isDisabled: false,
             },
             {

@@ -62,6 +62,7 @@
                         pageSize: 20,
                         showSizeChanger: false,
                     }"
+                    :loading="isLoading"
                     :bordered="false"
                     :scroll="{ x: 1000 }"
                     :row-key="(record) => rowKey(record)"
@@ -127,7 +128,7 @@
                             <AssetsNotFoundIcon />
                             <p>No assets found</p>
 
-                            <router-link to="/restake">
+                            <router-link to="/earn">
                                 <a-button type="primary" class="go-to-page">
                                     <RestakeIcon />
                                     Go to restake
@@ -181,6 +182,8 @@ export default {
             useAssetFilters();
 
         const isMounted = ref(false);
+        const isLoading = ref(true);
+
         const { walletAccount } = useAdapter();
 
         const COLUMNS = [
@@ -400,6 +403,10 @@ export default {
 
         const unWatchKeysToRequest = watch([walletAccount, minBalance, assetIndex, isNeedToLoadFromIndexedDB], handleOnChangeKeysToRequest);
 
+        watch(stakeAssets, () => {
+            isLoading.value = false;
+        });
+
         // *********************************************************************************
         // * OnUnmounted
         // *********************************************************************************
@@ -413,6 +420,7 @@ export default {
         });
 
         return {
+            isLoading,
             isLoadingBalances,
             walletAccount,
 
