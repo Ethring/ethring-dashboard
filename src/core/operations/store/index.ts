@@ -107,9 +107,9 @@ export default {
             state.currentOperationId = '';
         },
 
-        [TYPES.CLEAR_ALL_OPERATIONS](state: IState): void {
-            state.operations = {};
-            state.currentOperationId = '';
+        [TYPES.CLEAR_ALL_OPERATIONS](state: IState, operationType: string): void {
+            for (const key in state.operations) if (key.includes(operationType)) delete state.operations[key];
+            if (state.currentOperationId.includes(operationType)) state.currentOperationId = '';
         },
 
         [TYPES.SET_CURRENT_PROCESS_OPERATION](state: IState, { id, type }: { id: string; type: string }): void {
@@ -143,8 +143,8 @@ export default {
         setCurrentOperation({ commit }: { commit: Commit }, id: string): void {
             commit(TYPES.SET_CURRENT_OPERATION, id);
         },
-        clearAllOperations({ state, commit }: { state: IState; commit: Commit }): void {
-            commit(TYPES.CLEAR_ALL_OPERATIONS);
+        clearAllOperations({ state, commit }: { state: IState; commit: Commit }, operationType: string): void {
+            commit(TYPES.CLEAR_ALL_OPERATIONS, operationType);
         },
         clearCurrentOperation({ state, commit }: { state: IState; commit: Commit }): void {
             commit(TYPES.CLEAR_CURRENT_OPERATION);

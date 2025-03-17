@@ -36,7 +36,7 @@
             </div>
         </template>
 
-        <OperationBagHeader v-if="operations.length" />
+        <OperationBagHeader v-if="operations.length" :operation-type="activeRadio" />
 
         <div v-if="operations.length" class="operation-list">
             <a-card

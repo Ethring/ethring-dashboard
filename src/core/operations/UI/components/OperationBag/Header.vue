@@ -12,10 +12,16 @@
 import { useStore } from 'vuex';
 export default {
     name: 'OperationBagHeader',
-    setup() {
+    props: {
+        operationType: {
+            type: String,
+            default: 'deposit',
+        },
+    },
+    setup(props) {
         const store = useStore();
 
-        const onClickClearAllOperations = () => store.dispatch('operationBag/clearAllOperations');
+        const onClickClearAllOperations = () => store.dispatch('operationBag/clearAllOperations', props.operationType);
 
         return {
             onClickClearAllOperations,
