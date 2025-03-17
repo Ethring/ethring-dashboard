@@ -67,12 +67,12 @@
                         <div class="quote-preview__receive">
                             <Amount
                                 v-if="isShowCurrency"
-                                :value="minOutAmount(quote.toAmount)"
+                                :value="quote.toAmount"
                                 :decimals="2"
                                 :symbol="fees.RATE.toSymbol"
                                 type="currency"
                             />
-                            <Amount v-else :value="usdAmount(minOutAmount(quote.toAmount))" :decimals="2" symbol="$" type="usd" />
+                            <Amount v-else :value="usdAmount(quote.toAmount)" :decimals="2" symbol="$" type="usd" />
                             <div class="quote-preview__receive_switcher" @click="isShowCurrency = !isShowCurrency">
                                 <ArrowUpDown />
                             </div>
