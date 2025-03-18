@@ -88,6 +88,13 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
 
         withServiceId && this.serviceId && (requestParams.serviceId = this.serviceId);
 
+        const { fromNet, toNet } = requestParams as any;
+
+        // TODO: Optimize this
+        if (fromNet !== toNet) requestParams.serviceId = 'lifibridge';
+        if (fromNet === toNet && fromNet !== 'base') requestParams.serviceId = 'lifiswap';
+        if (fromNet === toNet && fromNet === 'base') requestParams.serviceId = 'ensoswap';
+
         try {
             const routes = (await this.api.getQuote(requestParams, this.abortController)) as IQuoteRoutes;
 
