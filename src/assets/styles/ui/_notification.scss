@@ -1,6 +1,6 @@
 .custom-notification {
-    background-color: var(--#{$prefix}primary);
-    border: 1px solid var(--#{$prefix}social-border-color);
+    background-color: #f3effa;
+    border: 1px solid #ece3fa;
     border-radius: 12px;
 
     &.ant-notification-notice {
@@ -21,7 +21,7 @@
     &.ant-notification-notice .ant-notification-notice-close,
     .notification-explorer {
         cursor: pointer;
-        border: 1px solid var(--#{$prefix}white);
+        border: 1px solid #ece3fa;
         border-radius: 6px;
 
         max-width: 24px;
@@ -42,7 +42,7 @@
     }
 
     .ant-notification-notice-message {
-        color: var(--#{$prefix}white);
+        color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}small-lg-fs) !important;
         margin-bottom: 2px !important;
         text-overflow: ellipsis;
@@ -52,13 +52,13 @@
     }
 
     .ant-notification-notice-description {
-        color: var(--#{$prefix}notification-text);
+        color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}small-sm-fs) !important;
         margin-inline-end: 50px;
     }
 
-    [class^='anticon']:not(.anticon-check-circle):not(.anticon-close-circle) {
-        color: var(--#{$prefix}white);
+    [class^="anticon"]:not(.anticon-check-circle):not(.anticon-close-circle) {
+        color: var(--#{$prefix}primary-text);
     }
 
     @keyframes checkAnimation {
@@ -89,15 +89,11 @@
 
     .anticon-check-circle {
         animation: checkAnimation 1s ease infinite;
-        color: var(--#{$prefix}success) !important;
+        color: #8564d1 !important;
     }
 
     .anticon-close-circle {
         color: var(--#{$prefix}danger) !important;
-    }
-
-    &.success {
-        border-color: var(--#{$prefix}success);
     }
 
     &.error {
@@ -130,7 +126,7 @@
 
         inset-inline-end: 48px;
 
-        fill: var(--#{$prefix}white);
+        fill: var(--#{$prefix}primary-text);
 
         outline: none;
 

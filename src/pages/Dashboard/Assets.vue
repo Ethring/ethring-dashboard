@@ -159,6 +159,7 @@ import RestakeIcon from '@/assets/icons/dashboard/restake.svg';
 
 import { CloseOutlined, DownOutlined } from '@ant-design/icons-vue';
 import { useAssetFilters } from '@/compositions/useAssetFilters';
+import { useAssetNotification } from '@/compositions/useAssetNotification';
 
 export default {
     name: 'DashboardAssets',
@@ -180,6 +181,8 @@ export default {
 
         const { openFiltersModal, resetFilters, onCheckAllChains, isAllChains, totalCountOfFilters, chainsOptions, filters } =
             useAssetFilters();
+
+        const { showAddToCardNotification, showRemoveFromCardNotification } = useAssetNotification();
 
         const isMounted = ref(false);
         const isLoading = ref(true);
@@ -355,18 +358,22 @@ export default {
         };
 
         const onClickToAction = (record, type = 'deposit') => {
-            if (isAlreadyExistInCart(record, type))
+            if (isAlreadyExistInCart(record, type)) {
+                showRemoveFromCardNotification();
+
                 return store.dispatch('operationBag/removeOperation', {
                     type,
                     id: record.id,
                 });
+            }
+
+            showAddToCardNotification();
 
             return store.dispatch('operationBag/setOperation', {
                 type,
                 operation: record,
             });
         };
-
         const isAlreadyExistInCart = (record, type = 'deposit') => store.getters['operationBag/isOperationExist'](type, record.id);
 
         const rowKey = (record) => record?.id || `assets-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`;

@@ -39,12 +39,12 @@ export default {
 
         width: {
             type: Number,
-            default: 24,
+            default: 16,
         },
 
         height: {
             type: Number,
-            default: 24,
+            default: 16,
         },
         showTitle: {
             type: Boolean,

@@ -123,6 +123,7 @@ import { debounce } from 'lodash';
 import FiltersIcon from '@/assets/icons/dashboard/filters.svg';
 import { CloseOutlined, DownOutlined } from '@ant-design/icons-vue';
 import { useAssetFilters } from '@/compositions/useAssetFilters';
+import { useAssetNotification } from '@/compositions/useAssetNotification';
 
 export default {
     name: 'RestakeAssets',
@@ -146,6 +147,8 @@ export default {
 
         const { openFiltersModal, resetFilters, onCheckAllChains, isAllChains, totalCountOfFilters, chainsOptions, filters } =
             useAssetFilters();
+
+        const { showAddToCardNotification, showRemoveFromCardNotification } = useAssetNotification();
 
         const COLUMNS = computed(() => {
             return [
@@ -276,11 +279,16 @@ export default {
         };
 
         const onClickToAction = (record, type = 'deposit') => {
-            if (isAlreadyExistInCart(record, type))
+            if (isAlreadyExistInCart(record, type)) {
+                showRemoveFromCardNotification();
+
                 return store.dispatch('operationBag/removeOperation', {
                     type,
                     id: record.id,
                 });
+            }
+
+            showAddToCardNotification();
 
             return store.dispatch('operationBag/setOperation', {
                 type,

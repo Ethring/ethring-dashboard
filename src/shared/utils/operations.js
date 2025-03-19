@@ -22,7 +22,7 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
         key: 'switch-network',
         type: 'info',
         title: `Switch network to ${selectedNetwork.value.name}`,
-        duration: 0,
+        duration: 2,
     });
 
     try {

@@ -58,7 +58,7 @@ export default function useNotification() {
                     percent: progressPercent.value,
                     size: 'small',
                     showInfo: false,
-                    strokeColor: type === 'error' ? '#E4455D' : '#14EC8A',
+                    strokeColor: type === 'error' ? '#E4455D' : '#8564d1',
                 }),
             );
 

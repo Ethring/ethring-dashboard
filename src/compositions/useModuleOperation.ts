@@ -964,7 +964,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
 
                 // * Show notification
                 showNotification({
-                    key: `tx-${txInstance.getTxId()}`,
+                    key: `tx-${txInstance.getTxId()}` as string,
                     type: 'info',
                     title: notificationTitle || '',
                     description: notificationDescription || '',
@@ -973,6 +973,7 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
                 });
             } catch (error) {
                 console.error('useModuleOperations -> prepare -> error', error);
+                isTransactionSigning.value = false;
                 throw error;
             }
         };
@@ -1124,13 +1125,15 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
                     type: 'error',
                     title: 'Transaction error',
                     description: errorMessage,
-                    duration: 6,
+                    duration: 2,
                     progress: true,
                 });
 
             updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });
 
             isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.FAILED);
+
+            isTransactionSigning.value = false;
         };
 
         // If everything is ok, add transaction to manager
