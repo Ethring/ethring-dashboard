@@ -122,6 +122,12 @@
     font-weight: 600;
 }
 
+.token__selector__symbol--placeholder {
+    font-size: var(--#{$prefix}small-sm-fs);
+    color: var(--#{$prefix}input-placeholder-text);
+    font-weight: 400;
+}
+
 .token__selector__chain {
     font-size: var(--#{$prefix}small-sm-fs);
     color: var(--#{$prefix}primary-text);

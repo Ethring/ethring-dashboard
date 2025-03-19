@@ -29,13 +29,21 @@
         <div class="token__selector-container">
             <div v-if="!hideTokenSelector" class="token__selector" @click="onSelectToken">
                 <div class="token__selector__content">
-                    <AssetWithChain class="token__selector__icon" :asset="asset" :chain="chain" :width="22" :height="22" :divider="1.83" />
+                    <AssetWithChain
+                        class="token__selector__icon"
+                        :asset="asset"
+                        :chain="asset && chain"
+                        :width="22"
+                        :height="22"
+                        :divider="1.83"
+                    />
 
                     <div class="token__selector__info">
                         <div class="token__selector__symbol">
-                            <span>{{ asset?.symbol || 'Selected Token' }}</span>
+                            <span v-if="asset?.symbol">{{ asset?.symbol }}</span>
+                            <span v-else class="token__selector__symbol--placeholder">Select token & chain</span>
                         </div>
-                        <div class="token__selector__chain">
+                        <div v-if="asset?.symbol" class="token__selector__chain">
                             {{ chain?.name }}
                         </div>
                     </div>
