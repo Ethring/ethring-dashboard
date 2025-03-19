@@ -93,7 +93,8 @@
                                 :chain="selectedSrcNetwork"
                                 :value="srcAmount"
                                 :hide-token-selector="true"
-                                class="operation-card__withdraw-selec"
+                                :disabled="!selectedSrcToken?.id || !selectedDstToken?.id"
+                                class="operation-card__withdraw-select"
                                 @set-amount="handleOnSetAmount"
                             />
                         </div>
@@ -121,6 +122,7 @@
                 :asset="selectedSrcToken"
                 :chain="selectedSrcNetwork"
                 :value="srcAmount"
+                :disabled="!selectedSrcToken?.id || !selectedDstToken?.id"
                 :on-select-token="() => onSelectToken(true, DIRECTIONS.SOURCE)"
                 @set-amount="handleOnSetAmount"
             />
@@ -357,6 +359,8 @@ export default {
 
             switch (activeRadio.value) {
                 case 'deposit':
+                    selectedSrcToken.value = null;
+
                     selectedDstNetwork.value = config;
 
                     const price = !currentOperation.value?.price
@@ -409,6 +413,7 @@ export default {
         });
 
         watch(currentOpId, async () => await setSelectedDstInfo(), { immediate: true });
+
         watch(selectedDstToken, async () => {
             if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id) await setSelectedDstInfo();
         });

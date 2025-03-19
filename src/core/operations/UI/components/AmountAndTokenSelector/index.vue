@@ -16,14 +16,14 @@
                 :class="{ disabled }"
                 :bordered="false"
                 :placeholder="placeholder"
-                :disabled="disabled || label === 'To'"
+                :disabled="disabled"
                 @focus="focused = true"
                 @blur="onBlurHandler"
                 @keypress="onKeyPressHandler"
             />
 
             <div class="amount__in-usd">
-                <Amount type="usd" :value="payTokenPrice" symbol="$" class="amount__in-usd__value" />
+                <Amount type="usd" :value="payTokenPrice || 0" symbol="$" class="amount__in-usd__value" />
             </div>
         </div>
         <div class="token__selector-container">
@@ -33,10 +33,10 @@
 
                     <div class="token__selector__info">
                         <div class="token__selector__symbol">
-                            <span>{{ asset.symbol }}</span>
+                            <span>{{ asset?.symbol || 'Selected Token' }}</span>
                         </div>
                         <div class="token__selector__chain">
-                            {{ chain.name }}
+                            {{ chain?.name }}
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                 @click="onSetMax"
             >
                 Balance:
-                <Amount type="currency" :value="asset.balance" :symbol="null" class="token__balance__value" />
+                <Amount type="currency" :value="asset?.balance || 0" :symbol="null" class="token__balance__value" />
             </div>
         </div>
     </div>
@@ -101,12 +101,12 @@ export default {
             default: 0,
         },
         asset: {
-            type: Object,
+            type: [Object, null],
             required: true,
             default: () => ({}),
         },
         chain: {
-            type: Object,
+            type: [Object, null],
             required: true,
             default: () => ({}),
         },
@@ -170,17 +170,16 @@ export default {
         const onInputHandler = () => {
             emit('setAmount', amount.value);
             setTimeout(() => (isInput.value = false), 400);
-
-            if (amount.value < props.asset.balance)
-                sliderValue.value = BigNumber(amount.value).dividedBy(props.asset.balance).multipliedBy(100).toNumber();
-            else sliderValue.value = 100;
+            // if (amount.value < props.asset.balance)
+            // sliderValue.value = BigNumber(amount.value).dividedBy(props.asset.balance).multipliedBy(100).toNumber();
+            // else sliderValue.value = 100;
         };
 
         const onKeyPressHandler = (e) => {
             if (e.code === 'Period' || e.code === 'Comma') symbolForReplace.value = e.key;
         };
 
-        const payTokenPrice = computed(() => BigNumber(amount.value * +props.asset?.price || 0).toFixed() || 0);
+        const payTokenPrice = computed(() => (props.asset && BigNumber(amount.value * +props.asset?.price || 0).toFixed()) || 0);
 
         const onChangeSlider = (value) => {
             if (!value) return (amount.value = 0);
@@ -215,6 +214,13 @@ export default {
             () => {
                 amount.value = props.value;
                 emit('setAmount', amount.value);
+            },
+        );
+
+        watch(
+            () => props.asset,
+            () => {
+                console.log('props.asset', props.asset);
             },
         );
 

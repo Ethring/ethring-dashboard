@@ -176,7 +176,7 @@ export default {
         watch(
             () => props.asset,
             () => {
-                console.log('asset changed', props.asset);
+                console.log('changed', props.asset);
             },
         );
 
