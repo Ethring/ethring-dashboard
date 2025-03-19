@@ -37,3 +37,7 @@
     font-size: 18px;
     color: var(--#{$prefix}white);
 }
+
+.asset-notification .ant-notification-notice-icon path {
+    fill: var(--#{$prefix}white);
+}

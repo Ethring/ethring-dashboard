@@ -4,6 +4,7 @@ import { orderBy } from 'lodash';
 
 import { notification, Progress } from 'ant-design-vue';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons-vue';
+import ShoppingCart from '@/assets/icons/dashboard/shopping-cart.svg';
 
 export function useAssetNotification() {
     const showAddToCardNotification = () => {
@@ -13,7 +14,7 @@ export function useAssetNotification() {
             duration: 1,
             placement: 'bottomRight',
             closeIcon: () => h('span'),
-            icon: h(CheckCircleFilled),
+            icon: h(ShoppingCart),
         });
     };
 
@@ -24,7 +25,7 @@ export function useAssetNotification() {
             duration: 1,
             placement: 'bottomRight',
             closeIcon: () => h('span'),
-            icon: h(CloseCircleFilled),
+            icon: h(ShoppingCart),
         });
     };
 
