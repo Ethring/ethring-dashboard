@@ -1,5 +1,6 @@
 <template>
     <div
+        v-if="record && !record?.id.includes(undefined)"
         class="select-token-option"
         data-qa="token-record"
         :data-key="record?.id || record?.address"
