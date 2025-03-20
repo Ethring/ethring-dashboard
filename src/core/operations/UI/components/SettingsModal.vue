@@ -13,7 +13,7 @@ export default {
     name: 'SettingsModal',
     components: {},
     setup() {
-        const MIN_SLIPPAGE = 0.1;
+        const MIN_SLIPPAGE = 0.01;
         const MAX_SLIPPAGE = 20;
 
         const symbolForReplace = ref(null);

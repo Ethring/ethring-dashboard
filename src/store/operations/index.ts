@@ -5,7 +5,7 @@ import { Field } from '@/shared/models/enums/fields.enum';
 import { useLocalStorage } from '@vueuse/core';
 
 const CUSTOM_SLIPPAGE_KEY = 'slippage';
-const slippageFromStore = useLocalStorage(CUSTOM_SLIPPAGE_KEY, 1, { mergeDefaults: true });
+const slippageFromStore = useLocalStorage(CUSTOM_SLIPPAGE_KEY, 0.5, { mergeDefaults: true });
 
 const TYPES = {
     SET_SRC_NETWORK: 'SET_FROM_NETWORK',
@@ -146,7 +146,7 @@ export default {
         [Field.contractCallCount]: 0,
 
         [Field.funds]: null,
-        slippage: slippageFromStore.value || 1,
+        slippage: slippageFromStore.value || 0.5,
 
         isInput: false,
 
@@ -233,7 +233,7 @@ export default {
             return state[field];
         },
 
-        slippage: (state: IState): number => state[Field.slippage] || 1,
+        slippage: (state: IState): number => state[Field.slippage] || 0.5,
 
         isInput: (state: IState): boolean => state.isInput || false,
 

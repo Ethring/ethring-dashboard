@@ -32,7 +32,7 @@
                     <AssetWithChain
                         class="token__selector__icon"
                         :asset="asset"
-                        :chain="asset && chain"
+                        :chain="asset?.id && chain"
                         :width="22"
                         :height="22"
                         :divider="1.83"
