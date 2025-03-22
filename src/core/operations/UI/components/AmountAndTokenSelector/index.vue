@@ -196,6 +196,7 @@ export default {
 
         const onSetMax = () => {
             if (props.hideMax) return;
+            if (props.disabled) return;
 
             amount.value = props.asset?.balance;
             emit('setAmount', BigNumber(props.asset?.balance).toFixed());
