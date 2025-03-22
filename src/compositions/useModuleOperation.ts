@@ -1124,7 +1124,6 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
                     key: 'tx-error',
                     type: 'error',
                     title: 'Transaction error',
-                    description: errorMessage,
                     duration: 2,
                     progress: true,
                 });

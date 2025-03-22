@@ -2,7 +2,7 @@ import { h, ref } from 'vue';
 
 import { notification, Progress } from 'ant-design-vue';
 
-import { LoadingOutlined, DoubleRightOutlined } from '@ant-design/icons-vue';
+import { LoadingOutlined, DoubleRightOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
 const MAX_TEXT_LENGTH = 110;
@@ -37,6 +37,7 @@ export default function useNotification() {
             description: descriptionText,
             placement: 'bottomRight',
             duration,
+            closeIcon: () => h(CloseOutlined),
             ...args,
         };
 
@@ -102,6 +103,11 @@ export default function useNotification() {
                 });
 
         notification[type](notificationParams);
+
+        setTimeout(() => {
+            const closeNotificationIcon = document.querySelector(`.ant-notification-close-x`);
+            if (closeNotificationIcon) closeNotificationIcon.textContent = 'X';
+        }, 1500);
     };
 
     const closeNotification = (key) => {

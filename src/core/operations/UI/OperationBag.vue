@@ -138,7 +138,7 @@
                             <div class="operation-card__content">
                                 <AssetWithChain
                                     type="asset"
-                                    :chain="selectedDstNetwork"
+                                    :chain="selectedDstToken?.id && selectedDstNetwork"
                                     :asset="selectedDstToken"
                                     :width="30"
                                     :height="30"
@@ -374,14 +374,20 @@ export default {
 
                     break;
                 case 'withdraw':
+                    selectedDstToken.value = null;
+
                     selectedSrcNetwork.value = config;
+
                     const dateType = currentOperation.value.id.includes('tokens') ? 'tokens' : 'pools';
+
                     assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value);
+
                     selectedSrcToken.value = {
                         ...currentOperation.value,
                         balance: assetBalance.value?.balance || 0,
                         price: assetBalance.value?.price || 0,
                     };
+
                     break;
             }
         };

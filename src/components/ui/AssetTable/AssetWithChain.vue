@@ -32,11 +32,11 @@ export default {
             default: 'asset',
         },
         asset: {
-            type: Object,
+            type: [Object, null],
             required: true,
         },
         chain: {
-            type: Object,
+            type: [Object, null],
             required: true,
         },
         width: {
