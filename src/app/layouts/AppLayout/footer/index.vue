@@ -15,8 +15,8 @@
         </div>
 
         <div class="footer-block footer-block--left footer-links">
-            <a href="#" class="disabled" @click.prevent=""> Privacy Policy </a>
-            <a href="#" class="disabled" @click.prevent="">T&Cs </a>
+            <a :href="PrivacyPolicy" target="_blank" title="Privacy Policy"> Privacy Policy </a>
+            <a :href="TermsOfService" target="_blank" title="Term of service"> T&Cs </a>
             <a href="#" class="disabled" @click.prevent=""> Docs </a>
             <a href="#" class="disabled" @click.prevent=""> Send Feedback </a>
             <a
@@ -36,6 +36,9 @@ import DiscordIcon from '@/assets/icons/socials/discord-channel.svg';
 import WarpcastIcon from '@/assets/icons/socials/warpcast-channel.svg';
 import LensIcon from '@/assets/icons/socials/lens.svg';
 
+import PrivacyPolicy from '@/assets/files/privacy-policy.pdf';
+import TermsOfService from '@/assets/files/terms-of-service.pdf';
+
 export default {
     name: 'AppFooter',
     components: {
@@ -44,6 +47,13 @@ export default {
         DiscordIcon,
         WarpcastIcon,
         LensIcon,
+    },
+
+    setup() {
+        return {
+            PrivacyPolicy,
+            TermsOfService,
+        };
     },
 };
 </script>
