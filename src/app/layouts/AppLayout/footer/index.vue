@@ -18,7 +18,6 @@
             <a :href="PrivacyPolicy" target="_blank" title="Privacy Policy"> Privacy Policy </a>
             <a :href="TermsOfService" target="_blank" title="Term of service"> T&Cs </a>
             <a href="#" class="disabled" @click.prevent=""> Docs </a>
-            <a href="#" class="disabled" @click.prevent=""> Send Feedback </a>
             <a
                 href="https://docs.google.com/forms/d/1apiOuHXF2t_SHvulN4MG8_jdPYDrGNcFg74DBsZrZsc/edit"
                 target="_blank"
