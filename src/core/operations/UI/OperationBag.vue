@@ -418,7 +418,7 @@ export default {
             else if (isOpen.value && withdrawOperationsCount.value > 0) activeRadio.value = 'withdraw';
         });
 
-        watch(currentOpId, async () => await setSelectedDstInfo(), { immediate: true });
+        watch(currentOpId, async () => await setSelectedDstInfo());
 
         watch(selectedDstToken, async () => {
             if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id) await setSelectedDstInfo();

@@ -198,8 +198,12 @@ export default {
             if (props.hideMax) return;
             if (props.disabled) return;
 
-            amount.value = props.asset?.balance;
-            emit('setAmount', BigNumber(props.asset?.balance).toFixed());
+            const toSet = props.asset?.balance || 0;
+
+            if (toSet.length >= 10) amount.value = toSet.toString().slice(0, 10);
+            else amount.value = toSet;
+
+            emit('setAmount', amount.value);
         };
 
         watch(amount, (val) => {
