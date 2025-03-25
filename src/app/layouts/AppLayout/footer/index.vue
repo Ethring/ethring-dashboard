@@ -39,8 +39,6 @@ import LensIcon from '@/assets/icons/socials/lens.svg';
 import PrivacyPolicy from '@/assets/files/privacy-policy.pdf';
 import TermsOfService from '@/assets/files/terms-of-service.pdf';
 
-import { usePostHog } from '@/app/compositions/usePostHog';
-
 export default {
     name: 'AppFooter',
     components: {
@@ -52,15 +50,10 @@ export default {
     },
 
     setup() {
-        const { posthog } = usePostHog();
-
         const SURVEY_ID = '0195b8cf-ad0c-0000-ecdf-014dfdb1077a';
 
         function getSurvey() {
-            if (!posthog) return;
-            console.log('Survey Opened');
-            posthog.capture('survey_opened', { survey_id: SURVEY_ID });
-            posthog.renderSurvey(SURVEY_ID, '#survey-container');
+            console.log('Survey Opened', window.posthog);
         }
 
         return {

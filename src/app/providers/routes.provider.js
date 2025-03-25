@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { routes } from '@/app/routes';
 
-import { usePostHog } from '@/app/compositions/usePostHog';
-
 const Router = createRouter({
     history: createWebHistory(),
     routes,
@@ -19,10 +17,8 @@ Router.beforeResolve((to, from, next) => {
     }
 });
 
-const { posthog } = usePostHog();
-
 Router.afterEach((to) => {
-    posthog.capture('$pageview');
+    if (window.posthog) window.posthog?.capture('$pageview');
 });
 
 export default Router;
