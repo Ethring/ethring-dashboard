@@ -18,7 +18,7 @@
             <a :href="PrivacyPolicy" target="_blank" title="Privacy Policy"> Privacy Policy </a>
             <a :href="TermsOfService" target="_blank" title="Term of service"> T&Cs </a>
             <a href="#" class="disabled" @click.prevent=""> Docs </a>
-            <a href="#" @click.prevent="getSurvey"> Send Feedback </a>
+            <a href="#" class="disabled" @click.prevent=""> Send Feedback </a>
             <a
                 href="https://docs.google.com/forms/d/1apiOuHXF2t_SHvulN4MG8_jdPYDrGNcFg74DBsZrZsc/edit"
                 target="_blank"
@@ -50,17 +50,9 @@ export default {
     },
 
     setup() {
-        const SURVEY_ID = '0195b8cf-ad0c-0000-ecdf-014dfdb1077a';
-
-        function getSurvey() {
-            console.log('Survey Opened', window.posthog);
-        }
-
         return {
             PrivacyPolicy,
             TermsOfService,
-
-            getSurvey,
         };
     },
 };
