@@ -58,7 +58,9 @@ export default {
 
         function getSurvey() {
             if (!posthog) return;
+            console.log('Survey Opened');
             posthog.capture('survey_opened', { survey_id: SURVEY_ID });
+            posthog.renderSurvey(SURVEY_ID, '#survey-container');
         }
 
         return {
