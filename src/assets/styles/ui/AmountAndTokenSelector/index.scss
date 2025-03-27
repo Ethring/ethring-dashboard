@@ -68,6 +68,11 @@
     border-left: 1px solid var(--#{$prefix}default-border-color);
 }
 
+.token__selector-container--disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .token__selector {
     display: flex;
     align-items: center;

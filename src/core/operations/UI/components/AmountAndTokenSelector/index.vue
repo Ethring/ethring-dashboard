@@ -1,70 +1,71 @@
 <template>
-    <div class="amount-and-token-selector--label">
-        <span>{{ label }}</span>
-    </div>
-
-    <div class="amount-and-token-selector">
-        <div class="amount__input-container">
-            <a-skeleton-input v-if="false" active class="input-balance input-balance-skeleton" size="" />
-            <a-input
-                v-else
-                v-model:value="amount"
-                v-debounce:0.3s="onInputHandler"
-                type="text"
-                data-qa="input-amount"
-                class="amount__input"
-                :class="{ disabled }"
-                :bordered="false"
-                :placeholder="placeholder"
-                :disabled="disabled"
-                @focus="focused = true"
-                @blur="onBlurHandler"
-                @keypress="onKeyPressHandler"
-            />
-
-            <div class="amount__in-usd">
-                <Amount type="usd" :value="payTokenPrice || 0" symbol="$" class="amount__in-usd__value" />
-            </div>
+    <div :class="customClass">
+        <div class="amount-and-token-selector--label">
+            <span>{{ label }}</span>
         </div>
-        <div class="token__selector-container">
-            <div v-if="!hideTokenSelector" class="token__selector" @click="onSelectToken">
-                <div class="token__selector__content">
-                    <AssetWithChain
-                        class="token__selector__icon"
-                        :asset="asset"
-                        :chain="(asset?.id && chain) || null"
-                        :width="22"
-                        :height="22"
-                        :divider="1.83"
-                    />
 
-                    <div class="token__selector__info">
-                        <div class="token__selector__symbol">
-                            <span v-if="asset?.symbol">{{ asset?.symbol }}</span>
-                            <span v-else class="token__selector__symbol--placeholder">Select token & chain</span>
-                        </div>
-                        <div v-if="asset?.symbol" class="token__selector__chain">
-                            {{ chain?.name }}
+        <div class="amount-and-token-selector">
+            <div class="amount__input-container">
+                <a-skeleton-input v-if="false" active class="input-balance input-balance-skeleton" size="" />
+                <a-input
+                    v-else
+                    v-model:value="amount"
+                    v-debounce:0.3s="onInputHandler"
+                    type="text"
+                    data-qa="input-amount"
+                    class="amount__input"
+                    :class="{ disabled }"
+                    :bordered="false"
+                    :placeholder="placeholder"
+                    :disabled="disabled"
+                    @focus="focused = true"
+                    @blur="onBlurHandler"
+                    @keypress="onKeyPressHandler"
+                />
+
+                <div class="amount__in-usd">
+                    <Amount type="usd" :value="payTokenPrice || 0" symbol="$" class="amount__in-usd__value" />
+                </div>
+            </div>
+            <div class="token__selector-container" :class="{ 'token__selector-container--disabled': disabled }">
+                <div v-if="!hideTokenSelector" class="token__selector" @click="onSelectToken">
+                    <div class="token__selector__content">
+                        <AssetWithChain
+                            class="token__selector__icon"
+                            :asset="asset"
+                            :chain="(asset?.id && chain) || null"
+                            :width="22"
+                            :height="22"
+                            :divider="1.83"
+                        />
+
+                        <div class="token__selector__info">
+                            <div class="token__selector__symbol">
+                                <span v-if="asset?.symbol">{{ asset?.symbol }}</span>
+                                <span v-else class="token__selector__symbol--placeholder">Select token & chain</span>
+                            </div>
+                            <div v-if="asset?.symbol" class="token__selector__chain">
+                                {{ chain?.name }}
+                            </div>
                         </div>
                     </div>
+                    <div class="token__selector__arrow">
+                        <ArrowIcon />
+                    </div>
                 </div>
-                <div class="token__selector__arrow">
-                    <ArrowIcon />
+                <div
+                    class="token__balance"
+                    :class="{
+                        'token__balance--error': error,
+                    }"
+                    @click="onSetMax"
+                >
+                    Balance:
+                    <Amount type="currency" :value="asset?.balance || 0" :symbol="null" class="token__balance__value" />
                 </div>
-            </div>
-            <div
-                class="token__balance"
-                :class="{
-                    'token__balance--error': error,
-                }"
-                @click="onSetMax"
-            >
-                Balance:
-                <Amount type="currency" :value="asset?.balance || 0" :symbol="null" class="token__balance__value" />
             </div>
         </div>
-    </div>
-    <!--
+        <!--
     <div class="amount__slider-container">
         <a-slider v-model:value="sliderValue" class="amount__slider" :marks="marks" @change="onChangeSlider">
             <template #mark="{ label, point }">
@@ -75,6 +76,7 @@
             </template>
         </a-slider>
     </div> -->
+    </div>
 </template>
 <script>
 import BigNumber from 'bignumber.js';
@@ -129,6 +131,10 @@ export default {
         hideTokenSelector: {
             type: Boolean,
             default: false,
+        },
+        customClass: {
+            type: String,
+            default: '',
         },
     },
 

@@ -277,7 +277,8 @@ export default {
 
         const onClickSelectCurrentOperation = async (record) => {
             await store.dispatch('operationBag/setCurrentOperation', record.id);
-            await setTokenInfoForOperation(true);
+            const isWithReset = currentOpId.value !== `${activeRadio.value}_${record.id}`;
+            await setTokenInfoForOperation(isWithReset);
         };
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
