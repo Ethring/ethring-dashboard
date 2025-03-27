@@ -173,13 +173,6 @@ export default {
 
         const openSettingsModal = () => store.dispatch('app/toggleModal', 'settingsModal');
 
-        watch(
-            () => props.asset,
-            () => {
-                console.log('changed', props.asset);
-            },
-        );
-
         return {
             isShowCurrency,
 

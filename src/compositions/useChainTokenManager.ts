@@ -221,8 +221,8 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         if (moduleType === ModuleType.shortcut && !CurrentShortcut.value) return;
 
-        // return pool token, if shortcut is RemoveLiquidityPool
         if (CurrentShortcut.value === RemoveLiquidityPoolId && isSrc) {
+            // return pool token, if shortcut is RemoveLiquidityPool
             if (selectedPool.value) {
                 selectedSrcNetwork.value = chainList.value.find((item: { net: any }) => item.net === selectedPool.value.net);
                 return selectedPool.value;
@@ -261,13 +261,19 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         if (isTokenFound) return isTokenFound;
 
         // * 3. If the source token is not found, then set the source token to the default token
-        const [defaultSrcToken = null] = tokensList.value;
+        // const [defaultSrcToken = null] = tokensList.value;
 
-        if (srcNet?.chain !== srcToken?.chain && defaultSrcToken) return defaultSrcToken;
+        // console.log('setTokenOnChangeForNet -> defaultSrcToken', defaultSrcToken);
 
-        if (defaultSrcToken) return defaultSrcToken;
+        // console.log('setTokenOnChangeForNet -> CHAIN', srcNet?.chain !== srcToken?.chain, defaultSrcToken);
 
-        return srcToken;
+        // if (srcNet?.chain !== srcToken?.chain && defaultSrcToken) return defaultSrcToken;
+
+        // if (defaultSrcToken) return defaultSrcToken;
+
+        // console.log('setTokenOnChangeForNet -> SRC TOKEN', srcToken);
+
+        // return srcToken;
     };
 
     const updateSrcTokenIfNeed = async () => {

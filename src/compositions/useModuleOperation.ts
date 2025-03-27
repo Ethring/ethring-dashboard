@@ -253,7 +253,6 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
     // ===============================================================================================
 
     const handleOnCancel = (tx: Transaction) => {
-        console.log('useModuleOperations -> handleOnCancel');
         closeNotification(`tx-${tx.getTxId()}`);
         store.dispatch('txManager/setTxTimerID', null);
         store.dispatch('txManager/setIsWaitingTxStatusForModule', { module: currentModule.value, isWaiting: false });
@@ -1056,6 +1055,12 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
             const operation = operations.getOperationByKey(moduleIndex);
 
             const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
+
+            console.log('CURR', {
+                isApprove,
+                currentOpId,
+                operationBagOp,
+            });
 
             if (!isApprove && currentOpId === operationBagOp) await store.dispatch('operationBag/clearCurrentOperation');
             if (!isApprove && operationBagOp) await store.dispatch('operationBag/removeOperationById', operationBagOp);

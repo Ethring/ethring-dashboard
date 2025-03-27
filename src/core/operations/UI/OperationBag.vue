@@ -54,7 +54,7 @@
                         <div class="operation-card__content">
                             <AssetWithChain
                                 type="asset"
-                                :chain="operation.chainInfo"
+                                :chain="operation.chainInfo || null"
                                 :asset="operation"
                                 :width="30"
                                 :height="30"
@@ -85,10 +85,9 @@
                         </div>
                     </template>
 
-                    <template #description>
+                    <template v-if="currentOpId.includes(operation.id) && activeRadio === 'withdraw'" #description>
                         <div class="operation-card__withdraw">
                             <AmountAndTokenSelector
-                                v-if="currentOpId.includes(operation.id) && activeRadio === 'withdraw'"
                                 :asset="selectedSrcToken"
                                 :chain="selectedSrcNetwork"
                                 :value="srcAmount"
@@ -138,7 +137,7 @@
                             <div class="operation-card__content">
                                 <AssetWithChain
                                     type="asset"
-                                    :chain="selectedDstToken?.id && selectedDstNetwork"
+                                    :chain="(selectedDstToken?.id && selectedDstNetwork) || null"
                                     :asset="selectedDstToken"
                                     :width="30"
                                     :height="30"
@@ -276,7 +275,10 @@ export default {
             });
         };
 
-        const onClickSelectCurrentOperation = async (record) => await store.dispatch('operationBag/setCurrentOperation', record.id);
+        const onClickSelectCurrentOperation = async (record) => {
+            await store.dispatch('operationBag/setCurrentOperation', record.id);
+            await setTokenInfoForOperation(true);
+        };
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
             ModuleType.superSwap,
@@ -348,63 +350,69 @@ export default {
             });
         };
 
-        const setSelectedDstInfo = async () => {
-            srcAmount.value = 0;
-            dstAmount.value = 0;
+        const setDepositInfo = async (config) => {
+            selectedDstNetwork.value = config;
 
+            const price = !currentOperation.value?.price
+                ? await getTokenPriceFromProvider(currentOperation.value.chain, currentOperation.value.address)
+                : currentOperation.value?.price;
+
+            selectedDstToken.value = {
+                ...currentOperation.value,
+                price: price || 0,
+            };
+        };
+
+        const setWithdrawInfo = async (config) => {
+            selectedSrcNetwork.value = config;
+
+            const dateType = currentOperation.value.id.includes('tokens') ? 'tokens' : 'pools';
+
+            assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value);
+
+            selectedSrcToken.value = {
+                ...currentOperation.value,
+                balance: assetBalance.value?.balance || 0,
+                price: assetBalance.value?.price || 0,
+            };
+        };
+
+        const setTokenInfoForOperation = async (withResetToken = false) => {
             if (!currentOperation.value) return;
 
+            withResetToken && (srcAmount.value = 0);
+            withResetToken && (dstAmount.value = 0);
+
             const { chain } = currentOperation.value || {};
+
             const config = store.getters['configs/getChainConfigByChainOrNet'](chain, Ecosystem.EVM);
 
             switch (activeRadio.value) {
                 case 'deposit':
-                    selectedSrcToken.value = null;
-
-                    selectedDstNetwork.value = config;
-
-                    const price = !currentOperation.value?.price
-                        ? await getTokenPriceFromProvider(currentOperation.value.chain, currentOperation.value.address)
-                        : currentOperation.value?.price;
-
-                    selectedDstToken.value = {
-                        ...currentOperation.value,
-                        price: price || 0,
-                    };
-
+                    await setDepositInfo(config);
+                    withResetToken && (selectedSrcToken.value = null);
                     break;
                 case 'withdraw':
-                    selectedDstToken.value = null;
-
-                    selectedSrcNetwork.value = config;
-
-                    const dateType = currentOperation.value.id.includes('tokens') ? 'tokens' : 'pools';
-
-                    assetBalance.value = await BalancesDB.getBalanceById(walletAddress.value, dateType, currentOperation.value);
-
-                    selectedSrcToken.value = {
-                        ...currentOperation.value,
-                        balance: assetBalance.value?.balance || 0,
-                        price: assetBalance.value?.price || 0,
-                    };
-
+                    await setWithdrawInfo(config);
+                    withResetToken && (selectedDstToken.value = null);
                     break;
             }
         };
 
         const handleOnConfirmOperation = async () => {
             if (!currentOperation.value) return;
+
             await store.dispatch('operationBag/setCurrentProcessOperation', {
                 type: activeRadio.value,
                 id: currentOperation.value.id,
             });
+
             await handleOnConfirm();
         };
 
         watch(isOpen, () => {
             if (!isOpen.value) {
                 store.dispatch('operationBag/clearCurrentOperation');
-                selectedRoute.value = null;
                 srcAmount.value = 0;
                 dstAmount.value = 0;
                 quoteErrorMessage.value = '';
@@ -418,14 +426,14 @@ export default {
             else if (isOpen.value && withdrawOperationsCount.value > 0) activeRadio.value = 'withdraw';
         });
 
-        watch(currentOpId, async () => await setSelectedDstInfo());
-
         watch(selectedDstToken, async () => {
-            if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id) await setSelectedDstInfo();
+            if (activeRadio.value === 'deposit' && selectedDstToken.value?.id !== currentOperation.value?.id)
+                await setTokenInfoForOperation();
         });
 
         watch(selectedSrcToken, async () => {
-            if (activeRadio.value === 'withdraw' && selectedSrcToken.value?.id !== currentOperation.value?.id) await setSelectedDstInfo();
+            if (activeRadio.value === 'withdraw' && selectedSrcToken.value?.id !== currentOperation.value?.id)
+                await setTokenInfoForOperation();
         });
 
         return {

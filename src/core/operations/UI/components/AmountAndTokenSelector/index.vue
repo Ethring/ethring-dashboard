@@ -32,7 +32,7 @@
                     <AssetWithChain
                         class="token__selector__icon"
                         :asset="asset"
-                        :chain="asset?.id && chain"
+                        :chain="(asset?.id && chain) || null"
                         :width="22"
                         :height="22"
                         :divider="1.83"
@@ -227,13 +227,6 @@ export default {
             () => {
                 amount.value = props.value;
                 emit('setAmount', amount.value);
-            },
-        );
-
-        watch(
-            () => props.asset,
-            () => {
-                console.log('props.asset', props.asset);
             },
         );
 
