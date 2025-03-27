@@ -276,8 +276,7 @@ export default {
         };
 
         const onClickSelectCurrentOperation = async (record) => {
-            const currOpId = JSON.stringify(currentOpId.value);
-            const isWithReset = currOpId !== `${activeRadio.value}_${record.id}`;
+            const isWithReset = currentOpId.value !== `${activeRadio.value}_${record.id}`;
             store.dispatch('operationBag/setCurrentOperation', record.id);
             await setTokenInfoForOperation(isWithReset);
         };
