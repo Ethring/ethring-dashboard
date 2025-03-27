@@ -1056,12 +1056,6 @@ const useModuleOperations = (module: ModuleType, { tmpStore }: { tmpStore: Store
 
             const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
 
-            console.log('CURR', {
-                isApprove,
-                currentOpId,
-                operationBagOp,
-            });
-
             if (!isApprove && currentOpId === operationBagOp) await store.dispatch('operationBag/clearCurrentOperation');
             if (!isApprove && operationBagOp) await store.dispatch('operationBag/removeOperationById', operationBagOp);
 
