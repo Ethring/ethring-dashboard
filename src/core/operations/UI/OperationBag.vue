@@ -276,8 +276,9 @@ export default {
         };
 
         const onClickSelectCurrentOperation = async (record) => {
-            await store.dispatch('operationBag/setCurrentOperation', record.id);
-            const isWithReset = currentOpId.value !== `${activeRadio.value}_${record.id}`;
+            const currOpId = JSON.stringify(currentOpId.value);
+            const isWithReset = currOpId !== `${activeRadio.value}_${record.id}`;
+            store.dispatch('operationBag/setCurrentOperation', record.id);
             await setTokenInfoForOperation(isWithReset);
         };
 
@@ -390,12 +391,12 @@ export default {
 
             switch (activeRadio.value) {
                 case 'deposit':
-                    await setDepositInfo(config);
                     withResetToken && (selectedSrcToken.value = null);
+                    await setDepositInfo(config);
                     break;
                 case 'withdraw':
-                    await setWithdrawInfo(config);
                     withResetToken && (selectedDstToken.value = null);
+                    await setWithdrawInfo(config);
                     break;
             }
         };
