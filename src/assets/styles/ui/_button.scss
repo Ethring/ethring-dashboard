@@ -1,0 +1,112 @@
+.button {
+    cursor: pointer;
+    @include pageFlexRow;
+    justify-content: center;
+
+    min-width: 100px;
+
+    min-height: 40px;
+    height: 40px;
+
+    border-radius: 8px;
+
+    padding: 0 10px;
+
+    outline: none;
+
+    background: var(--#{$prefix}btn-bg-color);
+
+    border: 1px solid transparent;
+
+    transition: 0.2s;
+
+    div {
+        @include pageFlexRow;
+        justify-content: center;
+    }
+
+    span {
+        text-transform: uppercase;
+        color: var(--#{$prefix}btn-text-color);
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 700;
+        margin: auto;
+    }
+
+    svg {
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+    }
+
+    svg path {
+        stroke: var(--#{$prefix}btn-text-color);
+    }
+
+    &:not(.disabled):hover {
+        background: var(--#{$prefix}btn-bg-color-hover);
+
+        span {
+            color: var(--#{$prefix}btn-text-hover);
+        }
+
+        svg path {
+            stroke: var(--#{$prefix}btn-text-hover);
+        }
+    }
+
+    &.large {
+        span {
+            font-size: var(--#{$prefix}h4-fs);
+        }
+
+        height: 56px;
+    }
+
+    &.square {
+        border-radius: 0;
+    }
+
+    &.rounded {
+        border-radius: 30px;
+    }
+
+    &.circle {
+        border-radius: 50%;
+        min-width: 40px;
+        max-width: 40px;
+        padding: 0;
+    }
+
+    &.secondary {
+        background: transparent;
+        border-color: var(--#{$prefix}primary);
+
+        span {
+            color: var(--#{$prefix}primary);
+        }
+
+        &:not(.disabled):hover {
+            color: var(--#{$prefix}btn-secondary-hover);
+            border-color: var(--#{$prefix}btn-secondary-hover);
+        }
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        background: var(--#{$prefix}btn-disabled);
+
+        span {
+            color: var(--#{$prefix}btn-disabled-text);
+        }
+
+        &.secondary {
+            border-color: var(--#{$prefix}btn-disabled-text);
+            background: transparent;
+        }
+
+        &.circle {
+            background-color: var(--#{$prefix}btn-disabled-icon);
+        }
+    }
+}

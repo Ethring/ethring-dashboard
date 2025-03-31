@@ -1,0 +1,174 @@
+.select-token-option {
+    cursor: pointer !important;
+    align-self: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    transition: 0.2s ease-in-out;
+    overflow: visible;
+
+    height: 56px;
+    max-height: 56px;
+    min-height: 56px;
+    padding: 8px 12px 8px 8px;
+
+    border-radius: 8px;
+    border: 1px solid var(--#{$prefix}default-border-color);
+
+    background-color: var(--#{$prefix}secondary-background);
+
+    &:hover {
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
+
+        .showHover {
+            transform: translateY(0) !important;
+        }
+
+        .link {
+            transform: translateY(0) !important;
+        }
+    }
+
+    &,
+    .info-container {
+        @include pageFlexRow;
+    }
+
+    &.selected {
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
+    }
+
+    &:not(:last-child) {
+        margin-bottom: 8px;
+    }
+
+    .check-icon {
+        margin-top: -2px;
+
+        fill: var(--#{$prefix}info);
+    }
+
+    .label-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .row {
+            transition: 0.2s ease-in-out;
+            gap: 4px;
+        }
+
+        .showHover {
+            transform: translateY(35%);
+        }
+
+        .top {
+            color: var(--#{$prefix}primary-text);
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 500;
+            text-wrap: nowrap;
+        }
+
+        .bottom {
+            @include pageFlexRow;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            min-width: 150px;
+
+            .link {
+                transform: translateY(100%);
+
+                display: flex;
+                align-items: center;
+
+                font-style: normal;
+                font-weight: 400;
+                font-size: var(--#{$prefix}small-sm-fs);
+                color: var(--#{$prefix}mute-text);
+                transition: 0.2s ease-in-out;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                    padding: 2px;
+
+                    margin-left: 4px;
+                    fill: var(--#{$prefix}mute-text);
+
+                    transition: 0.2s;
+                    background-color: transparent;
+                    border-radius: 50%;
+
+                    &:hover {
+                        background-color: var(--#{$prefix}default-border-color);
+                    }
+                }
+
+                &:hover {
+                    color: var(--#{$prefix}primary-text);
+
+                    svg {
+                        fill: var(--#{$prefix}primary-text);
+                    }
+                }
+            }
+        }
+    }
+
+    .stat-container {
+        @include pageFlexColumn;
+        justify-content: center;
+        align-items: flex-end;
+    }
+
+    .currency {
+        font-size: var(--#{$prefix}default-fs);
+
+        .value {
+            font-weight: 500;
+            color: var(--#{$prefix}amount-text);
+        }
+
+        .symbol {
+            font-weight: 400;
+            color: var(--#{$prefix}select-symbol-text);
+        }
+    }
+
+    .usd {
+        font-size: var(--#{$prefix}small-sm-fs);
+
+        .value {
+            font-weight: 600;
+            color: var(--#{$prefix}secondary-text) !important;
+        }
+
+        .symbol {
+            font-weight: 400;
+            color: var(--#{$prefix}secondary-text) !important;
+        }
+    }
+
+    .logo {
+        width: 32px;
+        height: 32px;
+
+        @include pageFlexRow;
+        justify-content: center;
+
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+}
+
+.options-enter-active,
+.options-leave-active {
+    transition: all 0.3s ease;
+}
+.options-enter-from,
+.options-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}

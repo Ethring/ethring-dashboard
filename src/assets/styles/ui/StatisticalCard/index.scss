@@ -1,0 +1,48 @@
+.statistical-card {
+    border-color: var(--#{$prefix}default-border-color);
+    max-width: 200px;
+    max-height: 48px;
+    width: 100%;
+    border-radius: 12px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 1) 65%, rgba(78, 53, 136, 0.5) 300%);
+}
+
+.statistical-card:not(:first-child) {
+    background: linear-gradient(to right, rgba(255, 255, 255, 1) 65%, rgba(136, 95, 53, 0.5) 300%);
+}
+
+.statistical-card .ant-card-body {
+    padding: 8px 12px;
+    max-width: 200px;
+    max-height: 48px;
+}
+
+.statistical-card .ant-statistic-content {
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.statistical-card .ant-statistic-content-value {
+    font-size: var(--#{$prefix}default-fs);
+}
+
+.statistical-card .ant-statistic-title {
+    font-size: var(--#{$prefix}small-sm-fs);
+    margin: 0;
+    margin-top: -18px;
+}
+
+.statistical-card .ant-statistic-content-suffix {
+    margin-inline-start: 2px !important;
+}
+.statistical-card .ant-statistic-content-prefix {
+    margin-inline-end: 2px !important;
+    font-size: var(--#{$prefix}default-fs);
+}
+
+.statistical-card .statistical-card__statistic {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-top: -15px;
+    height: 48px;
+}

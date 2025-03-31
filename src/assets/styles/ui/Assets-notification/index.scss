@@ -1,0 +1,43 @@
+.asset-notification {
+    border-radius: 12px;
+    max-width: 380px;
+}
+
+.asset-notification--success {
+    background-color: #2ba15e;
+}
+
+.asset-notification--remove {
+    background-color: #737373;
+}
+
+.asset-notification .ant-notification-notice-message {
+    font-size: 12px;
+}
+
+.asset-notification .ant-notification-notice-message {
+    color: var(--#{$prefix}white);
+    // display: flex;
+    // align-items: center;
+    line-height: 1;
+    margin-bottom: 0 !important;
+    font-size: 12px !important;
+}
+
+.asset-notification .ant-notification-close-x {
+    display: none;
+}
+
+.asset-notification .ant-notification-notice-with-icon {
+    display: flex;
+    align-items: center;
+}
+
+.asset-notification .ant-notification-notice-icon {
+    font-size: 18px;
+    color: var(--#{$prefix}white);
+}
+
+.asset-notification .ant-notification-notice-icon path {
+    fill: var(--#{$prefix}white);
+}

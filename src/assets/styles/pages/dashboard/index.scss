@@ -1,0 +1,29 @@
+.dashboard__title {
+    font-size: var(--#{$prefix}h1-fs);
+}
+
+.dashboard__sub-title {
+    color: var(--#{$prefix}mute-text);
+}
+
+.dashboard__radio-group {
+    margin-top: 24px;
+}
+
+.dashboard__stats-row {
+    margin: 24px 0;
+
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    max-width: 100%;
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.dashboard__stats {
+    margin-left: auto;
+}

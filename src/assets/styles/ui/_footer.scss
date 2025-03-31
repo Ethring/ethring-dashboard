@@ -1,0 +1,78 @@
+// **********************************************************
+// * footer
+// **********************************************************
+
+.footer {
+    color: var(--#{$prefix}primary-text);
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-block {
+    display: flex;
+    align-items: center;
+}
+
+.footer-block--right {
+    gap: 30px;
+}
+
+// **********************************************************
+// * footer Socials
+// **********************************************************
+
+.footer-socials {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    & > a.disabled {
+        cursor: not-allowed;
+    }
+}
+
+// **********************************************************
+// * footer Copyright
+// **********************************************************
+
+.footer-copyright {
+    font-size: var(--#{$prefix}default-fs);
+    font-weight: 500;
+}
+
+// **********************************************************
+// * footer Links
+// **********************************************************
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    & > a {
+        color: #808080;
+        font-size: var(--#{$prefix}small-sm-fs);
+    }
+
+    & > a:not(.disabled):hover {
+        color: var(--#{$prefix}deposit-btn-bg-color);
+    }
+
+    & > a.disabled {
+        cursor: not-allowed;
+    }
+
+    & > a:not(:first-child) {
+        padding-left: 8px;
+        border-left: 1px solid var(--#{$prefix}default-border-color);
+    }
+
+    & > a:nth-child(4) {
+        border-left: none;
+        padding-left: 0;
+    }
+}

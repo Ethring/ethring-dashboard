@@ -1,0 +1,139 @@
+.shortcut-tabs {
+    margin-top: 24px;
+
+    div:first-child {
+        margin-right: 20px;
+    }
+}
+
+.shortcuts-tab {
+    &-item {
+        @include pageFlexColumn;
+
+        font-size: var(--#{$prefix}h3-fs);
+        font-weight: 400;
+        color: var(--#{$prefix}base-text);
+
+        transition: 0.1s;
+
+        cursor: pointer;
+
+        svg {
+            margin-top: 6px;
+        }
+    }
+
+    &-active {
+        font-weight: 700;
+        color: var(--#{$prefix}primary-text);
+    }
+}
+
+.shortcuts-empty {
+    margin-top: 20%;
+}
+
+.shortcut-list {
+    margin-top: 20px;
+}
+
+.spin__center {
+    margin: auto;
+    width: 100%;
+}
+
+.shortcut-tags {
+    margin: 16px 0px;
+    height: 32px;
+
+    &__title {
+        margin-right: 8px;
+        font-weight: 500;
+        color: var(--#{$prefix}secondary-text);
+    }
+
+    &__item {
+        @include pageFlexRow;
+        justify-content: space-between;
+
+        height: 28px;
+        width: fit-content;
+        padding: 0 2px 0 8px;
+        margin-right: 4px;
+        border-radius: 24px;
+
+        color: var(--#{$prefix}black);
+        background: var(--#{$prefix}tag-selected);
+
+        span {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        svg {
+            width: 24px;
+            height: 24px;
+            margin-left: 4px;
+
+            cursor: pointer;
+
+            path {
+                fill: $white;
+            }
+        }
+    }
+
+    .type-all {
+        padding: 0px 16px;
+
+        cursor: default;
+    }
+
+    &__clear {
+        @include pageFlexRow;
+        justify-content: space-between;
+
+        height: 28px;
+        margin-left: 16px;
+
+        font-weight: 500;
+        color: $wildWatermelon;
+
+        cursor: pointer;
+
+        svg {
+            margin-right: 4px;
+        }
+    }
+}
+
+.shortcuts__view {
+    margin-left: auto;
+
+    & > span {
+        border: 1px solid var(--#{$prefix}border-color);
+
+        border-radius: 6px;
+        padding: 4px 8px;
+
+        transition: 0.2s;
+
+        &:not(:last-child) {
+            margin-right: 4px;
+        }
+
+        &:hover {
+            cursor: pointer;
+            background: var(--#{$prefix}tag-selected);
+        }
+    }
+
+    svg {
+        fill: var(--#{$prefix}secondary-text);
+    }
+
+    &--active {
+        background: var(--#{$prefix}tag-selected);
+    }
+}

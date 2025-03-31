@@ -1,0 +1,398 @@
+.operation-bag .ant-drawer-mask {
+    backdrop-filter: blur(7.5px);
+}
+
+.operation-bag .ant-drawer-header {
+    padding-top: 30px;
+}
+
+.operation-bag .ant-drawer-footer {
+    padding-bottom: 30px;
+}
+
+.operation-bag .ant-drawer-header,
+.operation-bag .ant-drawer-body,
+.operation-bag .ant-drawer-footer {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.operation-bag .ant-drawer-title {
+    font-size: var(--#{$prefix}h4-fs);
+    color: var(--#{$prefix}primary-text);
+}
+
+.operation-card__placeholder {
+    font-size: var(--#{$prefix}default-fs);
+    color: var(--#{$prefix}primary-text);
+    font-weight: 400;
+}
+
+.operation-bag .ant-drawer-header {
+    padding-bottom: 0;
+    border-color: transparent;
+}
+
+.operation-bag__action {
+    padding: 4px;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 6px;
+}
+
+// **********************************************************
+// * Operation bag navbar
+// **********************************************************
+
+.nav-bar-row__right__operation-bag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 10px;
+    padding: 20px 12px;
+    max-height: 48px;
+
+    font-size: var(--#{$prefix}small-lg-fs);
+
+    border-right: 1px solid red;
+}
+
+.operation-bag-trigger {
+    cursor: pointer;
+
+    background-color: var(--#{$prefix}white);
+
+    border: 1px solid transparent;
+
+    transition: all 0.3s;
+
+    &:not(.operation-bag-trigger--disabled):hover {
+        border-color: var(--#{$prefix}black);
+    }
+}
+
+.operation-bag-trigger--disabled {
+    cursor: not-allowed;
+}
+
+.operation-bag__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-weight: 500;
+    color: var(--#{$prefix}primary-text);
+    font-size: var(--#{$prefix}h6-fs);
+}
+
+.operation-bag__header__clear {
+    cursor: pointer;
+    transition: 0.2s;
+    &:hover {
+        color: var(--#{$prefix}danger);
+    }
+}
+
+// **********************************************************
+// * Operation Card
+// **********************************************************
+
+.operation-list {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+}
+
+.operation-card__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.operation-card {
+    border-radius: 12px;
+    &:hover {
+        border-color: var(--#{$prefix}active-border-color);
+        background-color: var(--#{$prefix}card-active-bg-color);
+        box-shadow: none;
+
+        .operation-card__action.operation-card__action--remove {
+            opacity: 1;
+        }
+    }
+}
+
+.operation-card .ant-card-body {
+    padding: 10px 16px;
+}
+
+.operation-bag .ant-card-meta-avatar {
+    display: flex;
+    align-items: center;
+}
+
+.operation-card--active {
+    border-color: var(--#{$prefix}active-border-color);
+    background-color: var(--#{$prefix}card-active-bg-color);
+    box-shadow: none;
+
+    .operation-card__action.operation-card__action--remove {
+        opacity: 1;
+    }
+
+    .operation-card__action.operation-card__action--start {
+        transform: rotate(-180deg);
+    }
+}
+
+.operation-card__info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    width: 88%;
+}
+.operation-card__token,
+.operation-card__title {
+    color: var(--#{$prefix}primary-text);
+    font-weight: 500;
+    font-size: var(--#{$prefix}small-lg-fs);
+}
+
+.operation-bag__title {
+    font-size: var(--#{$prefix}small-lg-fs);
+    color: var(--#{$prefix}primary-text);
+
+    & > span {
+        display: block;
+        margin-top: -4px;
+    }
+}
+
+.operation-card__token-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.operation-card__protocol {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: -6px;
+}
+.operation-card__chain,
+.operation-card__protocol-name {
+    font-size: var(--#{$prefix}small-sm-fs);
+    color: var(--#{$prefix}primary-text);
+    font-weight: 400;
+}
+
+.operation-card__chain {
+    margin-top: -4px;
+}
+
+.operation-card.ant-card .ant-card-meta-detail > div:not(:last-child) {
+    margin-bottom: 0;
+}
+
+.operation-card__action {
+    max-width: 24px;
+    max-height: 36px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+
+    transition: 0.2s;
+}
+
+.operation-card__action--remove {
+    margin-left: auto;
+    background-color: transparent;
+}
+
+.operation-bag__actions {
+    display: flex;
+}
+
+.operation-card__action.operation-card__action--remove {
+    opacity: 0;
+
+    & path {
+        transition: 0.2s;
+    }
+
+    &:hover path {
+        fill: var(--#{$prefix}danger);
+    }
+}
+
+// **********************************************************
+// * Operations COUNT badge
+// **********************************************************
+
+.operations-count {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.operations-count-badge {
+    background-color: transparent;
+}
+
+.operations-count-badge .ant-badge-count {
+    background-color: transparent;
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 4px;
+    font-size: var(--#{$prefix}small-sm-fs);
+    font-weight: 700;
+}
+
+.operations-count-badge--withdraw .ant-badge-count {
+    color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}white);
+    border-color: var(--#{$prefix}black);
+}
+
+.operations-count-badge--deposit .ant-badge-count {
+    color: var(--#{$prefix}white);
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
+    border-color: var(--#{$prefix}deposit-btn-bg-color);
+}
+
+// **********************************************************
+// * Operation Bag Radio buttons
+// **********************************************************
+
+.operation-bag__radio {
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--#{$prefix}black);
+    max-height: 36px;
+
+    font-weight: 700;
+    transition: 0.2s;
+
+    svg path {
+        transition: 0.2s;
+        fill: var(--#{$prefix}black);
+    }
+
+    &:hover {
+        background-color: var(--#{$prefix}black);
+        color: var(--#{$prefix}white);
+
+        svg path {
+            fill: var(--#{$prefix}white);
+        }
+    }
+}
+
+.operation-bag__radio--active.operation-bag__radio--withdraw {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.operation-bag__radio--active.operation-bag__radio--deposit {
+    box-shadow: 0 4px 12px rgba(133, 100, 209, 0.4);
+}
+
+.operation-bag__radio--active {
+    transform: translateY(-1px);
+}
+
+.operation-bag__radio--deposit {
+    border-radius: 8px 0 0 8px;
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
+    color: var(--#{$prefix}white);
+    svg path {
+        fill: var(--#{$prefix}white);
+    }
+    border-color: var(--#{$prefix}deposit-btn-bg-color);
+    border-right: none;
+}
+
+.operation-bag__radio--withdraw {
+    border-radius: 0 8px 8px 0;
+}
+
+.operation__bag--execute.disabled {
+    cursor: not-allowed;
+    background-color: var(--#{$prefix}default-border-color);
+
+    span {
+        color: var(--#{$prefix}mute-text);
+    }
+}
+
+.operation__bag--execute {
+    border-radius: 10px;
+    background-color: var(--#{$prefix}deposit-btn-bg-color);
+    max-height: 48px;
+    span {
+        text-transform: capitalize;
+        font-size: var(--#{$prefix}small-lg-fs) !important;
+    }
+}
+
+.operation__bag--execute:not(.disabled):hover {
+    opacity: 0.7;
+    // border-color: var(--#{$prefix}black);
+    background-color: var(--#{$prefix}deposit-btn-bg-color) !important;
+
+    span {
+        color: var(--#{$prefix}white) !important;
+    }
+}
+
+// **********************************************************
+// * Operation Bag Empty
+// **********************************************************
+
+.operation-bag__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 10px;
+}
+
+.operation-bag__empty svg {
+    margin-left: 15px;
+}
+
+.operation-bag__empty__title {
+    color: #999999;
+    font-size: 12px;
+    font-weight: 400;
+    margin: 10px 0;
+}
+
+.operation-bag__empty__link {
+    color: var(--#{$prefix}white);
+    font-size: var(--#{$prefix}default-fs);
+
+    border: 1px solid var(--#{$prefix}default-border-color);
+    border-radius: 8px;
+    padding: 10px 16px;
+    transition: 0.2s;
+    max-height: 36px;
+
+    background-color: var(--#{$prefix}black);
+
+    &:hover {
+        background-color: var(--#{$prefix}white);
+        color: var(--#{$prefix}black);
+    }
+}

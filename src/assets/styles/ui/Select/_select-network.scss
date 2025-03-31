@@ -1,0 +1,195 @@
+.select-network {
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+
+    height: 40px;
+
+    max-height: 40px;
+    min-height: 40px;
+
+    min-width: 160px;
+    max-width: 240px;
+
+    width: 50%;
+
+    border-radius: 24px;
+
+    border: 1px solid var(--#{$prefix}border-secondary-color);
+    background-color: var(--#{$prefix}border-secondary-color);
+
+    padding: 4px 12px 4px 4px;
+
+    display: flex;
+    align-items: center;
+
+    .network {
+        margin-right: 8px;
+    }
+
+    .arrow {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        transform: rotate(0);
+        @include animateEasy;
+        margin-left: auto;
+    }
+
+    .label {
+        font-size: var(--#{$prefix}h6-fs);
+        font-weight: 500;
+        color: var(--#{$prefix}select-item-color);
+
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 2px 0;
+
+        max-width: 100px;
+    }
+
+    .placeholder {
+        user-select: none;
+    }
+
+    &:hover {
+        border-color: var(--#{$prefix}btn-bg-color-hover);
+        background-color: var(--#{$prefix}btn-bg-color-hover-op-01);
+    }
+
+    &.disabled {
+        pointer-events: none;
+        cursor: not-allowed;
+        background: var(--#{$prefix}select-disabled-bg-color);
+        border-color: var(--#{$prefix}select-disabled-border-color);
+        .label {
+            color: var(--#{$prefix}neutral-text);
+        }
+        .arrow {
+            fill: var(--#{$prefix}neutral-text);
+        }
+        .network {
+            filter: opacity(0.5);
+        }
+    }
+}
+
+.select-network-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.switch-direction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    width: 56px;
+    height: 56px;
+
+    min-height: 56px;
+    max-height: 56px;
+
+    min-width: 56px;
+    max-width: 56px;
+
+    border-radius: 50%;
+
+    background: var(--#{$prefix}swap-btn-bg-color);
+    border: 4px solid var(--#{$prefix}main-background);
+
+    &,
+    svg {
+        transition: all 0.2s ease-in-out;
+    }
+
+    svg {
+        transform: rotate(90deg);
+
+        path {
+            fill: var(--#{$prefix}btn-bg-color);
+        }
+    }
+
+    &:not(.disabled):hover {
+        background: var(--#{$prefix}primary);
+        border-color: var(--#{$prefix}banner-logo-color);
+
+        svg {
+            transform: rotate(90deg) rotateY(180deg);
+        }
+
+        path {
+            fill: var(--#{$prefix}arrow-color);
+        }
+    }
+
+    &.disabled {
+        pointer-events: none;
+        cursor: not-allowed;
+        background: var(--#{$prefix}btn-disabled);
+        svg {
+            path {
+                fill: var(--#{$prefix}border-color);
+            }
+        }
+    }
+
+    &.swap-module svg {
+        transform: rotate(0deg) rotateY(180deg);
+    }
+
+    &.swap-module:not(.disabled):hover svg {
+        transform: rotate(0deg) rotateX(360deg);
+    }
+}
+
+.super-swap .select-network {
+    min-width: 160px;
+}
+
+.switch-direction-wrap {
+    position: relative;
+
+    .switch-direction {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        z-index: 10;
+    }
+
+    .SwapIcon {
+        right: initial;
+        left: 10%;
+
+        min-width: 48px;
+        max-width: 48px;
+
+        min-height: 48px;
+        max-height: 48px;
+
+        svg {
+            transform: rotate(0);
+        }
+
+        svg .path-2 {
+            fill: var(--#{$prefix}primary-text);
+        }
+
+        svg .path-1 {
+            fill: var(--#{$prefix}eye-logo-hover);
+        }
+
+        &:hover {
+            svg .path-2 {
+                fill: var(--#{$prefix}white);
+            }
+        }
+    }
+}

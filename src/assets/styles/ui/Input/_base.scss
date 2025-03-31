@@ -1,0 +1,129 @@
+.base-input {
+    font-size: var(--#{$prefix}h6-fs);
+    font-weight: 400;
+
+    background: transparent;
+    outline: none;
+    padding-left: 0;
+
+    input {
+        color: var(--#{$prefix}primary-text);
+        font-family: 'Space Grotesk', serif !important;
+        transition: 0.2s ease-in-out;
+        text-overflow: ellipsis;
+    }
+
+    .ant-input-number-input {
+        padding: 0;
+    }
+
+    .ant-input[disabled] {
+        user-select: none;
+        cursor: not-allowed;
+        color: var(--#{$prefix}input-disabled-text) !important;
+    }
+}
+
+.mint-count-input input {
+    font-weight: 700 !important;
+    color: var(--#{$prefix}primary-text) !important;
+}
+
+.editable-amount-input {
+    width: 100%;
+    border-color: var(--#{$prefix}select-active-border-color) !important;
+    background: transparent;
+
+    .ant-input-number-input {
+        color: var(--#{$prefix}primary-text);
+        font-family: 'Space Grotesk', serif !important;
+        transition: 0.2s ease-in-out;
+        text-overflow: ellipsis;
+        input {
+            border: none !important;
+        }
+    }
+
+    .ant-input-number-group-addon {
+        border-color: var(--#{$prefix}select-active-border-color) !important;
+        color: var(--#{$prefix}primary-text);
+
+        .max-balance {
+            cursor: pointer;
+        }
+    }
+}
+
+.input-balance {
+    width: 100%;
+    min-width: 100px;
+
+    text-align: right !important;
+    padding-right: 0 !important;
+
+    color: var(--#{$prefix}primary-text);
+
+    font-size: var(--#{$prefix}h4-fs);
+    font-weight: 700;
+
+    transition: 0.2s ease-in-out;
+
+    ::placeholder {
+        color: var(--#{$prefix}select-placeholder-text);
+    }
+
+    min-height: 40px;
+
+    text-overflow: ellipsis;
+
+    &:disabled {
+        user-select: none;
+        cursor: not-allowed;
+        color: var(--#{$prefix}input-disabled-text) !important;
+    }
+
+    &-skeleton {
+        margin: auto;
+        margin-right: 0;
+    }
+}
+
+.swap-field .balance-skeleton span {
+    height: inherit !important;
+    min-height: 14px;
+}
+
+.input-clear-icon {
+    width: var(--#{$prefix}h5-fs);
+
+    path {
+        fill: $wildWatermelon;
+    }
+}
+
+.ant-popconfirm-message-title-only {
+    font-weight: 500 !important;
+}
+
+.ant-popconfirm-description {
+    margin-inline-start: 0px !important;
+}
+
+.ant-popconfirm-buttons {
+    .ant-btn-default {
+        background-color: 1px solid var(--#{$prefix}main-background) !important;
+        border: 1px solid var(--#{$prefix}primary-text) !important;
+        span {
+            transition: all 0.2s;
+            color: var(--#{$prefix}primary-text) !important;
+        }
+
+        &:hover {
+            border: 1px solid var(--#{$prefix}sub-text) !important;
+
+            span {
+                color: var(--#{$prefix}sub-text) !important;
+            }
+        }
+    }
+}

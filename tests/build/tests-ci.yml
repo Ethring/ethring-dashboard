@@ -1,0 +1,233 @@
+variables:
+  IMAGE_PLAYWRIGHT: mcr.microsoft.com/playwright:v1.43.0-jammy
+  IMAGE_TXMANAGER_MOCK: registry.citadel.one/public/stubtxmanager/master:latest
+  TX_MANAGER_API: http://txmanager:3000
+  FF_NETWORK_PER_BUILD: "true"
+  CI_DEBUG_SERVICES: "false"
+  BRANCH_URL: https://$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG.$OPENSHIFT_ROUTE
+
+.default_artifacts: &default_artifacts
+  paths:
+    - ./playwright-report/
+    - ./Screenshot/
+    - ./tests/e2e/*.spec.ts-snapshots/
+  when: always
+  expire_in: 1 days
+
+.default_services: &default_services
+  - name: $IMAGE_TXMANAGER_MOCK
+    alias: txmanager
+
+.non_feature_branches: &non_feature_branches
+  - master
+  - schedules
+  - beta
+
+.buildReportsImageJob:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    REPORT_TYPE: report
+    DOCKERFILE: Dockerfile
+  before_script:
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/$REPORT_TYPE:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - time /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/tests/build/$DOCKERFILE
+      --destination $IMAGE_TAG
+      --cache=false
+
+.deployReportsImageJob:
+  image: widerin/openshift-cli:latest
+  variables:
+    REPORT_TYPE: report
+  before_script:
+    - apk add --update coreutils
+    - export NAME=$REPORT_TYPE-$CI_COMMIT_SHORT_SHA
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/$REPORT_TYPE:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+    - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
+    - apk add --update coreutils
+    - oc login --token $OPENSHIFT_TOKEN_REPORTS $OPENSHIFT_URL --insecure-skip-tls-verify
+    - oc project $OPENSHIFT_PROJECT_REPORTS
+  script:
+    - oc process -f tests/build/template.yml
+      --ignore-unknown-parameters=true
+      -p DC_NAME=$NAME
+      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
+      -p IMAGE_NAME=$IMAGE_TAG
+      -p NAMESPACE=$OPENSHIFT_PROJECT_REPORTS
+      -p PORT=8080
+      -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON
+      -p ROUTE_DOMAIN=zomet-test-reports.$OPENSHIFT_ROUTE
+      -p ROUTE_PATH="/$NAME" | oc apply -f -
+    - oc secrets link default auth-docker --for=pull
+  after_script:
+    - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/$REPORT_TYPE-$CI_COMMIT_SHORT_SHA/"
+    - echo "Report list deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/$REPORT_TYPE-$CI_COMMIT_SHORT_SHA/report-list.html"
+
+Update snapshot:
+  stage: test_ui
+  needs: []
+  allow_failure: true
+  image: $IMAGE_PLAYWRIGHT
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  services: *default_services
+  script:
+    - npm ci
+    - npx npm run test:e2e:updateSnapshot
+  timeout: 20 minutes
+  artifacts: *default_artifacts
+
+Run tests:
+  stage: test_ui
+  image: $IMAGE_PLAYWRIGHT
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  services: *default_services
+  script:
+    - npm ci
+    - npx npm run test:e2e:ci
+  timeout: 20 minutes
+  artifacts: *default_artifacts
+
+Run storybook tests:
+  stage: test_ui
+  image: $IMAGE_PLAYWRIGHT
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  services:
+    - name: $IMAGE_TXMANAGER_MOCK
+      alias: txmanager
+    - name: node:18.19.0
+      alias: storybook
+      variables:
+        HOME: $CI_PROJECT_DIR
+      entrypoint:
+        - "/bin/sh"
+        - "-c"
+        - |
+          sleep 10
+          cd $CI_PROJECT_DIR && npm ci
+          touch $CI_PROJECT_DIR/.installed
+          npm run storybook
+  script:
+    - |
+      until [ -f "$CI_PROJECT_DIR/.installed" ]; do sleep 10; done;
+    - npx test-storybook --url http://storybook:6006 --no-index-json
+  timeout: 20 minutes
+  artifacts: *default_artifacts
+
+Run unit tests:
+  stage: test_unit
+  image: node:18.19.0
+  rules:
+    - if: $CI_COMMIT_BRANCH
+  script:
+    - npm ci
+    - npm run test:unit
+
+Build tests report image:
+  stage: deploy_reports
+  needs:
+    - "Run tests"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: always
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - time /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/tests/build/Dockerfile
+      --destination $IMAGE_TAG
+      --cache=false
+
+Deploy tests report page:
+  stage: deploy_reports
+  needs:
+    - "Build tests report image"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  image: widerin/openshift-cli:latest
+  before_script:
+    - apk add --update coreutils
+    - export NAME=report-$CI_COMMIT_SHORT_SHA
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+    - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
+    - apk add --update coreutils
+    - oc login --token $OPENSHIFT_TOKEN_REPORTS $OPENSHIFT_URL --insecure-skip-tls-verify
+    - oc project $OPENSHIFT_PROJECT_REPORTS
+  script:
+    - oc process -f tests/build/template.yml
+      --ignore-unknown-parameters=true
+      -p DC_NAME=$NAME
+      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
+      -p IMAGE_NAME=$IMAGE_TAG
+      -p NAMESPACE=$OPENSHIFT_PROJECT_REPORTS
+      -p PORT=8080
+      -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON
+      -p ROUTE_DOMAIN=zomet-test-reports.$OPENSHIFT_ROUTE
+      -p ROUTE_PATH="/$NAME" | oc apply -f -
+    - oc secrets link default auth-docker --for=pull
+  after_script:
+    - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/report-$CI_COMMIT_SHORT_SHA/"
+
+# Performance tests
+Run performance tests:
+  stage: test_performance
+  image: node:18.19.0
+  allow_failure:
+    exit_codes: 1
+  variables:
+    CHROME_PATH: /usr/bin/chromium
+  except: *non_feature_branches
+  before_script:
+    - >
+      if [[ "$CI_COMMIT_BRANCH" == "dev" ]]; then
+        export BRANCH_URL=https://zomet-dev.3ahtim54r.ru
+      fi
+    - apt-get update
+    - apt-get install -y chromium
+  script:
+    - npm ci
+    - npm run test:performance -- $BRANCH_URL
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./tests/performance/performance-report.html
+      - ./tests/performance/performance-report-list.html
+
+Build perf tests report image:
+  extends: .buildReportsImageJob
+  stage: test_performance
+  except: *non_feature_branches
+  needs:
+    - "Run performance tests"
+  variables:
+    REPORT_TYPE: perf-report
+    DOCKERFILE: Dockerfile.perf
+
+Deploy perf tests report page:
+  extends: .deployReportsImageJob
+  stage: test_performance
+  except: *non_feature_branches
+  needs:
+    - "Build perf tests report image"
+  variables:
+    REPORT_TYPE: perf-report

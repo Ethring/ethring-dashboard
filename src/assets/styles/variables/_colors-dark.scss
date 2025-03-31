@@ -1,0 +1,466 @@
+//  ===========================================================================
+//  ******************************* DARK THEME *******************************
+//  ===========================================================================
+
+//  ===========================================================================
+//  PRIMARY COLORS
+//  ===========================================================================
+
+$chineseBlack: #0c0d18;
+$ebonyClay: #1c1f2c;
+$white: #ffffff;
+$springGreen: #14ec8a;
+$kellyGreen: #52c41a;
+
+//  ===========================================================================
+//  SECONDARY COLORS
+//  ===========================================================================
+
+$ghostWhite: #5a6281;
+$medievalBlue: #2b3450;
+$medWhite: #e8efff;
+
+$charade: #2e323e;
+$iceberg: #d9f4f1;
+$trout: #494c56;
+$mineralGreen: #486060;
+$gulfStream: #73b1b1;
+$aquamarine: #97ffd0;
+$geyser: #c9e0e0;
+$pizazz: #f69502;
+$green: #04b600;
+$cyan: #02e7f6;
+$ficus: #385c39;
+$blueHalk: #e6eeff;
+$blackGray: #1a1d26;
+$paleSky: #6d747a;
+
+$wildWatermelon: #e4455d;
+$deepCerulean: #00839f;
+$japaneseLaurel: #038d00;
+$blazeOrange: #ff6b00;
+$neutral-text: $medWhite;
+$outerSpace: #2b353e;
+$perfectLanding: #a0b3c3;
+
+//  ===========================================================================
+//  GRADIENTS
+//  ===========================================================================
+
+$gradient-light-green: linear-gradient(0deg, #00e3ae 0%, #9be15d 100%);
+$gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
+
+//  ===========================================================================
+//  RGB
+//  ===========================================================================
+
+$black-op-085: rgba(0, 0, 0, 0.85);
+$black-op-02: rgba(0, 0, 0, 0.2);
+$white-op-075: #0c0d18bf;
+
+//  ===========================================================================
+//  COLORS MAP
+//  ===========================================================================
+
+$primary: $ebonyClay;
+
+$main-background: $chineseBlack;
+$secondary-background: $ebonyClay;
+
+$banner-color: $ebonyClay;
+$banner-logo-color: $springGreen;
+$banner-secondary-color: $charade;
+
+$eye-logo: $geyser;
+$eye-logo-hover: $springGreen;
+
+$assets-border-color: $ebonyClay;
+$assets-header-border-color: $charade;
+
+// Text
+$sub-text: $springGreen;
+$mute-text: $geyser;
+$notification-text: $gulfStream;
+$base-text: $gulfStream;
+$sidebar-text: $geyser;
+$primary-text: $white;
+$secondary-text: $aquamarine;
+$symbol-text: $gulfStream;
+$mute-apr-text: $springGreen;
+$amount-text: $white;
+$input-disabled-text: $paleSky;
+$balance-text: $aquamarine;
+$unlock-text: $aquamarine;
+$base-amount-text: $springGreen;
+$description-text: $geyser;
+$currency-text: $paleSky;
+$details-text: $perfectLanding;
+$slippage-text: $white;
+
+// Adapter text
+$adapter-label-text: $gulfStream;
+$adapter-value-text: $white;
+$adapter-ecosystem-border-color: $charade;
+$adapter-ecosystem-color: $springGreen;
+$adapter-ecosystem-connect-hover: $ebonyClay;
+$adapter-connected-border-color: $charade;
+$adapter-connected-icon-color: $lightGreen;
+$adapter-secondary-border-color: $pastelPink;
+$adapter-modal-close-color: $blackGray;
+$adapter-more-option: $mineralGreen;
+$adapter-hover-color: $chineseBlack;
+
+// Adapter ModuleIcons
+$adapter-logo-main-color: $chineseBlack;
+$adapter-logo-base-color: $cyan;
+$adapter-logo-secondary-color: $springGreen;
+
+// Adapter Not Connected
+$adapter-not-connected-bg: $ebonyClay;
+$adapter-not-connected-icon: $geyser;
+
+// Shortcuts
+$shortcut-bg-color: $outerSpace;
+$shortcut-shadow-color: #000000d9;
+$shortcut-shadow-hover-color: #00fc7466;
+
+// Checkbox
+$checkbox-text: $gulfStream;
+$checkbox-disabled-text: $mineralGreen;
+$checkbox-checked: $springGreen;
+$checkbox-bg-color: $ebonyClay;
+$checkbox-disabled: $mineralGreen;
+$checkbox-border: $aquamarine;
+$checkbox-border-checked: $aquamarine;
+
+// Border
+$border-color: $charade;
+$border-secondary-color: $trout;
+$border-color-op-05: rgba($border-secondary-color, 0.5);
+$social-border-color: $trout;
+$info-border-color: $border-color-op-05;
+
+// Button
+$btn-text-color: $ebonyClay;
+$btn-bg-color: $springGreen;
+
+$btn-text-hover: $white;
+$btn-bg-color-hover: $mineralGreen;
+$btn-secondary-hover: $wildWatermelon;
+
+$btn-disabled: $ebonyClay;
+$btn-disabled-text: $mineralGreen;
+$btn-disabled-icon: $geyser;
+$swap-btn-bg-color: $ebonyClay;
+$small-btn-bg-color: $springGreen;
+$base-btn-bg-color: $outerSpace;
+
+// Select
+$select-bg-color: $ebonyClay;
+$select-secondary-bg-color: $chineseBlack;
+$select-dropdown-bg-color: $chineseBlack;
+
+$select-item-color: $white;
+$select-item-active-color: $white;
+$select-item-secondary-color: $springGreen;
+$select-label-color: $geyser;
+
+$select-border-color: $charade;
+$select-active-border-color: $springGreen;
+$select-icon-color: $mineralGreen;
+$select-icon-bg-color: $charade;
+$select-placeholder-text: $trout;
+$select-active-bg-color: $chineseBlack;
+$select-symbol-text: $aquamarine;
+$selected-bg-color: rgba(20, 236, 138, 0.1);
+
+$select-disabled-bg-color: $blackGray;
+$select-disabled-border-color: $blackGray;
+
+// Accordion
+$accordion-bg-color: $charade;
+$accordion-label-color: $geyser;
+$accordion-border-color: 'transparent';
+$accordion-title: $white;
+
+// Collapse
+$collapse-border-color: $charade;
+
+// Info
+$success: $kellyGreen;
+$success-op-01: rgba($success, 0.1);
+$success-color: #5aec99;
+$success-text: #cce8cd;
+
+$danger: $wildWatermelon;
+$danger-op-01: rgba($danger, 0.1);
+$danger-color: $wildWatermelon;
+
+$warning: $pizazz;
+$warning-op-01: rgba($warning, 0.1);
+
+$info: #b8e7fb;
+$info-op-01: #071318;
+
+$white: $white;
+
+// Icon
+$icon-color: $gulfStream;
+$icon-active: $geyser;
+$icon-hover: $black;
+$icon-disabled: $paleSky;
+$icon-border: $gulfStream;
+
+$icon-logo-bg-color: $charade;
+$icon-logo-bg-hover: $aquamarine;
+$icon-secondary-bg-color: $ebonyClay;
+$icon-secondary-bg-hover: $mineralGreen;
+$icon-bg-color: $white;
+$token-primary-icon-color: $charade;
+$token-secondary-icon-color: $springGreen;
+$base-icon-color: $geyser;
+$logo-bg: $chineseBlack;
+
+$icon-placeholder: $medievalBlue;
+$icon-placeholder-border: $ghostWhite;
+
+$arrow-color: $white;
+
+$positive-percentage: $springGreen;
+
+// Percentage bar
+$percentage-bar-bg-color: $iceberg;
+$percentage-bar-100: $springGreen;
+$percentage-bar-75: $lightGreen;
+$percentage-bar-50: $blazeOrange;
+$percentage-bar-25: $wildWatermelon;
+
+// Modal
+$modal-bg-color: $black-op-085;
+$modal-content-bg-color: $chineseBlack;
+$modal-block-bg-color: $ebonyClay;
+$modal-active-block-bg-color: $ebonyClay;
+$modal-block-text: $ebonyClay;
+$modal-item-text: $ebonyClay;
+
+// Search
+$search-bg-color: $ebonyClay;
+
+$block-box-shadow: 'transparent';
+$loader-border-color: $ficus;
+
+$theme-switcher-color: $gulfStream;
+
+$nav-bar-bg-color: $chineseBlack;
+
+$tag-01: $aquamarine;
+$tag-02: $blazeOrange;
+$tag-03: $springGreen;
+$tag-selected: $gulfStream;
+
+// Card
+$card-bg-color: $ebonyClay;
+$card-btn-bg-color: $aquamarine;
+$card-tag-bg-color: $turquoise;
+$card-btn-secondary-color: $gainsboro;
+
+$shortcut-step-success: $iceberg;
+
+$radio-btn-bg-color: $gulfStream;
+
+// Slppage
+$slippage-active-option: $springGreen;
+$slippage-border-color: $outerSpace;
+
+//  ===========================================================================
+//  THEME MAP
+//  ===========================================================================
+
+$theme-colors-dark: (
+    'primary': $primary,
+
+    'main-background': $main-background,
+    'secondary-background': $secondary-background,
+
+    'banner-color': $banner-color,
+    'banner-logo-color': $banner-logo-color,
+    'banner-secondary-color': $banner-secondary-color,
+
+    'eye-logo': $eye-logo,
+    'eye-logo-hover': $eye-logo-hover,
+
+    'sub-text': $sub-text,
+    'notification-text': $notification-text,
+    'mute-text': $mute-text,
+    'base-text': $base-text,
+    'sidebar-text': $sidebar-text,
+    'primary-text': $primary-text,
+    'secondary-text': $secondary-text,
+    'symbol-text': $symbol-text,
+    'mute-apr-text': $mute-apr-text,
+    'amount-text': $amount-text,
+    'input-disabled-text': $input-disabled-text,
+    'balance-text': $balance-text,
+    'unlock-text': $unlock-text,
+    'neutral-text': $neutral-text,
+    'base-amount-text': $base-amount-text,
+    'description-text': $description-text,
+    'currency-text': $currency-text,
+    'details-text': $details-text,
+    'slippage-text': $slippage-text,
+
+    'assets-border-color': $assets-border-color,
+    'assets-header-border-color': $assets-header-border-color,
+
+    'adapter-label-text': $adapter-label-text,
+    'adapter-value-text': $adapter-value-text,
+    'adapter-ecosystem-border-color': $adapter-ecosystem-border-color,
+    'adapter-ecosystem-color': $adapter-ecosystem-color,
+    'adapter-ecosystem-connect-hover': $adapter-ecosystem-connect-hover,
+    'adapter-logo-main-color': $adapter-logo-main-color,
+    'adapter-logo-base-color': $adapter-logo-base-color,
+    'adapter-logo-secondary-color': $adapter-logo-secondary-color,
+    'adapter-connected-border-color': $adapter-connected-border-color,
+    'adapter-connected-icon-color': $adapter-connected-icon-color,
+    'adapter-secondary-border-color': $adapter-secondary-border-color,
+    'adapter-modal-close-color': $adapter-modal-close-color,
+    'adapter-more-option': $adapter-more-option,
+    'adapter-not-connected-bg': $adapter-not-connected-bg,
+    'adapter-not-connected-icon': $adapter-not-connected-icon,
+    'adapter-hover-color': $adapter-hover-color,
+
+    'checkbox-text': $checkbox-text,
+    'checkbox-disabled-text': $checkbox-disabled-text,
+    'checkbox-checked': $checkbox-checked,
+    'checkbox-bg-color': $checkbox-bg-color,
+    'checkbox-disabled': $checkbox-disabled,
+    'checkbox-border': $checkbox-border,
+    'checkbox-border-checked': $checkbox-border-checked,
+
+    'border-color': $border-color,
+    'border-secondary-color': $border-secondary-color,
+    'border-color-op-05': $border-color-op-05,
+    'social-border-color': $social-border-color,
+    'info-border-color': $info-border-color,
+
+    'btn-text-color': $btn-text-color,
+    'btn-text-hover': $btn-text-hover,
+    'btn-bg-color-hover': $btn-bg-color-hover,
+    'btn-secondary-hover': $btn-secondary-hover,
+    'btn-bg-color': $btn-bg-color,
+    'btn-disabled': $btn-disabled,
+    'btn-disabled-text': $btn-disabled-text,
+    'btn-disabled-icon': $btn-disabled-icon,
+    'swap-btn-bg-color': $swap-btn-bg-color,
+    'small-btn-bg-color': $small-btn-bg-color,
+    'base-btn-bg-color': $base-btn-bg-color,
+
+    'select-bg-color': $select-bg-color,
+    'select-secondary-bg-color': $select-secondary-bg-color,
+    'select-dropdown-bg-color': $select-dropdown-bg-color,
+    'select-item-color': $select-item-color,
+    'select-item-secondary-color': $select-item-secondary-color,
+    'select-item-active-color': $select-item-active-color,
+    'select-label-color': $select-label-color,
+    'select-border-color': $select-border-color,
+    'select-active-border-color': $select-active-border-color,
+    'select-active-bg-color': $select-active-bg-color,
+    'select-icon-color': $select-icon-color,
+    'select-icon-bg-color': $select-icon-bg-color,
+    'select-placeholder-text': $select-placeholder-text,
+    'select-symbol-text': $select-symbol-text,
+    'selected-bg-color': $selected-bg-color,
+
+    'select-disabled-bg-color': $select-disabled-bg-color,
+    'select-disabled-border-color': $select-disabled-border-color,
+
+    'accordion-bg-color': $accordion-bg-color,
+    'accordion-label-color': $accordion-label-color,
+    'accordion-border-color': $accordion-border-color,
+    'accordion-title': $accordion-title,
+
+    'collapse-border-color': $collapse-border-color,
+
+    'icon-color': $icon-color,
+    'icon-active': $icon-active,
+    'icon-hover': $icon-hover,
+    'icon-disabled': $icon-disabled,
+    'icon-border': $icon-border,
+    'icon-bg-color': $icon-bg-color,
+    'token-primary-icon-color': $token-primary-icon-color,
+    'token-secondary-icon-color': $token-secondary-icon-color,
+
+    'icon-logo-bg-color': $icon-logo-bg-color,
+    'icon-logo-bg-hover': $icon-logo-bg-hover,
+    'icon-secondary-bg-color': $icon-secondary-bg-color,
+    'icon-secondary-bg-hover': $icon-secondary-bg-hover,
+    'arrow-color': $arrow-color,
+    'base-icon-color': $base-icon-color,
+    'logo-bg': $logo-bg,
+
+    'icon-placeholder': $icon-placeholder,
+    'icon-placeholder-border': $icon-placeholder-border,
+
+    'search-bg-color': $search-bg-color,
+
+    'success': $success,
+    'success-op-01': $success-op-01,
+    'success-color': $success-color,
+    'success-text': $success-text,
+
+    'danger': $danger,
+    'danger-op-01': $danger-op-01,
+    'danger-color': $danger-color,
+
+    'warning': $warning,
+    'warning-op-01': $warning-op-01,
+
+    'info': $info,
+    'info-op-01': $info-op-01,
+
+    'sidebar-active-color': $sidebar-active-color,
+    'sidebar-active-color-op-01': $sidebar-active-color-op-01,
+    'sidebar-active-color-op-05': $sidebar-active-color-op-05,
+
+    'white': $white,
+    'black': $black,
+
+    'modal-bg-color': $modal-bg-color,
+    'modal-content-bg-color': $modal-content-bg-color,
+    'modal-block-bg-color': $modal-block-bg-color,
+    'modal-active-block-bg-color': $modal-active-block-bg-color,
+    'modal-block-text': $modal-block-text,
+    'modal-item-text': $modal-item-text,
+    'block-box-shadow': $block-box-shadow,
+    'loader-border-color': $loader-border-color,
+    'nav-bar-bg-color': $nav-bar-bg-color,
+
+    'theme-switcher-color': $theme-switcher-color,
+    'percentage-bar-bg-color': $percentage-bar-bg-color,
+    'percentage-bar-100': $percentage-bar-100,
+    'percentage-bar-75': $percentage-bar-75,
+    'percentage-bar-50': $percentage-bar-50,
+    'percentage-bar-25': $percentage-bar-25,
+
+    'tag-01': $tag-01,
+    'tag-02': $tag-02,
+    'tag-03': $tag-03,
+    'tag-selected': $tag-selected,
+
+    'card-bg-color': $card-bg-color,
+    'card-btn-bg-color': $card-btn-bg-color,
+    'card-tag-bg-color': $card-tag-bg-color,
+    'card-btn-secondary-color': $card-btn-secondary-color,
+
+    'shortcut-step-success': $shortcut-step-success,
+
+    'radio-btn-bg-color': $radio-btn-bg-color,
+    'white-op-075': $white-op-075,
+
+    'shortcut-bg-color': $shortcut-bg-color,
+    'shortcut-shadow-color': $shortcut-shadow-color,
+    'shortcut-shadow-hover-color': $shortcut-shadow-hover-color,
+
+    'slippage-active-option': $slippage-active-option,
+    'slippage-border-color': $slippage-border-color,
+);

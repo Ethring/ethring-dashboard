@@ -1,0 +1,275 @@
+.shortcut-item {
+    border-radius: 16px;
+    box-shadow: 0px 4px 15px 0px var(--#{$prefix}shortcut-shadow-color);
+    background-color: var(--#{$prefix}shortcut-bg-color);
+    border: none !important;
+    transition: box-shadow 0.3s !important;
+
+    cursor: pointer;
+
+    &:not(.disabled):hover {
+        box-shadow: 0px 4px 15px 0px var(--#{$prefix}shortcut-shadow-hover-color);
+    }
+
+    &.disabled > * {
+        opacity: 0.5;
+        user-select: none;
+        cursor: not-allowed;
+    }
+
+    &__header {
+        border-radius: 16px 16px 0 0;
+        padding: 16px;
+        height: 56px;
+    }
+
+    &__body {
+        background-color: var(--#{$prefix}shortcut-bg-color);
+        padding: 8px 16px 16px;
+        border-radius: 0 0 16px 16px;
+    }
+
+    &__tag {
+        margin: 2px 4px;
+
+        font-size: var(--#{$prefix}small-sm-fs);
+        font-weight: 400;
+
+        color: var(--#{$prefix}mute-text);
+        text-transform: capitalize;
+
+        transition: all 0.2s;
+
+        cursor: pointer;
+
+        $colors: var(--#{$prefix}tag-01), var(--#{$prefix}tag-02), var(--#{$prefix}success);
+
+        @for $i from 1 through length($colors) {
+            &:nth-child(#{$i}) {
+                color: nth($colors, $i);
+            }
+        }
+    }
+
+    .name {
+        color: var(--#{$prefix}primary);
+        font-size: var(--#{$prefix}h6-fs);
+        font-weight: 500;
+
+        width: 90%;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+        margin-left: 8px;
+    }
+
+    &__info {
+        div {
+            color: var(--#{$prefix}mute-text);
+            font-size: var(--#{$prefix}small-sm-fs);
+        }
+
+        .ecosystem {
+            span {
+                @include pageFlexRow;
+                justify-content: center;
+                margin-right: 4px;
+                color: var(--#{$prefix}mute-text);
+                font-size: var(--#{$prefix}small-sm-fs);
+            }
+
+            &__more {
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+
+                font-weight: 600;
+                font-size: var(--#{$prefix}small-xs-fs);
+                color: var(--#{$prefix}primary-text) !important;
+                background-color: var(--#{$prefix}adapter-hover-color);
+
+                &:hover {
+                    color: var(--#{$prefix}white) !important;
+                    background-color: var(--#{$prefix}social-border-color);
+                }
+            }
+
+            &-logo {
+                width: 16px;
+                height: 16px;
+
+                stroke: var(--#{$prefix}mute-text);
+            }
+        }
+    }
+
+    .amount {
+        font-size: var(--#{$prefix}small-sm-fs);
+        color: var(--#{$prefix}mute-text);
+
+        span {
+            font-weight: 500;
+        }
+    }
+
+    .description {
+        margin: 8px 0;
+        padding: 8px 0;
+
+        border-top: 1px dashed var(--#{$prefix}border-secondary-color);
+        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+
+        color: var(--#{$prefix}mute-text);
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 400;
+        line-height: 20px;
+
+        height: 54px;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+
+        overflow-y: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .rewards {
+        color: var(--#{$prefix}mute-text);
+
+        &__title {
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 500;
+        }
+
+        &__description {
+            font-size: var(--#{$prefix}small-sm-fs);
+            margin-left: 4px;
+            margin-right: 8px;
+        }
+
+        img {
+            width: 18px;
+            height: 18px;
+            margin-left: -4px;
+            border-radius: 50%;
+            margin-top: 1px;
+        }
+
+        &__apr {
+            font-size: var(--#{$prefix}small-xs-fs);
+            color: var(--#{$prefix}mute-apr-text);
+            padding: 0 2px;
+            height: 16px;
+            border-radius: 6px;
+            margin: 2px 5px 0px -4px;
+            font-weight: 500;
+            border: 1px solid var(--#{$prefix}sidebar-active-color);
+        }
+    }
+
+    .ant-card-head,
+    .ant-card-body {
+        padding: 0;
+        margin: 0;
+        min-height: 40px;
+        border: none;
+    }
+
+    &__footer {
+        background-color: var(--#{$prefix}select-bg-color);
+        padding: 24px 16px 16px;
+        border-radius: 0 0 16px 16px;
+        margin-top: -10px;
+
+        .author {
+            color: var(--#{$prefix}description-text);
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 600;
+            line-height: 16px;
+
+            cursor: pointer;
+
+            transition: all 0.2s;
+
+            &:hover {
+                color: var(--#{$prefix}card-tag-bg-color);
+            }
+        }
+
+        .title {
+            color: var(--#{$prefix}notification-text);
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 400;
+            line-height: 16px;
+        }
+
+        .avatar {
+            @include pageFlexRow;
+            justify-content: center;
+
+            margin-right: 8px;
+
+            aspect-ratio: 1 / 1;
+
+            img {
+                width: 30px;
+                height: 30px;
+
+                border-radius: 50%;
+                border: 1px solid $gulfStream;
+            }
+        }
+
+        .favorites {
+            @include pageFlexRow;
+
+            height: 28px;
+
+            svg {
+                cursor: pointer;
+                transition: all 0.1s;
+
+                width: 20px;
+                height: 20px;
+
+                path {
+                    stroke: var(--#{$prefix}unlock-text);
+                    stroke-width: 1.5px;
+                }
+
+                &:hover {
+                    fill: var(--#{$prefix}danger);
+                    stroke-width: 0;
+                    transition: fill 0.1s;
+
+                    path {
+                        transition: all 0.1s;
+                        stroke: var(--#{$prefix}danger);
+                    }
+                }
+            }
+
+            &-icon {
+                &--active {
+                    fill: var(--#{$prefix}danger);
+
+                    path {
+                        stroke: var(--#{$prefix}danger) !important;
+                    }
+                }
+            }
+
+            &-count {
+                margin-left: 4px;
+                font-size: var(--#{$prefix}small-lg-fs);
+                font-weight: 600;
+                color: var(--#{$prefix}base-amount-text);
+            }
+        }
+    }
+}
+
+.ecosystem__item {
+    color: var(--#{$prefix}base-text);
+}

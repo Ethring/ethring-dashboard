@@ -1,0 +1,233 @@
+.ant-steps-item-content {
+    background: var(--#{$prefix}select-bg-color);
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 8px;
+
+    display: flex !important;
+    flex-direction: row-reverse;
+    justify-content: start;
+    align-items: center;
+}
+
+.ant-steps {
+    .ant-steps-item {
+        $antStepItemHeight: 75px;
+        min-height: $antStepItemHeight;
+
+        transition: 0.3s;
+
+        .ant-steps-item-icon {
+            margin-top: calc((#{$antStepItemHeight} - 24px) / 2);
+        }
+
+        .ant-steps-item-tail {
+            height: calc(100% + #{$antStepItemHeight} - 30px) !important;
+            padding: calc(#{$antStepItemHeight} / 1.3) 0 calc(#{$antStepItemHeight} / 5) !important;
+        }
+    }
+
+    .ant-steps-item:not(:last-child) {
+        margin-bottom: 8px;
+    }
+
+    .ant-steps-item-title {
+        display: flex;
+        width: 100%;
+    }
+
+    .ant-steps-item-description {
+        padding-bottom: 0 !important;
+    }
+
+    .ant-steps-item-process .ant-steps-item-content {
+        border-color: var(--#{$prefix}border-color);
+        background-color: transparent;
+    }
+
+    .ant-steps-item-finish .ant-steps-item-content {
+        background: var(--#{$prefix}shortcut-step-success);
+    }
+
+    .ant-steps-item-active .step-operation-icon .primary-icon {
+        background: var(--#{$prefix}select-active-bg-color);
+    }
+
+    .ant-steps-item-wait .ant-steps-item-content {
+        background: var(--#{$prefix}select-bg-color);
+    }
+
+    .ant-steps-item-tail::after {
+        background-color: var(--#{$prefix}assets-border-color) !important;
+    }
+
+    .ant-steps-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+
+        .loading-icon > svg,
+        .estimating-icon > svg {
+            fill: var(--#{$prefix}primary-text);
+            color: var(--#{$prefix}primary-text);
+        }
+    }
+}
+
+.step-operation {
+    &-info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .label {
+            font-weight: 500;
+            font-size: var(--#{$prefix}default-fs);
+            color: var(--#{$prefix}base-text);
+        }
+
+        .content {
+            @include pageFlexRow;
+            height: 24px;
+
+            .icon {
+                background: var(--#{$prefix}token-primary-icon-color);
+            }
+
+            .space-between {
+                font-weight: 400;
+                font-size: var(--#{$prefix}small-lg-fs);
+                color: var(--#{$prefix}currency-text);
+
+                margin: 0 10px;
+            }
+        }
+
+        .amount-block.editable-amount {
+            transition: 0.3s;
+            border: 1px solid transparent;
+
+            &:not(&-disabled) {
+                border-radius: 4px;
+                border-color: var(--#{$prefix}border-color);
+
+                padding: 0 8px;
+                cursor: pointer;
+
+                &:hover {
+                    border-color: var(--#{$prefix}primary-text);
+                }
+            }
+        }
+    }
+
+    &-info-additional {
+        position: absolute;
+        right: 10px;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+
+        svg {
+            width: 12px;
+            height: 12px;
+            fill: var(--#{$prefix}description-text);
+        }
+    }
+}
+
+.ant-popconfirm {
+    .ant-popconfirm-message-title-only {
+        color: var(--#{$prefix}base-text);
+    }
+    .ant-btn.ant-btn-primary {
+        background: var(--#{$prefix}btn-bg-color);
+        color: var(--#{$prefix}btn-text-color);
+        &:hover {
+            background: var(--#{$prefix}btn-bg-color-hover);
+            color: var(--#{$prefix}btn-text-hover);
+        }
+    }
+}
+
+.ant-dropdown-menu-title-content,
+.step-operation-info {
+    .token-info {
+        @include pageFlexRow;
+        position: relative;
+
+        & > div.asset-with-chain {
+            margin-right: 15px;
+        }
+    }
+}
+
+.ant-popover {
+    .ant-popover-arrow::after,
+    .ant-popover-arrow::before,
+    .ant-popover-inner {
+        background: var(--#{$prefix}accordion-bg-color);
+    }
+}
+
+.step-additional-info {
+    background: var(--#{$prefix}accordion-bg-color);
+    color: var(--#{$prefix}primary-text);
+}
+
+.step-operation-icon {
+    position: relative;
+    width: fit-content;
+    max-width: 50px;
+    height: 40px;
+
+    margin-right: 15px;
+
+    .primary-icon {
+        @include pageFlexRow;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--#{$prefix}icon-placeholder-border);
+
+        border-radius: 50%;
+
+        background: var(--#{$prefix}main-background);
+
+        svg {
+            path:not([stroke]) {
+                fill: var(--#{$prefix}primary-text);
+            }
+
+            path:not([fill]) {
+                stroke: var(--#{$prefix}primary-text);
+            }
+        }
+    }
+
+    .secondary-icon {
+        position: absolute;
+        right: -6px;
+        bottom: 0;
+    }
+}
+
+.step-operation-label {
+    margin-left: 8px;
+    font-size: var(--#{$prefix}default-fs);
+    height: fit-content;
+}
+
+.step-operation-info {
+    .timer-for-operation {
+        position: absolute;
+        right: 30px;
+        top: 0;
+        bottom: 0;
+        margin: auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
